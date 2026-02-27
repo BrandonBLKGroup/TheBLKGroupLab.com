@@ -829,5 +829,80 @@ function initApp(){
 }
 checkAuth();
 </script>
+
+<!-- JARVIS CHAT WIDGET -->
+<style>
+#jarvisChatBtn{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,#8B7209 100%);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50000;box-shadow:0 4px 20px rgba(184,150,12,0.4);transition:all 0.3s ease;border:none}
+#jarvisChatBtn:hover{transform:scale(1.08);box-shadow:0 6px 30px rgba(184,150,12,0.6)}
+#jarvisChatBtn.hidden{opacity:0;pointer-events:none;transform:scale(0.5)}
+.jcb-glow{position:absolute;width:100%;height:100%;border-radius:50%;background:rgba(184,150,12,0.3);animation:jc-pulse 2.5s ease-in-out infinite;pointer-events:none}
+@keyframes jc-pulse{0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.4);opacity:0}}
+.jc-panel{position:fixed;bottom:24px;right:24px;width:400px;height:600px;max-height:calc(100vh - 48px);background:var(--card-bg);border:1px solid var(--border);border-radius:16px;z-index:50001;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.15),0 0 60px rgba(184,150,12,0.05);opacity:0;pointer-events:none;transform:translateY(20px) scale(0.95);transition:all 0.25s ease}
+.jc-panel.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.jc-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg)}
+.jc-hleft{display:flex;align-items:center;gap:10px}
+.jc-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8B7209);display:flex;align-items:center;justify-content:center;position:relative;font-weight:800;font-size:16px;color:#fff}
+.jc-avatar::before{content:'';position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--sage);border:2px solid var(--bg)}
+.jc-hname{font-size:14px;font-weight:700;color:var(--text-primary)}
+.jc-hsub{font-size:11px;color:var(--text-dim)}
+.jc-hactions{display:flex;gap:4px}
+.jc-hactions button{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:6px;border-radius:6px;transition:all 0.2s;display:flex;align-items:center}
+.jc-hactions button:hover{background:var(--bg);color:var(--text-primary)}
+.jc-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.jc-msg{display:flex;gap:8px;max-width:90%}
+.jc-msg-ai{align-self:flex-start}
+.jc-msg-user{align-self:flex-end;flex-direction:row-reverse}
+.jc-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
+.jc-msg-ai .jc-bubble{background:var(--bg);color:var(--text-primary);border-bottom-left-radius:4px}
+.jc-msg-user .jc-bubble{background:var(--gold);color:#fff;border-bottom-right-radius:4px}
+.jc-msg-typing{align-self:flex-start}
+.jc-msg-typing .jc-bubble{background:var(--bg);color:var(--text-dim);display:flex;gap:4px;padding:12px 18px}
+.jc-tdot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);animation:jc-typ 1.4s ease-in-out infinite}
+.jc-tdot:nth-child(2){animation-delay:0.2s}
+.jc-tdot:nth-child(3){animation-delay:0.4s}
+@keyframes jc-typ{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-4px);opacity:1}}
+.jc-input{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--card-bg)}
+.jc-input textarea{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text-primary);padding:10px 14px;border-radius:10px;font-size:13px;font-family:inherit;resize:none;outline:none;max-height:120px;line-height:1.4;transition:border-color 0.2s}
+.jc-input textarea:focus{border-color:var(--gold)}
+.jc-input textarea::placeholder{color:var(--text-dim)}
+#jcSendBtn{width:38px;height:38px;border-radius:10px;border:none;background:var(--gold);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
+#jcSendBtn:hover{background:#a68a0b}
+#jcSendBtn:disabled{opacity:0.3;cursor:not-allowed}
+</style>
+
+<div id="jarvisChatBtn" onclick="jcToggle()" title="Talk to Jarvis">
+  <div class="jcb-glow"></div>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</div>
+<div id="jcPanel" class="jc-panel">
+  <div class="jc-header">
+    <div class="jc-hleft">
+      <div class="jc-avatar">J</div>
+      <div><div class="jc-hname">Jarvis</div><div class="jc-hsub">BLK Group AI</div></div>
+    </div>
+    <div class="jc-hactions">
+      <button onclick="jcClear()" title="New conversation"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+      <button onclick="jcToggle()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+  <div class="jc-msgs" id="jcMsgs"><div class="jc-msg jc-msg-ai"><div class="jc-bubble">Hey Brandon. What do you need?</div></div></div>
+  <div class="jc-input">
+    <textarea id="jcInput" placeholder="Message Jarvis..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jcSend()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+    <button id="jcSendBtn" onclick="jcSend()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+  </div>
+</div>
+
+<script>
+let jcOpen=false,jcMsgs=[],jcBusy=false,jcSid=null,jcSub=null;
+function jcEmail(){return currentUser&&currentUser.email?currentUser.email:'unknown'}
+function jcGetSid(){if(jcSid)return jcSid;const k='jc_sid_'+jcEmail();let s=localStorage.getItem(k);if(!s){s='lab:'+jcEmail()+':'+Date.now();localStorage.setItem(k,s)}jcSid=s;return s}
+function jcToggle(){jcOpen=!jcOpen;$('jcPanel').classList.toggle('open',jcOpen);$('jarvisChatBtn').classList.toggle('hidden',jcOpen);if(jcOpen){setTimeout(()=>$('jcInput').focus(),300);jcScroll();jcSubscribe();jcLoadHistory()}}
+function jcClear(){jcMsgs=[];jcSid=null;localStorage.removeItem('jc_sid_'+jcEmail());$('jcMsgs').innerHTML='<div class="jc-msg jc-msg-ai"><div class="jc-bubble">Fresh start. What do you need?</div></div>'}
+async function jcLoadHistory(){const sid=jcGetSid();const{data}=await sb.from('jarvis_chat').select('*').eq('session_id',sid).order('created_at',{ascending:true}).limit(50);if(!data||!data.length)return;$('jcMsgs').innerHTML='';jcMsgs=[];for(const m of data){jcMsgs.push({role:m.role,content:m.content});jcAddMsg(m.role,m.content)}jcScroll()}
+function jcSubscribe(){if(jcSub)return;const sid=jcGetSid();jcSub=sb.channel('jc-'+sid).on('postgres_changes',{event:'INSERT',schema:'public',table:'jarvis_chat',filter:'session_id=eq.'+sid},(p)=>{const m=p.new;if(m.role==='assistant'){const t=$('jcTyping');if(t)t.remove();jcMsgs.push({role:'assistant',content:m.content});jcAddMsg('assistant',m.content);jcBusy=false;$('jcSendBtn').disabled=false;$('jcInput').focus()}}).subscribe()}
+function jcAddMsg(role,content){const c=$('jcMsgs'),d=document.createElement('div');d.className='jc-msg '+(role==='user'?'jc-msg-user':'jc-msg-ai');const b=document.createElement('div');b.className='jc-bubble';b.textContent=content;d.appendChild(b);c.appendChild(d);jcScroll();return b}
+function jcScroll(){const c=$('jcMsgs');requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight})}
+async function jcSend(){const inp=$('jcInput'),txt=inp.value.trim();if(!txt||jcBusy)return;inp.value='';inp.style.height='auto';jcBusy=true;$('jcSendBtn').disabled=true;jcMsgs.push({role:'user',content:txt});jcAddMsg('user',txt);const c=$('jcMsgs'),d=document.createElement('div');d.className='jc-msg jc-msg-typing';d.id='jcTyping';d.innerHTML='<div class="jc-bubble"><div class="jc-tdot"></div><div class="jc-tdot"></div><div class="jc-tdot"></div></div>';c.appendChild(d);jcScroll();const{error}=await sb.from('jarvis_chat').insert({session_id:jcGetSid(),user_email:jcEmail(),role:'user',content:txt});if(error){const t=$('jcTyping');if(t)t.remove();jcAddMsg('assistant','Failed to send. Try again.');jcBusy=false;$('jcSendBtn').disabled=false}}
+</script>
 </body>
 </html>
