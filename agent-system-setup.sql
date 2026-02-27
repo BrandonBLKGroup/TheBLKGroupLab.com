@@ -59,11 +59,17 @@ CREATE POLICY "lab_opens_agent_insert" ON lab_opens FOR INSERT TO authenticated
 CREATE POLICY "lab_opens_agent_update" ON lab_opens FOR UPDATE TO authenticated
   USING (agent_id = auth.uid()) WITH CHECK (agent_id = auth.uid());
 
--- 6. Drop old lab_leads policies and recreate (admin only for reads)
+-- 6. lab_leads - admin sees all, agents see their own + can add
 DROP POLICY IF EXISTS "lab_leads_auth" ON lab_leads;
 CREATE POLICY "lab_leads_admin" ON lab_leads FOR ALL TO authenticated
   USING (EXISTS (SELECT 1 FROM agent_profiles ap WHERE ap.user_id = auth.uid() AND ap.role = 'admin'))
   WITH CHECK (true);
+CREATE POLICY "lab_leads_agent" ON lab_leads FOR SELECT TO authenticated
+  USING (agent_id = auth.uid());
+CREATE POLICY "lab_leads_agent_insert" ON lab_leads FOR INSERT TO authenticated
+  WITH CHECK (agent_id = auth.uid());
+CREATE POLICY "lab_leads_agent_update" ON lab_leads FOR UPDATE TO authenticated
+  USING (agent_id = auth.uid()) WITH CHECK (agent_id = auth.uid());
 
 -- 7. Drop old lab_scorecard policies and recreate (admin only)
 DROP POLICY IF EXISTS "lab_scorecard_auth" ON lab_scorecard;
