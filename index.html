@@ -207,6 +207,7 @@ const STEPS=[
   {k:'closing_scheduled',l:'Closing Set'},{k:'closed',l:'Closed'},{k:'loop_submitted',l:'Loop Done'}
 ];
 let OPENS_TARGET=75,LISTINGS_TARGET=70,MY_COMM_TARGET=67000,GROSS_COMM_TARGET=1600000,VOL_TARGET=65000000;
+let currentUser=null,userProfile=null,isAdmin=false;
 function $(id){return document.getElementById(id)}
 function money(n){return'$'+Number(n||0).toLocaleString()}
 function agentOpts(s){return'<option value="">--</option>'+AGENTS.map(a=>`<option${a===s?' selected':''}>${a}</option>`).join('')}
@@ -215,13 +216,71 @@ function srcOpts(s){return'<option value="">--</option>'+LEAD_SOURCES.map(a=>`<o
 // AUTH
 async function doLogin(){
   const e=$('loginEmail').value,p=$('loginPass').value;
-  const{error}=await sb.auth.signInWithPassword({email:e,password:p});
+  const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});
   if(error){$('loginError').textContent=error.message;return}
+  currentUser=data.user;
+  await loadUserProfile();
   $('loginOverlay').style.display='none';$('app').style.display='flex';initApp();
 }
 async function checkAuth(){
   const{data:{session}}=await sb.auth.getSession();
-  if(session){$('loginOverlay').style.display='none';$('app').style.display='flex';initApp();}
+  if(session){currentUser=session.user;await loadUserProfile();$('loginOverlay').style.display='none';$('app').style.display='flex';initApp();}
+}
+async function loadUserProfile(){
+  if(!currentUser)return;
+  const{data}=await sb.from('agent_profiles').select('*').eq('user_id',currentUser.id).single();
+  if(data){userProfile=data;isAdmin=data.role==='admin';
+    if(!isAdmin){OPENS_TARGET=data.opens_goal||10;MY_COMM_TARGET=data.monthly_income_goal||5000;}
+  } else {
+    // No profile - might be old admin login before migration, or new agent
+    userProfile=null;isAdmin=false;
+  }
+  applyRoleUI();
+}
+function applyRoleUI(){
+  // Hide tabs agents shouldn't see
+  const adminOnly=['leads','scorecard','performance','nuggets'];
+  adminOnly.forEach(page=>{
+    const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
+    if(nav) nav.style.display=isAdmin?'':'none';
+  });
+  // Show onboarding modal if agent with no goals set
+  if(!isAdmin && userProfile && !userProfile.opens_goal){
+    showOnboarding();
+  } else if(!isAdmin && !userProfile){
+    showOnboarding();
+  }
+}
+async function showOnboarding(){
+  const overlay=document.createElement('div');
+  overlay.id='onboardOverlay';
+  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:60000;display:flex;align-items:center;justify-content:center';
+  overlay.innerHTML=`<div style="background:var(--card-bg);border-radius:16px;padding:40px;max-width:420px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.2)">
+    <h2 style="margin-bottom:4px;font-size:20px">Welcome to The Lab</h2>
+    <p style="color:var(--text-secondary);font-size:13px;margin-bottom:24px">Let's set your goals so we can track your progress.</p>
+    <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Monthly Opens Goal</label>
+    <input id="obOpens" type="number" placeholder="e.g. 10" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:16px;background:var(--bg)">
+    <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Target Monthly Income ($)</label>
+    <input id="obMonthly" type="number" placeholder="e.g. 5000" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:16px;background:var(--bg)">
+    <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">Target Annual Income ($)</label>
+    <input id="obAnnual" type="number" placeholder="e.g. 60000" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:24px;background:var(--bg)">
+    <button onclick="saveOnboarding()" style="width:100%;padding:12px;border:none;border-radius:8px;background:var(--gold);color:#fff;font-weight:700;font-size:14px;cursor:pointer">LET'S GO</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+async function saveOnboarding(){
+  const opens=parseInt($('obOpens').value)||10;
+  const monthly=parseFloat($('obMonthly').value)||0;
+  const annual=parseFloat($('obAnnual').value)||0;
+  if(userProfile){
+    await sb.from('agent_profiles').update({opens_goal:opens,monthly_income_goal:monthly,annual_income_goal:annual,updated_at:new Date().toISOString()}).eq('user_id',currentUser.id);
+  } else {
+    await sb.from('agent_profiles').insert({user_id:currentUser.id,email:currentUser.email,full_name:currentUser.user_metadata?.full_name||currentUser.email,role:'agent',opens_goal:opens,monthly_income_goal:monthly,annual_income_goal:annual});
+  }
+  OPENS_TARGET=opens;MY_COMM_TARGET=monthly;
+  userProfile={...userProfile,opens_goal:opens,monthly_income_goal:monthly,annual_income_goal:annual};
+  const el=$('onboardOverlay');if(el)el.remove();
+  loadOpens();
 }
 $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 
@@ -287,7 +346,9 @@ function openRow(r,num,mk){
 }
 async function addOpen(mk){
   const rows=document.querySelectorAll(`#opens-${mk} tr`);
-  await sb.from('lab_opens').insert({month_year:mk,sort_order:rows.length,number:rows.length+1});
+  const ins={month_year:mk,sort_order:rows.length,number:rows.length+1};
+  if(!isAdmin && currentUser) ins.agent_id=currentUser.id;
+  await sb.from('lab_opens').insert(ins);
   loadOpens();
 }
 async function updateOpen(id,field,val){
@@ -456,7 +517,7 @@ function renderListings(rows){
     <button class="add-row-btn" onclick="addListing()">+ Add Listing</button></div>`;
   $('page-listings').innerHTML=html;
 }
-async function addListing(){await sb.from('lab_listings').insert({address:'New Listing'});loadListings();}
+async function addListing(){const ins={address:'New Listing'};if(!isAdmin&&currentUser)ins.agent_id=currentUser.id;await sb.from('lab_listings').insert(ins);loadListings();}
 async function updateListing(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_listings').update(u).eq('id',id);}
 async function deleteListing(id){if(!confirm('Remove listing?'))return;await sb.from('lab_listings').delete().eq('id',id);loadListings();}
 
@@ -504,7 +565,7 @@ function renderContracts(rows){
   html+=`<button class="add-row-btn" onclick="addContract()" style="border-radius:12px;margin-top:4px">+ Add Transaction</button>`;
   $('page-contracts').innerHTML=html;
 }
-async function addContract(){await sb.from('lab_contracts').insert({transaction_name:'New Transaction'});loadContracts();}
+async function addContract(){const ins={transaction_name:'New Transaction'};if(!isAdmin&&currentUser)ins.agent_id=currentUser.id;await sb.from('lab_contracts').insert(ins);loadContracts();}
 async function updateContract(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_contracts').update(u).eq('id',id);}
 async function toggleStep(id,step,val){
   const u={};u[step]=val;u.updated_at=new Date().toISOString();
