@@ -171,7 +171,7 @@ body::before{display:none}
     </div>
   </div>
   <div class="main">
-    <div class="topbar"><h2 id="pageTitle">OPENS DASHBOARD</h2><div class="date" id="topDate"></div></div>
+    <div class="topbar"><h2 id="pageTitle">OPENS DASHBOARD</h2><div style="display:flex;align-items:center;gap:20px"><div id="greeting" style="font-size:13px;font-weight:600;color:#111"></div><div class="date" id="topDate"></div></div></div>
     <div class="content" id="mainContent">
       <div class="page active" id="page-opens"></div>
       <div class="page" id="page-leads"><div class="source-grid" id="sourceGrid"></div><div id="leadDetail" style="display:none"></div></div>
@@ -993,8 +993,19 @@ function loadCapabilities(){
 }
 
 // ============ INIT ============
+function updateGreeting(){
+  const name=userProfile?.full_name?.split(' ')[0]||currentUser?.email?.split('@')[0]||'';
+  // Central Time = UTC-6 (CST) or UTC-5 (CDT). Feb = CST = UTC-6
+  const utcH=new Date().getUTCHours();
+  const ctH=(utcH-6+24)%24;
+  let greet='Good evening';
+  if(ctH>=5&&ctH<12)greet='Good morning';
+  else if(ctH>=12&&ctH<17)greet='Good afternoon';
+  if(name)$('greeting').textContent=`${greet}, ${name}`;
+}
 function initApp(){
   updateDate();setInterval(updateDate,60000);
+  updateGreeting();setInterval(updateGreeting,300000);
   loadOpens();
   // Check for unclaimed leads
   sb.from('lab_leads').select('id',{count:'exact'}).eq('claimed',false).then(({count})=>{
