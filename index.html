@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>The BLK Group Lab</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --glass:rgba(255,255,255,0.04);
+  --glass-border:rgba(255,255,255,0.08);
+  --glass-hover:rgba(255,255,255,0.08);
+  --arc-blue:rgba(70,130,255,0.6);
+  --arc-glow:rgba(70,130,255,0.15);
+  --arc-bright:rgba(120,170,255,0.9);
+  --text-primary:rgba(255,255,255,0.92);
+  --text-secondary:rgba(255,255,255,0.5);
+  --text-dim:rgba(255,255,255,0.25);
+  --sage:#5B8A5A;
+  --sage-glow:rgba(91,138,90,0.3);
+  --danger:rgba(255,80,80,0.8);
+  --warning:rgba(255,180,50,0.8);
+  --success:rgba(91,138,90,0.9);
+}
+body{font-family:'Inter',sans-serif;background:#060810;color:var(--text-primary);overflow:hidden;height:100vh}
+body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(70,130,255,0.03) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(91,138,90,0.02) 0%,transparent 50%);animation:ambientDrift 30s ease-in-out infinite alternate;pointer-events:none;z-index:0}
+@keyframes ambientDrift{0%{transform:translate(0,0)}100%{transform:translate(-2%,1%)}}
+.app{display:flex;height:100vh;position:relative;z-index:1}
+.sidebar{width:240px;background:var(--glass);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;backdrop-filter:blur(20px);flex-shrink:0}
+.sidebar-header{padding:24px 20px;border-bottom:1px solid var(--glass-border);text-align:center}
+.sidebar-header h1{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:3px;color:var(--arc-bright);text-transform:uppercase}
+.sidebar-header .sub{font-size:9px;color:var(--text-dim);letter-spacing:4px;margin-top:4px;text-transform:uppercase}
+.nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:all 0.2s;color:var(--text-secondary);font-size:13px;font-weight:500;letter-spacing:0.5px;position:relative;border-left:2px solid transparent}
+.nav-item:hover{background:var(--glass-hover);color:var(--text-primary)}
+.nav-item.active{background:var(--arc-glow);color:var(--arc-bright);border-left-color:var(--arc-blue)}
+.nav-item .icon{font-size:16px;width:24px;text-align:center}
+.nav-item .badge{position:absolute;right:16px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:20px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--glass-border);text-align:center}
+.sidebar-footer .status{font-size:10px;color:var(--text-dim);letter-spacing:1px}
+.sidebar-footer .status .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sage);margin-right:6px;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.4}}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:16px 32px;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(20px)}
+.topbar h2{font-family:'Orbitron',monospace;font-size:16px;font-weight:600;letter-spacing:2px;color:var(--text-primary)}
+.topbar .date{font-size:11px;color:var(--text-dim);letter-spacing:1px;font-family:'Orbitron',monospace}
+.content{flex:1;overflow-y:auto;padding:24px 32px}
+.page{display:none}
+.page.active{display:block}
+.card{background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;backdrop-filter:blur(12px);margin-bottom:20px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-family:'Orbitron',monospace;font-size:12px;font-weight:600;letter-spacing:2px;color:var(--arc-bright)}
+.card-header .month-label{font-family:'Orbitron',monospace;font-size:11px;color:var(--text-secondary);letter-spacing:1px}
+.card-body{padding:0}
+.lab-table{width:100%;border-collapse:collapse;font-size:12px}
+.lab-table thead th{font-family:'Orbitron',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;padding:10px 10px;text-align:left;border-bottom:1px solid var(--glass-border);white-space:nowrap}
+.lab-table tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);transition:background 0.15s;cursor:grab}
+.lab-table tbody tr:hover{background:var(--glass-hover)}
+.lab-table tbody td{padding:6px 10px;color:var(--text-secondary);vertical-align:middle}
+.lab-table tbody td input,.lab-table tbody td select,.lab-table tbody td textarea{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--text-primary);padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color 0.2s}
+.lab-table tbody td input:focus,.lab-table tbody td select:focus{border-color:var(--arc-blue)}
+.lab-table tbody td select{cursor:pointer}
+.lab-table tbody td input[type="date"]{cursor:pointer}
+.lab-table tbody td .row-num{font-family:'Orbitron',monospace;font-size:11px;color:var(--text-dim);font-weight:600}
+.totals-row{display:flex;gap:24px;padding:14px 20px;border-top:1px solid var(--glass-border);background:rgba(70,130,255,0.04)}
+.totals-row .total-item{text-align:center}
+.totals-row .total-item .val{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--arc-bright)}
+.totals-row .total-item .lbl{font-size:9px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text-secondary);border-radius:8px;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all 0.2s;letter-spacing:0.5px}
+.btn:hover{background:var(--glass-hover);color:var(--text-primary);border-color:rgba(255,255,255,0.15)}
+.btn-arc{border-color:var(--arc-blue);color:var(--arc-bright)}
+.btn-arc:hover{background:var(--arc-glow);border-color:var(--arc-bright)}
+.btn-claim{background:rgba(91,138,90,0.15);border-color:var(--sage);color:var(--sage);font-weight:600;padding:5px 10px;font-size:11px}
+.btn-claim:hover{background:rgba(91,138,90,0.25)}
+.add-row-btn{width:100%;padding:10px;border:1px dashed var(--glass-border);background:transparent;color:var(--text-dim);cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all 0.2s;border-radius:0 0 12px 12px}
+.add-row-btn:hover{background:var(--glass);color:var(--arc-bright);border-color:var(--arc-blue)}
+.source-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.source-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.25s;text-align:center;position:relative}
+.source-card:hover{background:var(--glass-hover);border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}
+.source-card .source-icon{font-size:28px;margin-bottom:8px}
+.source-card .source-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+.source-card .source-count{font-size:11px;color:var(--text-dim)}
+.source-card .new-badge{position:absolute;top:10px;right:10px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;min-width:22px;text-align:center;animation:badge-pulse 2s infinite}
+@keyframes badge-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.progress-wrap{position:relative;display:flex;align-items:center;padding:4px 0}
+.progress-track-bg{position:absolute;top:50%;left:11px;right:11px;height:2px;background:var(--glass-border);transform:translateY(-1px)}
+.progress-fill{position:absolute;top:50%;left:11px;height:2px;background:linear-gradient(90deg,var(--arc-blue),var(--arc-bright));transform:translateY(-1px);transition:width 0.4s ease;box-shadow:0 0 8px var(--arc-glow)}
+.progress-step{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;z-index:2;flex:1}
+.step-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--glass-border);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent}
+.step-check.done{background:var(--arc-blue);border-color:var(--arc-bright);color:#fff;box-shadow:0 0 12px var(--arc-glow)}
+.step-check:hover{border-color:var(--arc-blue)}
+.step-label{font-size:7px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;text-align:center;max-width:65px;line-height:1.3}
+.graph-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;backdrop-filter:blur(12px);padding:20px;margin-bottom:20px}
+.graph-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.graph-header h4{font-family:'Orbitron',monospace;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--arc-bright)}
+.condition-badge{padding:4px 12px;border-radius:20px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1px}
+.condition-badge.power{background:rgba(91,138,90,0.2);color:#7ddf7d;border:1px solid rgba(91,138,90,0.3)}
+.condition-badge.affluence{background:rgba(255,215,0,0.15);color:#ffd700;border:1px solid rgba(255,215,0,0.2)}
+.condition-badge.normal{background:rgba(70,130,255,0.15);color:var(--arc-bright);border:1px solid rgba(70,130,255,0.2)}
+.condition-badge.emergency{background:rgba(255,140,0,0.15);color:#ff8c00;border:1px solid rgba(255,140,0,0.2)}
+.condition-badge.danger{background:rgba(255,60,60,0.15);color:#ff5050;border:1px solid rgba(255,60,60,0.2)}
+.condition-badge.non-existence{background:rgba(128,128,128,0.15);color:#999;border:1px solid rgba(128,128,128,0.2)}
+.graph-container{position:relative;height:220px}
+.condition-sidebar{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.cond-item{font-size:10px;color:var(--text-dim);padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid var(--glass-border)}
+.cond-formula{font-size:9px;color:var(--text-dim);margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--glass-border);line-height:1.8}
+.dragging{opacity:0.4}
+.drag-over td{border-top:2px solid var(--arc-blue)!important}
+.login-overlay{position:fixed;inset:0;background:#060810;z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-box{text-align:center;max-width:360px;width:100%;padding:20px}
+.login-box h1{font-family:'Orbitron',monospace;font-size:20px;letter-spacing:4px;color:var(--arc-bright);margin-bottom:4px}
+.login-box .login-sub{font-size:10px;color:var(--text-dim);letter-spacing:3px;margin-bottom:40px}
+.login-box input{width:100%;padding:14px 18px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;margin-bottom:12px;outline:none;transition:border-color 0.2s}
+.login-box input:focus{border-color:var(--arc-blue)}
+.login-box input::placeholder{color:var(--text-dim)}
+.login-box button{width:100%;padding:14px;background:var(--arc-glow);border:1px solid var(--arc-blue);color:var(--arc-bright);border-radius:8px;font-family:'Orbitron',monospace;font-size:12px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-transform:uppercase}
+.login-box button:hover{background:rgba(70,130,255,0.25)}
+.login-error{color:var(--danger);font-size:12px;margin-top:8px}
+.del-btn{width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,80,80,0.2);background:transparent;color:rgba(255,80,80,0.4);cursor:pointer;font-size:11px;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.del-btn:hover{background:rgba(255,80,80,0.15);color:rgba(255,80,80,0.9);border-color:rgba(255,80,80,0.5)}
+.ytd-bar{padding:20px;background:rgba(70,130,255,0.03);display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-top:12px;border:1px solid var(--glass-border);border-radius:12px}
+.ytd-item{text-align:center}
+.ytd-item .ytd-val{font-family:'Orbitron',monospace;font-size:24px;font-weight:700;color:var(--arc-bright)}
+.ytd-item .ytd-lbl{font-size:9px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--glass-border);border-radius:3px}
+.perf-grid{display:grid;grid-template-columns:1fr;gap:20px}
+.back-btn{background:none;border:1px solid var(--glass-border);color:var(--text-secondary);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;margin-bottom:16px;transition:all 0.2s}
+.back-btn:hover{color:var(--text-primary);border-color:var(--arc-blue)}
+</style>
+</head>
+<body>
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h1>THE BLK GROUP</h1>
+    <div class="login-sub">COMMAND CENTER</div>
+    <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doLogin()">INITIALIZE</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+<div class="app" id="app" style="display:none">
+  <div class="sidebar">
+    <div class="sidebar-header"><h1>BLK LAB</h1><div class="sub">Command Center</div></div>
+    <div class="nav">
+      <div class="nav-item active" data-page="opens" onclick="showPage('opens')"><span class="icon">📊</span>Opens</div>
+      <div class="nav-item" data-page="leads" onclick="showPage('leads')"><span class="icon">🎯</span>Active Leads<span class="badge" id="leadsBadge" style="display:none">0</span></div>
+      <div class="nav-item" data-page="scorecard" onclick="showPage('scorecard')"><span class="icon">💰</span>Monthly Scorecard</div>
+      <div class="nav-item" data-page="listings" onclick="showPage('listings')"><span class="icon">🏠</span>Active Listings</div>
+      <div class="nav-item" data-page="performance" onclick="showPage('performance')"><span class="icon">📈</span>Monthly Performance</div>
+      <div class="nav-item" data-page="contracts" onclick="showPage('contracts')"><span class="icon">📝</span>Under Contract</div>
+    </div>
+    <div class="sidebar-footer"><div class="status"><span class="dot"></span>JARVIS ONLINE</div></div>
+  </div>
+  <div class="main">
+    <div class="topbar"><h2 id="pageTitle">OPENS DASHBOARD</h2><div class="date" id="topDate"></div></div>
+    <div class="content" id="mainContent">
+      <div class="page active" id="page-opens"></div>
+      <div class="page" id="page-leads"><div class="source-grid" id="sourceGrid"></div><div id="leadDetail" style="display:none"></div></div>
+      <div class="page" id="page-scorecard"></div>
+      <div class="page" id="page-listings"></div>
+      <div class="page" id="page-performance"><div class="perf-grid" id="perfGrid"></div></div>
+      <div class="page" id="page-contracts"></div>
+    </div>
+  </div>
+</div>
+<script>
+const SUPA_URL='https://fzlwkbhpsklsgkinwljt.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTE0MzEsImV4cCI6MjA4NzYyNzQzMX0.lc6A8RCUySU0Hn9MjPcR9rH1c8DjSj_A7MV8JuLvwik';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+const AGENTS=['Brandon Bruning','Shelley Lisko','Brad Lisko','Amanda Mitchell','Kevin Cloud'];
+const LEAD_SOURCES=['Buyer-Brain','Buyer','Expired Listing Backup','FSBO Backup','Circle Prospect Buyer','Circle Prospect Seller','Off-Market Brain','30 Day Seller'];
+const SOURCE_CARDS=[
+  {key:'old_expireds',name:'Old Expireds',icon:'📋'},
+  {key:'daily_expireds',name:'Daily Expireds',icon:'🔥'},
+  {key:'fsbos',name:'FSBOs',icon:'🏡'},
+  {key:'circle_prospecting',name:'Circle Prospecting',icon:'🎯'},
+  {key:'brain_sellers',name:'Brain Sellers',icon:'🧠'},
+  {key:'brain_buyers',name:'Brain Buyers',icon:'🏘️'},
+  {key:'30day_sellers',name:'30 Day Sellers',icon:'📅'},
+  {key:'expired_backup',name:'Expired Backup',icon:'📞'},
+  {key:'fsbo_backup',name:'FSBO Backup',icon:'🔑'},
+  {key:'off_market',name:'Off-Market Leads',icon:'🔒'}
+];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MK=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
+const STEPS=[
+  {k:'offer_accepted',l:'Offer Accepted'},{k:'tc_added',l:'TC Added'},{k:'spd_completed',l:'SPD Done'},
+  {k:'inspection_scheduled',l:'Inspection'},{k:'irsa_done',l:'IRSA Done'},{k:'irsa_responded',l:'IRSA Responded'},
+  {k:'title_setup',l:'Title Setup'},{k:'appraisal_done',l:'Appraisal'},{k:'termite_done',l:'Termite'},
+  {k:'closing_scheduled',l:'Closing Set'},{k:'closed',l:'Closed'},{k:'loop_submitted',l:'Loop Done'}
+];
+let OPENS_TARGET=75,LISTINGS_TARGET=70,MY_COMM_TARGET=67000,GROSS_COMM_TARGET=1600000,VOL_TARGET=1625000;
+function $(id){return document.getElementById(id)}
+function money(n){return'$'+Number(n||0).toLocaleString()}
+function agentOpts(s){return'<option value="">--</option>'+AGENTS.map(a=>`<option${a===s?' selected':''}>${a}</option>`).join('')}
+function srcOpts(s){return'<option value="">--</option>'+LEAD_SOURCES.map(a=>`<option${a===s?' selected':''}>${a}</option>`).join('')}
+
+// AUTH
+async function doLogin(){
+  const e=$('loginEmail').value,p=$('loginPass').value;
+  const{error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){$('loginError').textContent=error.message;return}
+  $('loginOverlay').style.display='none';$('app').style.display='flex';initApp();
+}
+async function checkAuth(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){$('loginOverlay').style.display='none';$('app').style.display='flex';initApp();}
+}
+$('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+// NAV
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT'};
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  $('page-'+p).classList.add('active');
+  document.querySelector(`.nav-item[data-page="${p}"]`).classList.add('active');
+  $('pageTitle').textContent=TITLES[p];
+  if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
+  if(p==='listings')loadListings();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
+}
+
+// ============ OPENS ============
+async function loadOpens(){
+  const{data}=await sb.from('lab_opens').select('*').order('sort_order');
+  const byMonth={};MK.forEach(m=>byMonth[m]=[]);
+  (data||[]).forEach(r=>{if(!byMonth[r.month_year])byMonth[r.month_year]=[];byMonth[r.month_year].push(r)});
+  renderOpens(byMonth);
+}
+function renderOpens(byMonth){
+  let html='';
+  MK.forEach((mk,i)=>{
+    const rows=byMonth[mk]||[];
+    html+=`<div class="card" data-month="${mk}">
+      <div class="card-header"><h3>${MONTHS[i]} 2026</h3><span class="month-label">${rows.length} OPEN${rows.length!==1?'S':''}</span></div>
+      <div class="card-body"><table class="lab-table"><thead><tr>
+        <th>#</th><th>Agent</th><th>Source</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Last Contact</th><th>Next Contact</th><th>Notes</th><th></th>
+      </tr></thead><tbody id="opens-${mk}">`;
+    rows.forEach((r,ri)=>{
+      html+=openRow(r,ri+1,mk);
+    });
+    html+=`</tbody></table></div>
+      <button class="add-row-btn" onclick="addOpen('${mk}')">+ Add Open</button></div>`;
+  });
+  $('page-opens').innerHTML=html;
+  // Setup drag
+  MK.forEach(mk=>{
+    const tb=document.getElementById('opens-'+mk);
+    if(tb) setupDrag(tb,mk);
+  });
+}
+function openRow(r,num,mk){
+  return`<tr draggable="true" data-id="${r.id}" data-month="${mk}">
+    <td><span class="row-num">${num}</span></td>
+    <td><select onchange="updateOpen('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
+    <td><select onchange="updateOpen('${r.id}','lead_source',this.value)">${srcOpts(r.lead_source)}</select></td>
+    <td><input value="${r.name||''}" onchange="updateOpen('${r.id}','name',this.value)" placeholder="Name"></td>
+    <td><input value="${r.phone||''}" onchange="updateOpen('${r.id}','phone',this.value)" placeholder="Phone" style="width:120px"></td>
+    <td><input value="${r.email||''}" onchange="updateOpen('${r.id}','email',this.value)" placeholder="Email" style="width:150px"></td>
+    <td><input value="${r.address||''}" onchange="updateOpen('${r.id}','address',this.value)" placeholder="Address"></td>
+    <td><input type="date" value="${r.last_contact||''}" onchange="updateOpen('${r.id}','last_contact',this.value)"></td>
+    <td><input type="date" value="${r.next_contact||''}" onchange="updateOpen('${r.id}','next_contact',this.value)"></td>
+    <td><input value="${r.notes||''}" onchange="updateOpen('${r.id}','notes',this.value)" placeholder="Notes" style="min-width:200px"></td>
+    <td><button class="del-btn" onclick="deleteOpen('${r.id}')">x</button></td>
+  </tr>`;
+}
+async function addOpen(mk){
+  const rows=document.querySelectorAll(`#opens-${mk} tr`);
+  await sb.from('lab_opens').insert({month_year:mk,sort_order:rows.length,number:rows.length+1});
+  loadOpens();
+}
+async function updateOpen(id,field,val){
+  const upd={};upd[field]=val||null;upd.updated_at=new Date().toISOString();
+  await sb.from('lab_opens').update(upd).eq('id',id);
+}
+async function deleteOpen(id){
+  if(!confirm('Remove this open?'))return;
+  await sb.from('lab_opens').delete().eq('id',id);loadOpens();
+}
+// DRAG & DROP between months
+function setupDrag(tbody,mk){
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    tr.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('text/plain',tr.dataset.id+'|'+tr.dataset.month);
+      tr.classList.add('dragging');
+    });
+    tr.addEventListener('dragend',()=>tr.classList.remove('dragging'));
+  });
+  tbody.addEventListener('dragover',e=>{e.preventDefault();});
+  tbody.addEventListener('drop',async e=>{
+    e.preventDefault();
+    const[id,fromMonth]=e.dataTransfer.getData('text/plain').split('|');
+    if(fromMonth!==mk){
+      await sb.from('lab_opens').update({month_year:mk,updated_at:new Date().toISOString()}).eq('id',id);
+      loadOpens();
+    }
+  });
+}
+
+// ============ ACTIVE LEADS ============
+let leadsData=[];
+async function loadLeads(){
+  const{data}=await sb.from('lab_leads').select('*').order('created_at',{ascending:false});
+  leadsData=data||[];
+  renderLeadSources();
+  updateLeadBadge();
+}
+function renderLeadSources(){
+  $('leadDetail').style.display='none';
+  $('sourceGrid').style.display='grid';
+  let html='';
+  SOURCE_CARDS.forEach(sc=>{
+    const leads=leadsData.filter(l=>l.lead_source===sc.key);
+    const unclaimed=leads.filter(l=>!l.claimed).length;
+    html+=`<div class="source-card" onclick="showLeadSource('${sc.key}')">
+      ${unclaimed?`<div class="new-badge">${unclaimed}</div>`:''}
+      <div class="source-icon">${sc.icon}</div>
+      <div class="source-name">${sc.name}</div>
+      <div class="source-count">${leads.length} lead${leads.length!==1?'s':''}</div>
+    </div>`;
+  });
+  $('sourceGrid').innerHTML=html;
+}
+function showLeadSource(key){
+  $('sourceGrid').style.display='none';
+  $('leadDetail').style.display='block';
+  const sc=SOURCE_CARDS.find(s=>s.key===key);
+  const leads=leadsData.filter(l=>l.lead_source===key);
+  let html=`<button class="back-btn" onclick="renderLeadSources()">← Back to Sources</button>
+    <div class="card"><div class="card-header"><h3>${sc.icon} ${sc.name}</h3><span class="month-label">${leads.length} LEADS</span></div>
+    <div class="card-body"><table class="lab-table"><thead><tr>
+      <th>Date</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Notes</th><th>Status</th><th></th>
+    </tr></thead><tbody>`;
+  leads.forEach(l=>{
+    html+=`<tr style="${!l.claimed?'background:rgba(255,80,80,0.04)':''}">
+      <td style="white-space:nowrap">${l.date_added||''}</td>
+      <td>${l.name||'--'}</td><td>${l.phone||'--'}</td><td>${l.email||'--'}</td>
+      <td>${l.address||'--'}</td><td>${l.notes||'--'}</td>
+      <td>${l.claimed?'<span style="color:var(--sage)">Claimed</span>':'<span style="color:var(--danger)">New</span>'}</td>
+      <td>${!l.claimed?`<button class="btn-claim" onclick="claimLead('${l.id}','${key}')">Claim → Opens</button>`:''}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  $('leadDetail').innerHTML=html;
+}
+async function claimLead(id,source){
+  const lead=leadsData.find(l=>l.id===id);if(!lead)return;
+  const now=new Date();const mk=`2026-${String(now.getMonth()+1).padStart(2,'0')}`;
+  // Create an open from this lead
+  await sb.from('lab_opens').insert({
+    month_year:mk,name:lead.name,phone:lead.phone,email:lead.email,
+    address:lead.address,lead_source:source,notes:lead.notes
+  });
+  // Mark lead as claimed
+  await sb.from('lab_leads').update({claimed:true,claimed_at:now.toISOString()}).eq('id',id);
+  loadLeads();
+}
+function updateLeadBadge(){
+  const unclaimed=leadsData.filter(l=>!l.claimed).length;
+  const badge=$('leadsBadge');
+  if(unclaimed>0){badge.style.display='inline';badge.textContent=unclaimed;}
+  else badge.style.display='none';
+}
+
+// ============ MONTHLY SCORECARD ============
+async function loadScorecard(){
+  const{data}=await sb.from('lab_scorecard').select('*').order('sort_order');
+  const byMonth={};MK.forEach(m=>byMonth[m]=[]);
+  (data||[]).forEach(r=>{if(!byMonth[r.month_year])byMonth[r.month_year]=[];byMonth[r.month_year].push(r)});
+  renderScorecard(byMonth);
+}
+function renderScorecard(byMonth){
+  let html='';let ytdVol=0,ytdGross=0,ytdMy=0;
+  MK.forEach((mk,i)=>{
+    const rows=byMonth[mk]||[];
+    let mVol=0,mGross=0,mMy=0;
+    rows.forEach(r=>{mVol+=Number(r.volume||0);mGross+=Number(r.gross_commission||0);mMy+=Number(r.my_commission||0)});
+    ytdVol+=mVol;ytdGross+=mGross;ytdMy+=mMy;
+    html+=`<div class="card"><div class="card-header"><h3>${MONTHS[i]} 2026</h3><span class="month-label">${rows.length} TRANSACTION${rows.length!==1?'S':''}</span></div>
+      <div class="card-body"><table class="lab-table"><thead><tr>
+        <th>#</th><th>Transaction Name</th><th>Volume</th><th>Gross Commission</th><th>My Commission</th><th></th>
+      </tr></thead><tbody>`;
+    rows.forEach((r,ri)=>{
+      html+=`<tr>
+        <td><span class="row-num">${ri+1}</span></td>
+        <td><input value="${r.transaction_name||''}" onchange="updateSC('${r.id}','transaction_name',this.value)" placeholder="Transaction name" style="min-width:200px"></td>
+        <td><input type="number" value="${r.volume||''}" onchange="updateSC('${r.id}','volume',this.value)" placeholder="0" style="width:120px"></td>
+        <td><input type="number" value="${r.gross_commission||''}" onchange="updateSC('${r.id}','gross_commission',this.value)" placeholder="0" style="width:120px"></td>
+        <td><input type="number" value="${r.my_commission||''}" onchange="updateSC('${r.id}','my_commission',this.value)" placeholder="0" style="width:120px"></td>
+        <td><button class="del-btn" onclick="deleteSC('${r.id}')">x</button></td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div>
+      <div class="totals-row">
+        <div class="total-item"><div class="val">${money(mVol)}</div><div class="lbl">Volume</div></div>
+        <div class="total-item"><div class="val">${money(mGross)}</div><div class="lbl">Gross Commission</div></div>
+        <div class="total-item"><div class="val">${money(mMy)}</div><div class="lbl">My Commission</div></div>
+      </div>
+      <button class="add-row-btn" onclick="addSC('${mk}')">+ Add Transaction</button></div>`;
+  });
+  html+=`<div class="ytd-bar">
+    <div class="ytd-item"><div class="ytd-val">${money(ytdVol)}</div><div class="ytd-lbl">YTD Volume</div></div>
+    <div class="ytd-item"><div class="ytd-val">${money(ytdGross)}</div><div class="ytd-lbl">YTD Gross Commission</div></div>
+    <div class="ytd-item"><div class="ytd-val">${money(ytdMy)}</div><div class="ytd-lbl">YTD My Commission</div></div>
+  </div>`;
+  $('page-scorecard').innerHTML=html;
+}
+async function addSC(mk){await sb.from('lab_scorecard').insert({month_year:mk});loadScorecard();}
+async function updateSC(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_scorecard').update(u).eq('id',id);}
+async function deleteSC(id){if(!confirm('Remove?'))return;await sb.from('lab_scorecard').delete().eq('id',id);loadScorecard();}
+
+// ============ ACTIVE LISTINGS ============
+async function loadListings(){
+  const{data}=await sb.from('lab_listings').select('*').eq('status','active').order('sort_order');
+  renderListings(data||[]);
+}
+function renderListings(rows){
+  let totalPrice=0;rows.forEach(r=>totalPrice+=Number(r.price||0));
+  let html=`<div class="card"><div class="card-header"><h3>ACTIVE LISTINGS</h3><span class="month-label">${rows.length} LISTING${rows.length!==1?'S':''}</span></div>
+    <div class="card-body"><table class="lab-table"><thead><tr>
+      <th>#</th><th>Agent</th><th>Listing Type</th><th>Address</th><th>Price</th><th></th>
+    </tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    html+=`<tr>
+      <td><span class="row-num">${i+1}</span></td>
+      <td><select onchange="updateListing('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
+      <td><input value="${r.listing_type||''}" onchange="updateListing('${r.id}','listing_type',this.value)" placeholder="Type"></td>
+      <td><input value="${r.address||''}" onchange="updateListing('${r.id}','address',this.value)" placeholder="Address" style="min-width:200px"></td>
+      <td><input type="number" value="${r.price||''}" onchange="updateListing('${r.id}','price',this.value)" placeholder="0" style="width:130px"></td>
+      <td><button class="del-btn" onclick="deleteListing('${r.id}')">x</button></td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>
+    <div class="totals-row"><div class="total-item"><div class="val">${money(totalPrice)}</div><div class="lbl">Total Listing Volume</div></div></div>
+    <button class="add-row-btn" onclick="addListing()">+ Add Listing</button></div>`;
+  $('page-listings').innerHTML=html;
+}
+async function addListing(){await sb.from('lab_listings').insert({address:'New Listing'});loadListings();}
+async function updateListing(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_listings').update(u).eq('id',id);}
+async function deleteListing(id){if(!confirm('Remove listing?'))return;await sb.from('lab_listings').delete().eq('id',id);loadListings();}
+
+// ============ UNDER CONTRACT ============
+async function loadContracts(){
+  const{data}=await sb.from('lab_contracts').select('*').eq('status','active').order('created_at');
+  renderContracts(data||[]);
+}
+function renderContracts(rows){
+  let html='';
+  rows.forEach(r=>{
+    const doneCount=STEPS.filter(s=>r[s.k]).length;
+    const pct=STEPS.length>0?(doneCount/STEPS.length)*100:0;
+    const fillWidth=doneCount>0?((doneCount-0.5)/STEPS.length)*100:0;
+    html+=`<div class="card" style="margin-bottom:16px">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <input value="${r.transaction_name||''}" onchange="updateContract('${r.id}','transaction_name',this.value)"
+            style="background:transparent;border:none;color:var(--arc-bright);font-family:Orbitron,monospace;font-size:12px;font-weight:600;letter-spacing:1px;outline:none;width:250px"
+            placeholder="Transaction Name">
+          <input type="date" value="${r.contract_date||''}" onchange="contractDateChange('${r.id}',this.value)"
+            style="background:var(--glass);border:1px solid var(--glass-border);color:var(--text-secondary);padding:4px 8px;border-radius:6px;font-size:11px">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-family:Orbitron,monospace;font-size:10px;color:var(--text-dim)">${Math.round(pct)}%</span>
+          ${pct>=100?`<button class="del-btn" onclick="deleteContract('${r.id}')" title="Remove">x</button>`:''}
+        </div>
+      </div>
+      <div class="card-body" style="padding:16px 20px">
+        <div class="progress-wrap">
+          <div class="progress-track-bg"></div>
+          <div class="progress-fill" style="width:calc(${fillWidth}% - 0px)"></div>`;
+    STEPS.forEach(s=>{
+      const done=r[s.k];
+      html+=`<div class="progress-step">
+        <div class="step-check${done?' done':''}" onclick="toggleStep('${r.id}','${s.k}',${!done})">${done?'✓':''}</div>
+        <div class="step-label">${s.l}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+    if(r.spd_due)html+=`<div style="margin-top:8px;font-size:10px;color:var(--text-dim)">SPD Due: ${r.spd_due}</div>`;
+    if(r.irsa_due)html+=`<div style="font-size:10px;color:var(--text-dim)">IRSA Due: ${r.irsa_due}</div>`;
+    html+=`</div></div>`;
+  });
+  html+=`<button class="add-row-btn" onclick="addContract()" style="border-radius:12px;margin-top:4px">+ Add Transaction</button>`;
+  $('page-contracts').innerHTML=html;
+}
+async function addContract(){await sb.from('lab_contracts').insert({transaction_name:'New Transaction'});loadContracts();}
+async function updateContract(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_contracts').update(u).eq('id',id);}
+async function toggleStep(id,step,val){
+  const u={};u[step]=val;u.updated_at=new Date().toISOString();
+  await sb.from('lab_contracts').update(u).eq('id',id);loadContracts();
+}
+async function contractDateChange(id,dateStr){
+  const u={contract_date:dateStr,updated_at:new Date().toISOString()};
+  if(dateStr){
+    const d=new Date(dateStr);
+    // SPD due = 3 calendar days after contract
+    const spd=new Date(d);spd.setDate(spd.getDate()+3);
+    u.spd_due=spd.toISOString().split('T')[0];
+    // IRSA due = 10 business days from contract
+    const irsa=new Date(d);let biz=0;
+    while(biz<10){irsa.setDate(irsa.getDate()+1);if(irsa.getDay()!==0&&irsa.getDay()!==6)biz++;}
+    u.irsa_due=irsa.toISOString().split('T')[0];
+  }
+  await sb.from('lab_contracts').update(u).eq('id',id);loadContracts();
+}
+async function deleteContract(id){if(!confirm('Remove this transaction?'))return;await sb.from('lab_contracts').delete().eq('id',id);loadContracts();}
+
+// ============ MONTHLY PERFORMANCE ============
+let perfCharts={};
+function getCondition(val,target){
+  const pct=val/target*100;
+  if(pct>=93)return{name:'POWER',cls:'power',formula:'Don\'t change anything. Write up what you\'re doing so others can follow it.'};
+  if(pct>=73)return{name:'AFFLUENCE',cls:'affluence',formula:'Economize. Don\'t spend recklessly. Every investment must pay for itself. Push, don\'t relax.'};
+  if(pct>=60)return{name:'NORMAL',cls:'normal',formula:'Don\'t change anything successful. Improve what isn\'t perfect. Push every piece forward.'};
+  if(pct>=47)return{name:'EMERGENCY',cls:'emergency',formula:'Promote. Change nothing. Produce, produce, produce. Get known. Deliver what you promise.'};
+  if(pct>=27)return{name:'DANGER',cls:'danger',formula:'Handle the bypassed charge. Reorganize. Deliver a viable product. Stabilize.'};
+  return{name:'NON-EXISTENCE',cls:'non-existence',formula:'Find and do a communication line. Make yourself known. Deliver what is needed or wanted.'};
+}
+async function loadPerformance(){
+  // Fetch all needed data
+  const[opensRes,scoreRes,listRes]=await Promise.all([
+    sb.from('lab_opens').select('month_year,created_at'),
+    sb.from('lab_scorecard').select('month_year,volume,gross_commission,my_commission'),
+    sb.from('lab_listings').select('price').eq('status','active')
+  ]);
+  const opens=opensRes.data||[],scores=scoreRes.data||[],listings=listRes.data||[];
+  // Current month
+  const now=new Date();const curMK=`2026-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const curMonthOpens=opens.filter(o=>o.month_year===curMK).length;
+  const curListings=listings.length;
+  let curMyComm=0;scores.filter(s=>s.month_year===curMK).forEach(s=>curMyComm+=Number(s.my_commission||0));
+  let ytdVol=0,ytdGross=0;scores.forEach(s=>{ytdVol+=Number(s.volume||0);ytdGross+=Number(s.gross_commission||0)});
+  // Monthly opens data for chart
+  const monthlyOpens=MK.map(mk=>opens.filter(o=>o.month_year===mk).length);
+  const monthlyMyComm=MK.map(mk=>{let t=0;scores.filter(s=>s.month_year===mk).forEach(s=>t+=Number(s.my_commission||0));return t});
+  const monthlyGross=MK.map(mk=>{let t=0;scores.filter(s=>s.month_year===mk).forEach(s=>t+=Number(s.gross_commission||0));return t});
+  const monthlyVol=MK.map(mk=>{let t=0;scores.filter(s=>s.month_year===mk).forEach(s=>t+=Number(s.volume||0));return t});
+  // Cumulative for YTD
+  let cumGross=[],cumVol=[],g=0,v=0;
+  monthlyGross.forEach((mg,i)=>{g+=mg;cumGross.push(g)});
+  monthlyVol.forEach((mv,i)=>{v+=mv;cumVol.push(v)});
+
+  const condOpens=getCondition(curMonthOpens,OPENS_TARGET);
+  const condListings=getCondition(curListings,LISTINGS_TARGET);
+  const condMyComm=getCondition(curMyComm,MY_COMM_TARGET);
+  const condGross=getCondition(ytdGross,GROSS_COMM_TARGET);
+  const condVol=getCondition(ytdVol,VOL_TARGET);
+
+  let html='';
+  // 1. Opens
+  html+=graphCard('perfOpens','OPENS THIS MONTH',condOpens,`${curMonthOpens} / ${OPENS_TARGET}`);
+  // 2. Active Listings
+  html+=graphCard('perfListings','ACTIVE LISTINGS',condListings,`${curListings} / ${LISTINGS_TARGET}`);
+  // 3. My Commission
+  html+=graphCard('perfMyComm','MY COMMISSION THIS MONTH',condMyComm,`${money(curMyComm)} / ${money(MY_COMM_TARGET)}`);
+  // 4. YTD Gross
+  html+=graphCard('perfGross','YTD GROSS COMMISSION',condGross,`${money(ytdGross)} / ${money(GROSS_COMM_TARGET)}`);
+  // 5. YTD Volume
+  html+=graphCard('perfVol','YTD SALES VOLUME',condVol,`${money(ytdVol)} / ${money(VOL_TARGET)}`);
+
+  $('perfGrid').innerHTML=html;
+
+  // Draw charts
+  setTimeout(()=>{
+    drawChart('perfOpens',MONTHS.map(m=>m.slice(0,3)),monthlyOpens,OPENS_TARGET,'Opens');
+    drawChart('perfListings',['Current'],[curListings],LISTINGS_TARGET,'Listings',true);
+    drawChart('perfMyComm',MONTHS.map(m=>m.slice(0,3)),monthlyMyComm,MY_COMM_TARGET,'$',false,true);
+    drawChart('perfGross',MONTHS.map(m=>m.slice(0,3)),cumGross,GROSS_COMM_TARGET,'$',false,true);
+    drawChart('perfVol',MONTHS.map(m=>m.slice(0,3)),cumVol,VOL_TARGET,'$',false,true);
+  },100);
+}
+function graphCard(canvasId,title,cond,stat){
+  return`<div class="graph-card">
+    <div class="graph-header">
+      <h4>${title}</h4>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-family:Orbitron,monospace;font-size:12px;color:var(--text-secondary)">${stat}</span>
+        <span class="condition-badge ${cond.cls}">${cond.name}</span>
+      </div>
+    </div>
+    <div class="graph-container"><canvas id="${canvasId}"></canvas></div>
+    <div class="cond-formula"><strong style="color:var(--text-secondary)">Formula (${cond.name}):</strong> ${cond.formula}</div>
+    <div class="condition-sidebar">
+      <span class="cond-item" style="border-color:rgba(91,138,90,0.3)">Power 93%+</span>
+      <span class="cond-item" style="border-color:rgba(255,215,0,0.2)">Affluence 73%+</span>
+      <span class="cond-item" style="border-color:rgba(70,130,255,0.2)">Normal 60%+</span>
+      <span class="cond-item" style="border-color:rgba(255,140,0,0.2)">Emergency 47%+</span>
+      <span class="cond-item" style="border-color:rgba(255,60,60,0.2)">Danger 27%+</span>
+      <span class="cond-item" style="border-color:rgba(128,128,128,0.2)">Non-E &lt;27%</span>
+    </div>
+  </div>`;
+}
+function drawChart(id,labels,data,target,unit,isSingle,isMoney){
+  const ctx=document.getElementById(id);if(!ctx)return;
+  if(perfCharts[id])perfCharts[id].destroy();
+  const targetLine=labels.map(()=>isSingle?target:target/12);
+  // Projection: extend current trend
+  const curMonth=new Date().getMonth();
+  const projection=data.map((v,i)=>i<=curMonth?v:null);
+  if(curMonth<11&&!isSingle){
+    const rate=data.slice(0,curMonth+1).reduce((a,b)=>a+b,0)/(curMonth+1);
+    for(let i=curMonth+1;i<12;i++)projection[i]=Math.round(rate);
+  }
+  perfCharts[id]=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:unit==='$'?'Actual':'Actual',data,borderColor:'rgba(120,170,255,0.9)',backgroundColor:'rgba(70,130,255,0.1)',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:'rgba(120,170,255,1)'},
+        {label:'Target',data:isSingle?[target]:labels.map((_,i)=>Math.round(target/12*(i+1))),borderColor:'rgba(91,138,90,0.5)',borderDash:[5,5],pointRadius:0,fill:false},
+        ...(isSingle?[]:[{label:'Projection',data:projection,borderColor:'rgba(120,170,255,0.3)',borderDash:[3,3],pointRadius:0,fill:false}])
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      scales:{
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.3)',font:{size:10},callback:v=>isMoney?'$'+v.toLocaleString():v}},
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.3)',font:{size:10}}}
+      },
+      plugins:{legend:{display:true,labels:{color:'rgba(255,255,255,0.4)',font:{size:10},boxWidth:12}}}
+    }
+  });
+}
+
+// ============ INIT ============
+function initApp(){
+  updateDate();setInterval(updateDate,60000);
+  loadOpens();
+  // Check for unclaimed leads
+  sb.from('lab_leads').select('id',{count:'exact'}).eq('claimed',false).then(({count})=>{
+    if(count>0){$('leadsBadge').style.display='inline';$('leadsBadge').textContent=count;}
+  });
+}
+checkAuth();
+</script>
+</body>
+</html>
