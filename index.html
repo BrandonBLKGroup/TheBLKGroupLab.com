@@ -239,11 +239,16 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['scorecard','performance','nuggets'];
+  const adminOnly=['scorecard','nuggets'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
   });
+  // Rename performance tab for agents to "My Performance"
+  if(!isAdmin){
+    const perfNav=document.querySelector('.nav-item[data-page="performance"]');
+    if(perfNav) perfNav.innerHTML='<span class="icon">📈</span>My Performance';
+  }
   // Show onboarding modal if agent with no goals set
   if(!isAdmin && userProfile && !userProfile.opens_goal){
     showOnboarding();
@@ -599,17 +604,27 @@ function getCondition(val,target){
   return{name:'NON-EXISTENCE',cls:'non-existence',formula:'Find and do a communication line. Make yourself known. Deliver what is needed or wanted.'};
 }
 async function loadPerformance(){
-  // Fetch all needed data
-  const[opensRes,scoreRes,listRes]=await Promise.all([
+  // Fetch data - agents only see their own (RLS handles filtering)
+  const[opensRes,scoreRes,listRes,contractRes]=await Promise.all([
     sb.from('lab_opens').select('month_year,created_at'),
-    sb.from('lab_scorecard').select('month_year,volume,gross_commission,my_commission'),
-    sb.from('lab_listings').select('price').eq('status','active')
+    isAdmin ? sb.from('lab_scorecard').select('month_year,volume,gross_commission,my_commission') : Promise.resolve({data:[]}),
+    sb.from('lab_listings').select('price').eq('status','active'),
+    sb.from('lab_contracts').select('transaction_name,closed,created_at')
   ]);
-  const opens=opensRes.data||[],scores=scoreRes.data||[],listings=listRes.data||[];
+  const opens=opensRes.data||[],scores=scoreRes.data||[],listings=listRes.data||[],contracts=contractRes.data||[];
   // Current month
   const now=new Date();const curMK=`2026-${String(now.getMonth()+1).padStart(2,'0')}`;
   const curMonthOpens=opens.filter(o=>o.month_year===curMK).length;
   const curListings=listings.length;
+  const curContracts=contracts.filter(c=>c.closed).length;
+
+  // For agents, use their goals directly; for admin, use the big targets
+  const opensTarget=OPENS_TARGET;
+  const listingsTarget=isAdmin?LISTINGS_TARGET:Math.max(Math.round(OPENS_TARGET*0.7),5);
+  const myCommTarget=MY_COMM_TARGET;
+  const grossCommTarget=isAdmin?GROSS_COMM_TARGET:(MY_COMM_TARGET*12*2);
+  const volTarget=isAdmin?VOL_TARGET:(MY_COMM_TARGET*12/0.025);
+
   let curMyComm=0;scores.filter(s=>s.month_year===curMK).forEach(s=>curMyComm+=Number(s.my_commission||0));
   let ytdVol=0,ytdGross=0;scores.forEach(s=>{ytdVol+=Number(s.volume||0);ytdGross+=Number(s.gross_commission||0)});
   // Monthly opens data for chart
@@ -622,33 +637,40 @@ async function loadPerformance(){
   monthlyGross.forEach((mg,i)=>{g+=mg;cumGross.push(g)});
   monthlyVol.forEach((mv,i)=>{v+=mv;cumVol.push(v)});
 
-  const condOpens=getCondition(curMonthOpens,OPENS_TARGET);
-  const condListings=getCondition(curListings,LISTINGS_TARGET);
-  const condMyComm=getCondition(curMyComm,MY_COMM_TARGET);
-  const condGross=getCondition(ytdGross,GROSS_COMM_TARGET);
-  const condVol=getCondition(ytdVol,VOL_TARGET);
+  const condOpens=getCondition(curMonthOpens,opensTarget);
+  const condListings=getCondition(curListings,listingsTarget);
+  const condMyComm=getCondition(curMyComm,myCommTarget);
+  const condGross=getCondition(ytdGross,grossCommTarget);
+  const condVol=getCondition(ytdVol,volTarget);
 
   let html='';
-  // 1. Opens
-  html+=graphCard('perfOpens','OPENS THIS MONTH',condOpens,`${curMonthOpens} / ${OPENS_TARGET}`);
-  // 2. Active Listings
-  html+=graphCard('perfListings','ACTIVE LISTINGS',condListings,`${curListings} / ${LISTINGS_TARGET}`);
-  // 3. My Commission
-  html+=graphCard('perfMyComm','MY COMMISSION THIS MONTH',condMyComm,`${money(curMyComm)} / ${money(MY_COMM_TARGET)}`);
-  // 4. YTD Gross
-  html+=graphCard('perfGross','YTD GROSS COMMISSION',condGross,`${money(ytdGross)} / ${money(GROSS_COMM_TARGET)}`);
-  // 5. YTD Volume
-  html+=graphCard('perfVol','YTD SALES VOLUME',condVol,`${money(ytdVol)} / ${money(VOL_TARGET)}`);
+  // 1. Opens (everyone sees)
+  html+=graphCard('perfOpens',isAdmin?'OPENS THIS MONTH':'MY OPENS THIS MONTH',condOpens,`${curMonthOpens} / ${opensTarget}`);
+  // 2. Active Listings (everyone sees)
+  html+=graphCard('perfListings','ACTIVE LISTINGS',condListings,`${curListings} / ${listingsTarget}`);
+  if(isAdmin){
+    // 3-5. Commission cards (admin only)
+    html+=graphCard('perfMyComm','MY COMMISSION THIS MONTH',condMyComm,`${money(curMyComm)} / ${money(myCommTarget)}`);
+    html+=graphCard('perfGross','YTD GROSS COMMISSION',condGross,`${money(ytdGross)} / ${money(grossCommTarget)}`);
+    html+=graphCard('perfVol','YTD SALES VOLUME',condVol,`${money(ytdVol)} / ${money(volTarget)}`);
+  } else {
+    // Agent: Under Contract count card
+    const ucTarget=Math.max(Math.round(opensTarget*0.5),3);
+    const condUC=getCondition(curContracts,ucTarget);
+    html+=graphCard('perfUC','MY UNDER CONTRACT',condUC,`${curContracts} / ${ucTarget}`);
+  }
 
   $('perfGrid').innerHTML=html;
 
   // Draw charts
   setTimeout(()=>{
-    drawChart('perfOpens',MONTHS.map(m=>m.slice(0,3)),monthlyOpens,OPENS_TARGET,'Opens');
-    drawChart('perfListings',['Current'],[curListings],LISTINGS_TARGET,'Listings',true);
-    drawChart('perfMyComm',MONTHS.map(m=>m.slice(0,3)),monthlyMyComm,MY_COMM_TARGET,'$',false,true);
-    drawChart('perfGross',MONTHS.map(m=>m.slice(0,3)),cumGross,GROSS_COMM_TARGET,'$',false,true);
-    drawChart('perfVol',MONTHS.map(m=>m.slice(0,3)),cumVol,VOL_TARGET,'$',false,true);
+    drawChart('perfOpens',MONTHS.map(m=>m.slice(0,3)),monthlyOpens,opensTarget,'Opens');
+    drawChart('perfListings',['Current'],[curListings],listingsTarget,'Listings',true);
+    if(isAdmin){
+      drawChart('perfMyComm',MONTHS.map(m=>m.slice(0,3)),monthlyMyComm,myCommTarget,'$',false,true);
+      drawChart('perfGross',MONTHS.map(m=>m.slice(0,3)),cumGross,grossCommTarget,'$',false,true);
+      drawChart('perfVol',MONTHS.map(m=>m.slice(0,3)),cumVol,volTarget,'$',false,true);
+    }
   },100);
 }
 function graphCard(canvasId,title,cond,stat){
