@@ -161,6 +161,8 @@ body::before{display:none}
       <div class="nav-item" data-page="performance" onclick="showPage('performance')"><span class="icon">📈</span>Monthly Performance</div>
       <div class="nav-item" data-page="contracts" onclick="showPage('contracts')"><span class="icon">📝</span>Under Contract</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
+      <div style="flex:1"></div>
+      <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
     <div class="sidebar-footer"><div class="status"><span class="dot"></span>JARVIS ONLINE</div></div>
   </div>
@@ -174,6 +176,7 @@ body::before{display:none}
       <div class="page" id="page-performance"><div class="perf-grid" id="perfGrid"></div></div>
       <div class="page" id="page-contracts"></div>
       <div class="page" id="page-jarvis"></div>
+      <div class="page" id="page-nuggets"></div>
     </div>
   </div>
 </div>
@@ -223,7 +226,7 @@ async function checkAuth(){
 $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -232,7 +235,7 @@ function showPage(p){
   $('pageTitle').textContent=TITLES[p];
   if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
   if(p==='listings')loadListings();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
-  if(p==='jarvis')loadJarvis();
+  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();
 }
 
 // ============ OPENS ============
@@ -751,6 +754,68 @@ async function loadJarvis(){
   </div>`;
   
   $('page-jarvis').innerHTML=html;
+}
+
+// ============ NUGGETS ============
+const NUGGETS=[
+  {q:"The only way you can control people is to lie to them. You can write that down in your book in great big letters. The only way you can control anybody is to lie to them. When you find an individual is lying to you, you know that the individual is trying to control you.",s:"L. Ron Hubbard, Technique 88"},
+  {q:"A man is as alive as he can communicate.",s:"L. Ron Hubbard, Dianetics 55!"},
+  {q:"Organization is not an end in itself. It is a tool used to accomplish a purpose. It has no other reason for being.",s:"L. Ron Hubbard, OEC Vol. 7"},
+  {q:"The product of an org is a well-taught student or a well-audited pc. When you try to make the product money, you fail.",s:"L. Ron Hubbard, OEC Vol. 0"},
+  {q:"Look, don't listen.",s:"L. Ron Hubbard, Management Series"},
+  {q:"Statistics tell you whether or not the org is being run well or badly.",s:"L. Ron Hubbard, Management Series"},
+  {q:"The closest one can come to Static is to approximate Perfect Duplication. The MEST universe is a rough approximation of a perfect duplicate.",s:"L. Ron Hubbard, Axiom 25"},
+  {q:"Production is the basis of morale.",s:"L. Ron Hubbard, OEC Vol. 0"},
+  {q:"A static has no mass, no motion, no wavelength, no location in space or in time. It has the ability to postulate and to perceive.",s:"L. Ron Hubbard, Axiom 1"},
+  {q:"If the stats are down, look for the dev-t. If the stats are up, look for the reason and reinforce it.",s:"L. Ron Hubbard, Data Series"},
+  {q:"The way to happiness is a high-speed highway for those who know where the edges are.",s:"L. Ron Hubbard, The Way to Happiness"},
+  {q:"An executive who cannot set a good example is not an executive.",s:"L. Ron Hubbard, OEC Vol. 7"},
+  {q:"You don't get rich by saving. You get rich by earning.",s:"L. Ron Hubbard, HCO PL Finance Series"},
+  {q:"A being is only as valuable as he can serve others.",s:"L. Ron Hubbard, Introduction to Scientology Ethics"},
+  {q:"The individual who can freely and with a clear heart do things because they need to be done rates the highest respect.",s:"L. Ron Hubbard, OEC Vol. 0"},
+  {q:"Inaction and indecision in the present is because of fear of consequences of the future.",s:"L. Ron Hubbard, OEC Vol. 1"},
+  {q:"What is true for you is what you have observed yourself. And when you lose that, you have lost everything.",s:"L. Ron Hubbard, Personal Integrity"},
+  {q:"The conditions of existence are not something to be gotten out of, but something to be handled. One handles life, one does not succumb to it.",s:"L. Ron Hubbard, Introduction to Scientology Ethics"},
+  {q:"The purpose of ethics is to remove counter-intentions from the environment. And having accomplished that, the purpose becomes to remove other-intentionedness from the environment.",s:"L. Ron Hubbard, Introduction to Scientology Ethics"},
+  {q:"Affluence: Don't change anything. Invest in new things. Economize. Don't let your affluence feed extravagance. Pay every bill. Buy what you need. Don't buy to show off.",s:"L. Ron Hubbard, Conditions Formulas"},
+  {q:"Power: Don't disconnect. Write up your post so someone else can do it. Do all you can to make things go right for the group.",s:"L. Ron Hubbard, Conditions Formulas"},
+  {q:"Emergency: Promote. Change nothing. Produce, produce, produce. Get your product out. Economize. Prepare to deliver.",s:"L. Ron Hubbard, Conditions Formulas"},
+  {q:"Danger: Handle the situation and any danger in it. Bypass habits and routines. Handle the personnel connected with it. Reorganize the activity so the situation does not repeat.",s:"L. Ron Hubbard, Conditions Formulas"},
+  {q:"Non-Existence: Find a communication line. Make yourself known. Discover what is needed or wanted. Do, produce and/or present it.",s:"L. Ron Hubbard, Conditions Formulas"},
+  {q:"Normal Operation: Don't change anything. Ethics are very mild. Stats bettering, don't change anything. If stats worsening, find out why and remedy it.",s:"L. Ron Hubbard, Conditions Formulas"},
+  {q:"If you reward down statistics and penalize up statistics you get down statistics.",s:"L. Ron Hubbard, HCO PL Rewards and Penalties"},
+  {q:"The biggest single thing that causes the downfall of an executive is his failure to set an example.",s:"L. Ron Hubbard, OEC Vol. 7"},
+  {q:"The amount of action that one can take and successfully complete determines one's level of power.",s:"L. Ron Hubbard, Management Series"},
+  {q:"The Admin Scale gives you a way to align planning. When all its parts are in agreement, it works. When they conflict, things go wrong.",s:"L. Ron Hubbard, HCO PL Admin Scale"},
+  {q:"The only real crime in this universe is to be there and communicate. Everything else is a perversion of that.",s:"L. Ron Hubbard, Philadelphia Doctorate Course"},
+  {q:"Purpose is senior to policy.",s:"L. Ron Hubbard, OEC Vol. 0"},
+  {q:"You cannot hold a command post and be liked. You can hold a command post and be respected, but trying to be liked will end your command post.",s:"L. Ron Hubbard, OEC Vol. 7"},
+  {q:"The moment you have a plan, you have something you can inspect. The moment you can inspect, you can find out what is going right and wrong. And correct.",s:"L. Ron Hubbard, Management Series"},
+  {q:"A real genius uses 10% inspiration and 90% sweat. The 10% may be sheer genius, but without the 90% sweat the genius goes unproven.",s:"L. Ron Hubbard, OEC Vol. 0"},
+  {q:"It is a wise man who, confronted with conflicting data, knows which data is senior.",s:"L. Ron Hubbard, Data Series"},
+  {q:"When you can name something and define it, you have some control of it. When you can't, it has some control over you.",s:"L. Ron Hubbard, Data Series"},
+  {q:"The way to make money is to make other people make money.",s:"L. Ron Hubbard, HCO PL Finance Series"},
+  {q:"A situation always has at least two sides. Someone out there trying to help you, not just hold you back. Look for the third party.",s:"L. Ron Hubbard, Third Party Law"},
+  {q:"The tech of handling people is the tech of ARC. You raise ARC, you raise understanding.",s:"L. Ron Hubbard, Science of Survival"},
+  {q:"There are only two tests for a Valuable Final Product: first, that it is exchangeable and second, that it is valuable.",s:"L. Ron Hubbard, HCO PL VFP"},
+  {q:"You don't get GI by sitting there hoping someone will walk in and hand you money. You get it by outflowing comm, product, and service.",s:"L. Ron Hubbard, Finance Series"},
+  {q:"Obnosis is the observation of the obvious. So many people miss what's right in front of them because they are looking for something else.",s:"L. Ron Hubbard, Study Tapes"},
+  {q:"Never use threats. If you say you are going to do something, do it.",s:"L. Ron Hubbard, OEC Vol. 7"},
+  {q:"Planning without action is a daydream. Action without planning is a nightmare.",s:"L. Ron Hubbard, Management Series"},
+  {q:"The most valuable asset of any organization is the willingness and ability of its people to produce.",s:"L. Ron Hubbard, OEC Vol. 0"},
+];
+
+function loadNugget(){
+  const n=NUGGETS[Math.floor(Math.random()*NUGGETS.length)];
+  $('page-nuggets').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:center;min-height:60vh">
+      <div style="max-width:640px;text-align:center;padding:40px">
+        <div style="font-size:48px;margin-bottom:24px;opacity:0.15">💎</div>
+        <div style="font-size:20px;font-weight:400;color:#111;line-height:1.8;letter-spacing:0.3px;font-style:italic">"${n.q}"</div>
+        <div style="margin-top:24px;font-size:12px;color:var(--gold);letter-spacing:2px;font-weight:600;text-transform:uppercase">- ${n.s}</div>
+        <button onclick="loadNugget()" style="margin-top:40px;padding:10px 28px;background:#fff;border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);cursor:pointer;font-size:12px;font-family:inherit;letter-spacing:1px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='';this.style.color=''">ANOTHER</button>
+      </div>
+    </div>`;
 }
 
 // ============ INIT ============
