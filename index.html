@@ -480,11 +480,12 @@ function renderScorecard(byMonth){
     ytdVol+=mVol;ytdGross+=mGross;ytdMy+=mMy;
     html+=`<div class="card"><div class="card-header"><h3>${MONTHS[i]} 2026</h3><span class="month-label">${rows.length} TRANSACTION${rows.length!==1?'S':''}</span></div>
       <div class="card-body"><table class="lab-table"><thead><tr>
-        <th>#</th><th>Transaction Name</th><th>Volume</th><th>Gross Commission</th><th>My Commission</th><th></th>
+        <th>#</th><th>Agent</th><th>Transaction Name</th><th>Volume</th><th>Gross Commission</th><th>My Commission</th><th></th>
       </tr></thead><tbody>`;
     rows.forEach((r,ri)=>{
       html+=`<tr>
         <td><span class="row-num">${ri+1}</span></td>
+        <td><select onchange="updateSC('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
         <td><input value="${r.transaction_name||''}" onchange="updateSC('${r.id}','transaction_name',this.value)" placeholder="Transaction name" style="min-width:200px"></td>
         <td><input type="number" value="${r.volume||''}" onchange="updateSC('${r.id}','volume',this.value)" placeholder="0" style="width:120px"></td>
         <td><input type="number" value="${r.gross_commission||''}" onchange="updateSC('${r.id}','gross_commission',this.value)" placeholder="0" style="width:120px"></td>
@@ -560,6 +561,7 @@ function renderContracts(rows){
             placeholder="Transaction Name">
           <input type="date" value="${r.contract_date||''}" onchange="contractDateChange('${r.id}',this.value)"
             style="background:#fafafa;border:1px solid var(--border);color:var(--text-secondary);padding:4px 8px;border-radius:6px;font-size:11px">
+          ${isAdmin?`<select onchange="updateContract('${r.id}','agent',this.value);loadContracts()" style="background:#fafafa;border:1px solid var(--border);color:var(--text-secondary);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer">${agentOpts(r.agent)}</select>`:`<span style="font-size:11px;color:var(--text-dim)">${r.agent||''}</span>`}
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;font-weight:600;color:var(--text-dim)">${Math.round(pct)}%</span>
@@ -567,6 +569,16 @@ function renderContracts(rows){
         </div>
       </div>
       <div class="card-body" style="padding:16px 20px">
+        <div style="display:flex;gap:12px;margin-bottom:12px">
+          <div style="flex:1">
+            <label style="font-size:9px;font-weight:600;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px">Commission</label>
+            <input type="number" value="${r.commission||''}" onchange="updateContract('${r.id}','commission',this.value)" placeholder="0" style="width:100%;background:#fafafa;border:1px solid var(--border);color:var(--text-primary);padding:6px 10px;border-radius:6px;font-size:12px;font-family:inherit">
+          </div>
+          <div style="flex:1">
+            <label style="font-size:9px;font-weight:600;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px">Volume</label>
+            <input type="number" value="${r.volume||''}" onchange="updateContract('${r.id}','volume',this.value)" placeholder="0" style="width:100%;background:#fafafa;border:1px solid var(--border);color:var(--text-primary);padding:6px 10px;border-radius:6px;font-size:12px;font-family:inherit">
+          </div>
+        </div>
         <div class="progress-wrap">
           <div class="progress-track-bg"></div>
           <div class="progress-fill" style="width:calc(${fillWidth}% - 0px)"></div>`;
@@ -582,6 +594,14 @@ function renderContracts(rows){
     if(r.irsa_due)html+=`<div style="font-size:10px;color:var(--text-dim)">IRSA Due: ${r.irsa_due}</div>`;
     html+=`</div></div>`;
   });
+  // Commission totals
+  let totalComm=0,totalVol=0;rows.forEach(r=>{totalComm+=Number(r.commission||0);totalVol+=Number(r.volume||0)});
+  if(totalComm>0||totalVol>0){
+    html+=`<div class="totals-row" style="margin-top:8px">
+      <div class="total-item"><div class="val">${money(totalComm)}</div><div class="lbl">Commission Under Contract</div></div>
+      <div class="total-item"><div class="val">${money(totalVol)}</div><div class="lbl">Volume Under Contract</div></div>
+    </div>`;
+  }
   html+=`<button class="add-row-btn" onclick="addContract()" style="border-radius:12px;margin-top:4px">+ Add Transaction</button>`;
   $('page-contracts').innerHTML=html;
 }
@@ -669,10 +689,25 @@ async function loadPerformance(){
     html+=graphCard('perfGross','YTD GROSS COMMISSION',condGross,`${money(ytdGross)} / ${money(grossCommTarget)}`);
     html+=graphCard('perfVol','YTD SALES VOLUME',condVol,`${money(ytdVol)} / ${money(volTarget)}`);
   } else {
-    // Agent: Under Contract count card
+    // Agent: Under Contract count + Commission cards
     const ucTarget=Math.max(Math.round(opensTarget*0.5),3);
     const condUC=getCondition(curContracts,ucTarget);
     html+=graphCard('perfUC','MY UNDER CONTRACT',condUC,`${curContracts} / ${ucTarget}`);
+    // Agent commission from contracts
+    let ucComm=0,ytdComm=0;
+    (contractRes.data||[]).forEach(c=>{
+      const comm=Number(c.commission||0);
+      if(comm>0){ucComm+=comm;if(c.closed)ytdComm+=comm;}
+    });
+    // All-time closed commission for YTD
+    const closedContracts=(contractRes.data||[]).filter(c=>c.closed);
+    ytdComm=0;closedContracts.forEach(c=>ytdComm+=Number(c.commission||0));
+    const annualTarget=userProfile?.annual_income_goal||60000;
+    const monthlyTarget=userProfile?.monthly_income_goal||5000;
+    const condYTD=getCondition(ytdComm,annualTarget);
+    const condUCComm=getCondition(ucComm,monthlyTarget);
+    html+=graphCard('perfUCComm','COMMISSION UNDER CONTRACT',condUCComm,`${money(ucComm)} / ${money(monthlyTarget)}`);
+    html+=graphCard('perfYTDComm','YTD COMMISSION',condYTD,`${money(ytdComm)} / ${money(annualTarget)}`);
   }
 
   $('perfGrid').innerHTML=html;
