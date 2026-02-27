@@ -164,7 +164,10 @@ body::before{display:none}
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
-    <div class="sidebar-footer"><div class="status"><span class="dot"></span>JARVIS ONLINE</div></div>
+    <div class="sidebar-footer">
+      <div class="status"><span class="dot"></span>JARVIS ONLINE</div>
+      <div style="margin-top:8px;text-align:center"><button onclick="doLogout()" style="background:none;border:1px solid var(--border);color:var(--text-dim);padding:6px 16px;border-radius:6px;font-size:11px;cursor:pointer;width:100%;transition:all 0.2s" onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">Sign Out</button></div>
+    </div>
   </div>
   <div class="main">
     <div class="topbar"><h2 id="pageTitle">OPENS DASHBOARD</h2><div class="date" id="topDate"></div></div>
@@ -288,6 +291,12 @@ async function saveOnboarding(){
   loadOpens();
 }
 $('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser=null;userProfile=null;isAdmin=false;
+  $('app').style.display='none';$('loginOverlay').style.display='';
+  $('loginPass').value='';$('loginError').textContent='';
+}
 
 // NAV
 const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS'};
