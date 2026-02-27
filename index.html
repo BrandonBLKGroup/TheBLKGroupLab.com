@@ -154,16 +154,17 @@ body::before{display:none}
   <div class="sidebar">
     <div class="sidebar-header"><h1>THE LAB</h1><div class="sub">Command Center</div></div>
     <div class="nav">
-      <div class="nav-item active" data-page="opens" onclick="showPage('opens')"><span class="icon">📊</span>Opens</div>
       <div class="nav-item" data-page="leads" onclick="showPage('leads')"><span class="icon">🎯</span>Active Leads<span class="badge" id="leadsBadge" style="display:none">0</span></div>
-      <div class="nav-item" data-page="scorecard" onclick="showPage('scorecard')"><span class="icon">💰</span>Monthly Scorecard</div>
+      <div class="nav-item active" data-page="opens" onclick="showPage('opens')"><span class="icon">📊</span>Opens</div>
       <div class="nav-item" data-page="listings" onclick="showPage('listings')"><span class="icon">🏠</span>Active Listings</div>
-      <div class="nav-item" data-page="performance" onclick="showPage('performance')"><span class="icon">📈</span>Monthly Performance</div>
+      <div class="nav-item" data-page="buyers" onclick="showPage('buyers')"><span class="icon">🛒</span>Active Buyers</div>
       <div class="nav-item" data-page="contracts" onclick="showPage('contracts')"><span class="icon">📝</span>Under Contract</div>
-      <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
+      <div class="nav-item" data-page="scorecard" onclick="showPage('scorecard')"><span class="icon">💰</span>Monthly Scorecard</div>
+      <div class="nav-item" data-page="performance" onclick="showPage('performance')"><span class="icon">📈</span>Monthly Performance</div>
       <div class="nav-item" data-page="capabilities" onclick="showPage('capabilities')"><span class="icon">🧠</span>Jarvis Capabilities</div>
       <div class="nav-item" data-page="coaching" onclick="showPage('coaching')"><span class="icon">🏋️</span>Jarvis Coaching</div>
       <div class="nav-item" data-page="battleplan" onclick="showPage('battleplan')"><span class="icon">⚔️</span>Battle Plan</div>
+      <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -179,6 +180,7 @@ body::before{display:none}
       <div class="page" id="page-leads"><div class="source-grid" id="sourceGrid"></div><div id="leadDetail" style="display:none"></div></div>
       <div class="page" id="page-scorecard"></div>
       <div class="page" id="page-listings"></div>
+      <div class="page" id="page-buyers"></div>
       <div class="page" id="page-performance"><div class="perf-grid" id="perfGrid"></div></div>
       <div class="page" id="page-contracts"></div>
       <div class="page" id="page-jarvis"></div>
@@ -248,7 +250,7 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['scorecard','nuggets','jarvis'];
+  const adminOnly=['leads','scorecard','nuggets','jarvis'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
@@ -305,7 +307,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -313,7 +315,7 @@ function showPage(p){
   document.querySelector(`.nav-item[data-page="${p}"]`).classList.add('active');
   $('pageTitle').textContent=TITLES[p];
   if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
-  if(p==='listings')loadListings();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
+  if(p==='listings')loadListings();if(p==='buyers')loadBuyers();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
   if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();
 }
 
@@ -541,6 +543,38 @@ function renderListings(rows){
 async function addListing(){const ins={address:'New Listing'};if(!isAdmin&&currentUser)ins.agent_id=currentUser.id;await sb.from('lab_listings').insert(ins);loadListings();}
 async function updateListing(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_listings').update(u).eq('id',id);}
 async function deleteListing(id){if(!confirm('Remove listing?'))return;await sb.from('lab_listings').delete().eq('id',id);loadListings();}
+
+// ============ ACTIVE BUYERS ============
+async function loadBuyers(){
+  const{data}=await sb.from('lab_buyers').select('*').eq('status','active').order('sort_order');
+  renderBuyers(data||[]);
+}
+function renderBuyers(rows){
+  let html=`<div class="card"><div class="card-header"><h3>ACTIVE BUYERS</h3><span class="month-label">${rows.length} BUYER${rows.length!==1?'S':''}</span></div>
+    <div class="card-body"><table class="lab-table"><thead><tr>
+      <th>#</th><th>Agent</th><th>Buyer Name</th><th>Phone</th><th>Email</th><th>Area</th><th>Price Range</th><th>Timeline</th><th>Notes</th><th></th>
+    </tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    html+=`<tr>
+      <td><span class="row-num">${i+1}</span></td>
+      <td><select onchange="updateBuyer('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
+      <td><input value="${r.buyer_name||''}" onchange="updateBuyer('${r.id}','buyer_name',this.value)" placeholder="Name" style="min-width:130px"></td>
+      <td><input value="${r.phone||''}" onchange="updateBuyer('${r.id}','phone',this.value)" placeholder="Phone" style="min-width:115px"></td>
+      <td><input value="${r.email||''}" onchange="updateBuyer('${r.id}','email',this.value)" placeholder="Email" style="min-width:160px"></td>
+      <td><input value="${r.area||''}" onchange="updateBuyer('${r.id}','area',this.value)" placeholder="Area" style="min-width:120px"></td>
+      <td><input value="${r.price_range||''}" onchange="updateBuyer('${r.id}','price_range',this.value)" placeholder="$min - $max" style="min-width:120px"></td>
+      <td><input value="${r.timeline||''}" onchange="updateBuyer('${r.id}','timeline',this.value)" placeholder="Timeline" style="min-width:100px"></td>
+      <td><input value="${r.notes||''}" onchange="updateBuyer('${r.id}','notes',this.value)" placeholder="Notes" style="min-width:150px"></td>
+      <td><button class="del-btn" onclick="deleteBuyer('${r.id}')">x</button></td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>
+    <button class="add-row-btn" onclick="addBuyer()">+ Add Buyer</button></div>`;
+  $('page-buyers').innerHTML=html;
+}
+async function addBuyer(){const ins={buyer_name:'New Buyer',status:'active'};if(!isAdmin&&currentUser)ins.agent_id=currentUser.id;await sb.from('lab_buyers').insert(ins);loadBuyers();}
+async function updateBuyer(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_buyers').update(u).eq('id',id);}
+async function deleteBuyer(id){if(!confirm('Remove buyer?'))return;await sb.from('lab_buyers').delete().eq('id',id);loadBuyers();}
 
 // ============ UNDER CONTRACT ============
 async function loadContracts(){
