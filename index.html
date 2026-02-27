@@ -48,23 +48,23 @@ body::before{display:none}
 .topbar{padding:18px 36px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#fff}
 .topbar h2{font-size:14px;font-weight:700;letter-spacing:3px;color:#111;text-transform:uppercase}
 .topbar .date{font-size:11px;color:var(--text-dim);letter-spacing:1px;font-weight:500}
-.content{flex:1;overflow-y:auto;padding:28px 36px}
+.content{flex:1;overflow:auto;padding:20px 24px}
 .page{display:none}
 .page.active{display:block}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:24px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
 .card-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.01)}
 .card-header h3{font-size:11px;font-weight:700;letter-spacing:2.5px;color:#111;text-transform:uppercase}
 .card-header .month-label{font-size:11px;color:var(--text-secondary);letter-spacing:1px}
-.card-body{padding:0}
-.lab-table{width:100%;border-collapse:collapse;font-size:12px}
-.lab-table thead th{font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;padding:12px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.card-body{padding:0;overflow-x:auto}
+.lab-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
+.lab-table thead th{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;padding:8px 4px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
 .lab-table tbody tr{border-bottom:1px solid rgba(0,0,0,0.04);transition:background 0.2s;cursor:grab}
 .lab-table tbody tr:hover{background:rgba(0,0,0,0.015)}
-.lab-table tbody td{padding:8px 12px;color:var(--text-secondary);vertical-align:middle}
-.lab-table tbody td input,.lab-table tbody td select,.lab-table tbody td textarea{background:#fafafa;border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:12px;font-family:inherit;outline:none;width:100%;transition:all 0.2s}
+.lab-table tbody td{padding:4px 3px;color:var(--text-secondary);vertical-align:middle}
+.lab-table tbody td input,.lab-table tbody td select,.lab-table tbody td textarea{background:#fafafa;border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:6px;font-size:12px;font-family:inherit;outline:none;width:100%;min-width:0;transition:all 0.2s}
 .lab-table tbody td input:focus,.lab-table tbody td select:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-light)}
 .lab-table tbody td select{cursor:pointer}
-.lab-table tbody td input[type="date"]{cursor:pointer}
+.lab-table tbody td input[type="date"]{cursor:pointer;min-width:110px}
 .lab-table tbody td .row-num{font-size:11px;color:var(--text-dim);font-weight:600}
 .totals-row{display:flex;gap:24px;padding:16px 24px;border-top:1px solid var(--border);background:rgba(0,0,0,0.015)}
 .totals-row .total-item{text-align:center}
@@ -348,13 +348,13 @@ function openRow(r,num,mk){
     <td><select class="color-select" onchange="updateOpen('${r.id}','status',this.value);loadOpens()"><option value="active"${r.status==='active'||!r.status?' selected':''}>⚪</option><option value="gold"${r.status==='gold'?' selected':''}>🟡</option><option value="purple"${r.status==='purple'?' selected':''}>🟣</option><option value="black"${r.status==='black'?' selected':''}>⚫</option></select></td>
     <td><select onchange="updateOpen('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
     <td><select onchange="updateOpen('${r.id}','lead_source',this.value)">${srcOpts(r.lead_source)}</select></td>
-    <td><input value="${r.name||''}" onchange="updateOpen('${r.id}','name',this.value)" placeholder="Name"></td>
-    <td><input value="${r.phone||''}" onchange="updateOpen('${r.id}','phone',this.value)" placeholder="Phone" style="width:120px"></td>
-    <td><input value="${r.email||''}" onchange="updateOpen('${r.id}','email',this.value)" placeholder="Email" style="width:150px"></td>
-    <td><input value="${r.address||''}" onchange="updateOpen('${r.id}','address',this.value)" placeholder="Address"></td>
+    <td><input value="${r.name||''}" onchange="updateOpen('${r.id}','name',this.value)" placeholder="Name" style="min-width:130px"></td>
+    <td><input value="${r.phone||''}" onchange="updateOpen('${r.id}','phone',this.value)" placeholder="Phone" style="min-width:115px"></td>
+    <td><input value="${r.email||''}" onchange="updateOpen('${r.id}','email',this.value)" placeholder="Email" style="min-width:160px"></td>
+    <td><input value="${r.address||''}" onchange="updateOpen('${r.id}','address',this.value)" placeholder="Address" style="min-width:160px"></td>
     <td><input type="date" value="${r.last_contact||''}" onchange="updateOpen('${r.id}','last_contact',this.value)"></td>
     <td><input type="date" value="${r.next_contact||''}" onchange="updateOpen('${r.id}','next_contact',this.value)"></td>
-    <td><input value="${r.notes||''}" onchange="updateOpen('${r.id}','notes',this.value)" placeholder="Notes" style="min-width:200px"></td>
+    <td><input value="${r.notes||''}" onchange="updateOpen('${r.id}','notes',this.value)" placeholder="Notes" style="min-width:180px"></td>
     <td><button class="del-btn" onclick="deleteOpen('${r.id}')">x</button></td>
   </tr>`;
 }
