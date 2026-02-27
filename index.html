@@ -571,8 +571,8 @@ function renderContracts(rows){
       <div class="card-body" style="padding:16px 20px">
         <div style="display:flex;gap:12px;margin-bottom:12px">
           <div style="flex:1">
-            <label style="font-size:9px;font-weight:600;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px">Commission</label>
-            <input type="number" value="${r.commission||''}" onchange="updateContract('${r.id}','commission',this.value)" placeholder="0" style="width:100%;background:#fafafa;border:1px solid var(--border);color:var(--text-primary);padding:6px 10px;border-radius:6px;font-size:12px;font-family:inherit">
+            <label style="font-size:9px;font-weight:600;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px">My Commission</label>
+            <input type="number" value="${getMyComm(r)}" onchange="updateMyComm('${r.id}',this.value)" placeholder="0" style="width:100%;background:#fafafa;border:1px solid var(--border);color:var(--text-primary);padding:6px 10px;border-radius:6px;font-size:12px;font-family:inherit">
           </div>
           <div style="flex:1">
             <label style="font-size:9px;font-weight:600;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px">Volume</label>
@@ -594,18 +594,30 @@ function renderContracts(rows){
     if(r.irsa_due)html+=`<div style="font-size:10px;color:var(--text-dim)">IRSA Due: ${r.irsa_due}</div>`;
     html+=`</div></div>`;
   });
-  // Commission totals
-  let totalComm=0,totalVol=0;rows.forEach(r=>{totalComm+=Number(r.commission||0);totalVol+=Number(r.volume||0)});
-  if(totalComm>0||totalVol>0){
-    html+=`<div class="totals-row" style="margin-top:8px">
-      <div class="total-item"><div class="val">${money(totalComm)}</div><div class="lbl">Commission Under Contract</div></div>
-      <div class="total-item"><div class="val">${money(totalVol)}</div><div class="lbl">Volume Under Contract</div></div>
-    </div>`;
-  }
+  // Commission totals (per-user)
+  let totalComm=0,totalVol=0;rows.forEach(r=>{totalComm+=Number(getMyComm(r)||0);totalVol+=Number(r.volume||0)});
+  html+=`<div class="totals-row" style="margin-top:8px">
+    <div class="total-item"><div class="val" style="color:var(--gold)">${money(totalComm)}</div><div class="lbl">Total Pending GCI</div></div>
+    <div class="total-item"><div class="val">${money(totalVol)}</div><div class="lbl">Volume Under Contract</div></div>
+  </div>`;
   html+=`<button class="add-row-btn" onclick="addContract()" style="border-radius:12px;margin-top:4px">+ Add Transaction</button>`;
   $('page-contracts').innerHTML=html;
 }
 async function addContract(){const ins={transaction_name:'New Transaction'};if(!isAdmin&&currentUser)ins.agent_id=currentUser.id;await sb.from('lab_contracts').insert(ins);loadContracts();}
+function getMyComm(r){
+  if(!r.user_commissions||!currentUser)return'';
+  let comms=r.user_commissions;
+  if(typeof comms==='string')try{comms=JSON.parse(comms)}catch(e){return''}
+  return comms[currentUser.id]||'';
+}
+async function updateMyComm(id,val){
+  const{data}=await sb.from('lab_contracts').select('user_commissions').eq('id',id).single();
+  let comms=data?.user_commissions||{};
+  if(typeof comms==='string')try{comms=JSON.parse(comms)}catch(e){comms={}}
+  comms[currentUser.id]=Number(val)||0;
+  await sb.from('lab_contracts').update({user_commissions:comms,updated_at:new Date().toISOString()}).eq('id',id);
+  loadContracts();
+}
 async function updateContract(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_contracts').update(u).eq('id',id);}
 async function toggleStep(id,step,val){
   const u={};u[step]=val;u.updated_at=new Date().toISOString();
@@ -693,15 +705,22 @@ async function loadPerformance(){
     const ucTarget=Math.max(Math.round(opensTarget*0.5),3);
     const condUC=getCondition(curContracts,ucTarget);
     html+=graphCard('perfUC','MY UNDER CONTRACT',condUC,`${curContracts} / ${ucTarget}`);
-    // Agent commission from contracts
+    // Agent commission from contracts (per-user)
     let ucComm=0,ytdComm=0;
     (contractRes.data||[]).forEach(c=>{
-      const comm=Number(c.commission||0);
-      if(comm>0){ucComm+=comm;if(c.closed)ytdComm+=comm;}
+      let comms=c.user_commissions||{};
+      if(typeof comms==='string')try{comms=JSON.parse(comms)}catch(e){comms={}}
+      const comm=Number(comms[currentUser.id]||0);
+      if(comm>0)ucComm+=comm;
+      if(c.closed&&comm>0)ytdComm+=comm;
     });
     // All-time closed commission for YTD
     const closedContracts=(contractRes.data||[]).filter(c=>c.closed);
-    ytdComm=0;closedContracts.forEach(c=>ytdComm+=Number(c.commission||0));
+    ytdComm=0;closedContracts.forEach(c=>{
+      let comms=c.user_commissions||{};
+      if(typeof comms==='string')try{comms=JSON.parse(comms)}catch(e){comms={}}
+      ytdComm+=Number(comms[currentUser.id]||0);
+    });
     const annualTarget=userProfile?.annual_income_goal||60000;
     const monthlyTarget=userProfile?.monthly_income_goal||5000;
     const condYTD=getCondition(ytdComm,annualTarget);
