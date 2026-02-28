@@ -520,23 +520,36 @@ async function loadListings(){
   renderListings(data||[]);
 }
 function renderListings(rows){
-  let totalPrice=0;rows.forEach(r=>totalPrice+=Number(r.price||0));
-  let html=`<div class="card"><div class="card-header"><h3>ACTIVE LISTINGS</h3><span class="month-label">${rows.length} LISTING${rows.length!==1?'S':''}</span></div>
+  let totalPrice=0;let totalShowings=0;rows.forEach(r=>{totalPrice+=Number(r.price||0);totalShowings+=Number(r.showings_count||0)});
+  let html=`<div class="card"><div class="card-header"><h3>ACTIVE LISTINGS</h3><span class="month-label">${rows.length} LISTING${rows.length!==1?'S':''} | ${totalShowings} TOTAL SHOWINGS</span></div>
     <div class="card-body"><table class="lab-table"><thead><tr>
-      <th>#</th><th>Agent</th><th>Listing Type</th><th>Address</th><th>Price</th><th></th>
+      <th>#</th><th>Agent</th><th>Type</th><th>Address</th><th>Price</th><th style="text-align:center">Showings</th><th>Entry Instructions</th><th style="text-align:center">Showing Coord</th><th>Last Showing</th><th style="text-align:center">Pending FB</th><th></th>
     </tr></thead><tbody>`;
   rows.forEach((r,i)=>{
+    const coordActive=r.showing_coord_active;
+    const showCount=r.showings_count||0;
+    const pendingFB=r.pending_feedback||0;
+    const lastShow=r.last_showing_at?new Date(r.last_showing_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'--';
     html+=`<tr>
       <td><span class="row-num">${i+1}</span></td>
       <td><select onchange="updateListing('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
-      <td><input value="${r.listing_type||''}" onchange="updateListing('${r.id}','listing_type',this.value)" placeholder="Type"></td>
-      <td><input value="${r.address||''}" onchange="updateListing('${r.id}','address',this.value)" placeholder="Address" style="min-width:200px"></td>
-      <td><input type="number" value="${r.price||''}" onchange="updateListing('${r.id}','price',this.value)" placeholder="0" style="width:130px"></td>
+      <td><input value="${r.listing_type||''}" onchange="updateListing('${r.id}','listing_type',this.value)" placeholder="Type" style="min-width:80px"></td>
+      <td><input value="${r.address||''}" onchange="updateListing('${r.id}','address',this.value)" placeholder="Address" style="min-width:180px"></td>
+      <td><input type="number" value="${r.price||''}" onchange="updateListing('${r.id}','price',this.value)" placeholder="0" style="width:120px"></td>
+      <td style="text-align:center"><span style="background:${showCount>0?'var(--gold-light)':'var(--bg)'};color:${showCount>0?'var(--gold)':'var(--text-dim)'};font-weight:700;font-size:16px;padding:4px 12px;border-radius:8px;display:inline-block;min-width:36px">${showCount}</span></td>
+      <td><input value="${r.entry_instructions||''}" onchange="updateListing('${r.id}','entry_instructions',this.value)" placeholder="Lockbox code, gate code, etc." style="min-width:180px"></td>
+      <td style="text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center"><input type="checkbox" ${coordActive?'checked':''} onchange="updateListing('${r.id}','showing_coord_active',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer"></label></td>
+      <td style="font-size:11px;color:var(--text-dim);white-space:nowrap;min-width:100px">${lastShow}</td>
+      <td style="text-align:center">${pendingFB>0?`<span style="background:var(--danger-light);color:var(--danger);font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px">${pendingFB}</span>`:'<span style="color:var(--text-dim)">0</span>'}</td>
       <td><button class="del-btn" onclick="deleteListing('${r.id}')">x</button></td>
     </tr>`;
   });
   html+=`</tbody></table></div>
-    <div class="totals-row"><div class="total-item"><div class="val">${money(totalPrice)}</div><div class="lbl">Total Listing Volume</div></div></div>
+    <div class="totals-row">
+      <div class="total-item"><div class="val">${money(totalPrice)}</div><div class="lbl">Total Listing Volume</div></div>
+      <div class="total-item"><div class="val" style="color:var(--gold)">${totalShowings}</div><div class="lbl">Total Showings</div></div>
+      <div class="total-item"><div class="val" style="color:${rows.filter(r=>r.showing_coord_active).length>0?'var(--sage)':'var(--text-dim)'}">${rows.filter(r=>r.showing_coord_active).length}</div><div class="lbl">Coord Active</div></div>
+    </div>
     <button class="add-row-btn" onclick="addListing()">+ Add Listing</button></div>`;
   $('page-listings').innerHTML=html;
 }
