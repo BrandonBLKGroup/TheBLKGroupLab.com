@@ -346,7 +346,7 @@ function renderOpens(byMonth){
     html+=`<div class="card" data-month="${mk}">
       <div class="card-header"><h3>${MONTHS[i]} 2026</h3><span class="month-label">${rows.length} OPEN${rows.length!==1?'S':''}</span></div>
       <div class="card-body"><table class="lab-table"><thead><tr>
-        <th>#</th><th style="width:36px"></th><th>Agent</th><th>Source</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Last Contact</th><th>Next Contact</th><th>Notes</th><th></th>
+        <th>#</th><th style="width:36px"></th><th>Agent</th><th>Source</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Last Contact</th><th>Next Contact</th><th>Notes</th><th>Move</th><th></th>
       </tr></thead><tbody id="opens-${mk}">`;
     rows.forEach((r,ri)=>{
       html+=openRow(r,ri+1,mk);
@@ -376,6 +376,7 @@ function openRow(r,num,mk){
     <td><input type="date" value="${r.last_contact||''}" onchange="updateOpen('${r.id}','last_contact',this.value)"></td>
     <td><input type="date" value="${r.next_contact||''}" onchange="updateOpen('${r.id}','next_contact',this.value)"></td>
     <td><div class="notes-cell ${r.notes?'':'empty'}" data-id="${r.id}" data-notes="${(r.notes||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" data-name="${(r.name||'Lead').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onclick="openNotesModal(this)">${r.notes?(r.notes.length>15?r.notes.substring(0,15)+'…':r.notes):'+ Add notes'}</div></td>
+    <td><select class="color-select" style="width:auto!important;min-width:44px!important;font-size:11px!important;padding:4px 6px!important" onchange="moveOpen('${r.id}',this.value);this.selectedIndex=0"><option value="">→</option><option value="listings">Active Listings</option><option value="contracts">Under Contract</option></select></td>
     <td><button class="del-btn" onclick="deleteOpen('${r.id}')">x</button></td>
   </tr>`;
 }
@@ -393,6 +394,34 @@ async function updateOpen(id,field,val){
 async function deleteOpen(id){
   if(!confirm('Remove this open?'))return;
   await sb.from('lab_opens').delete().eq('id',id);loadOpens();
+}
+async function moveOpen(id,dest){
+  if(!dest)return;
+  // Fetch the open's data
+  const{data:open}=await sb.from('lab_opens').select('*').eq('id',id).single();
+  if(!open)return;
+  const label=dest==='listings'?'Active Listings':'Under Contract';
+  if(!confirm(`Move "${open.name||open.address||'this open'}" to ${label}?\n\nThe open will stay in the Opens tab and turn black.`))return;
+  if(dest==='listings'){
+    await sb.from('lab_listings').insert({
+      agent:open.agent||null,
+      address:open.address||'',
+      listing_type:'',
+      status:'active',
+      agent_id:open.agent_id||null
+    });
+  } else if(dest==='contracts'){
+    const ins={
+      transaction_name:(open.address||open.name||'New Transaction'),
+      agent:open.agent||null,
+      status:'active',
+      agent_id:open.agent_id||null
+    };
+    await sb.from('lab_contracts').insert(ins);
+  }
+  // Turn the open black
+  await sb.from('lab_opens').update({status:'black',updated_at:new Date().toISOString()}).eq('id',id);
+  loadOpens();
 }
 // DRAG & DROP between months
 function setupDrag(tbody,mk){
