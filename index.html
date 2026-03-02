@@ -107,6 +107,19 @@ body::before{display:none}
 .condition-sidebar{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
 .cond-item{font-size:10px;color:var(--text-dim);padding:4px 10px;border-radius:6px;background:rgba(0,0,0,0.02);border:1px solid var(--border)}
 .cond-formula{font-size:9px;color:var(--text-secondary);margin-top:8px;padding:8px 12px;background:rgba(0,0,0,0.02);border-radius:8px;border:1px solid var(--border);line-height:1.8}
+.notes-cell{max-width:180px;min-width:120px;cursor:pointer;padding:6px 10px;font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:6px;transition:background 0.15s}
+.notes-cell:hover{background:rgba(184,150,12,0.08);color:var(--text-primary)}
+.notes-cell.empty{color:var(--text-dim);font-style:italic}
+.notes-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:70000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;pointer-events:none}
+.notes-modal-overlay.active{opacity:1;pointer-events:auto}
+.notes-modal{background:var(--card-bg);border-radius:14px;padding:28px;max-width:520px;width:90%;max-height:70vh;box-shadow:0 12px 48px rgba(0,0,0,0.25);position:relative;display:flex;flex-direction:column}
+.notes-modal-title{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px;font-weight:600}
+.notes-modal textarea{flex:1;min-height:140px;max-height:50vh;background:rgba(0,0,0,0.02);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;font-family:inherit;color:var(--text-primary);line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s}
+.notes-modal textarea:focus{border-color:var(--gold)}
+.notes-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.notes-modal-actions button{padding:8px 20px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:1px;cursor:pointer;font-family:inherit;transition:all 0.15s;border:none}
+.notes-modal-actions .notes-save{background:var(--gold);color:#fff}
+.notes-modal-actions .notes-cancel{background:rgba(0,0,0,0.05);color:var(--text-secondary)}
 .dragging{opacity:0.4}
 .drag-over td{border-top:2px solid var(--gold)!important}
 .login-overlay{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center}
@@ -362,7 +375,7 @@ function openRow(r,num,mk){
     <td><input value="${r.address||''}" onchange="updateOpen('${r.id}','address',this.value)" placeholder="Address" style="min-width:160px"></td>
     <td><input type="date" value="${r.last_contact||''}" onchange="updateOpen('${r.id}','last_contact',this.value)"></td>
     <td><input type="date" value="${r.next_contact||''}" onchange="updateOpen('${r.id}','next_contact',this.value)"></td>
-    <td><input value="${r.notes||''}" onchange="updateOpen('${r.id}','notes',this.value)" placeholder="Notes" style="min-width:180px"></td>
+    <td><div class="notes-cell ${r.notes?'':'empty'}" data-id="${r.id}" data-notes="${(r.notes||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" data-name="${(r.name||'Lead').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onclick="openNotesModal(this)">${r.notes?(r.notes.length>15?r.notes.substring(0,15)+'…':r.notes):'+ Add notes'}</div></td>
     <td><button class="del-btn" onclick="deleteOpen('${r.id}')">x</button></td>
   </tr>`;
 }
@@ -1395,6 +1408,39 @@ function jcSubscribe(){if(jcSub)return;const sid=jcGetSid();jcSub=sb.channel('jc
 function jcAddMsg(role,content){const c=$('jcMsgs'),d=document.createElement('div');d.className='jc-msg '+(role==='user'?'jc-msg-user':'jc-msg-ai');const b=document.createElement('div');b.className='jc-bubble';b.textContent=content;d.appendChild(b);c.appendChild(d);jcScroll();return b}
 function jcScroll(){const c=$('jcMsgs');requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight})}
 async function jcSend(){const inp=$('jcInput'),txt=inp.value.trim();if(!txt||jcBusy)return;inp.value='';inp.style.height='auto';jcBusy=true;$('jcSendBtn').disabled=true;jcMsgs.push({role:'user',content:txt});jcAddMsg('user',txt);const c=$('jcMsgs'),d=document.createElement('div');d.className='jc-msg jc-msg-typing';d.id='jcTyping';d.innerHTML='<div class="jc-bubble"><div class="jc-tdot"></div><div class="jc-tdot"></div><div class="jc-tdot"></div></div>';c.appendChild(d);jcScroll();const{error}=await sb.from('jarvis_chat').insert({session_id:jcGetSid(),user_email:jcEmail(),role:'user',content:txt});if(error){const t=$('jcTyping');if(t)t.remove();jcAddMsg('assistant','Failed to send. Try again.');jcBusy=false;$('jcSendBtn').disabled=false}}
+</script>
+<!-- Notes Modal -->
+<div class="notes-modal-overlay" id="notesOverlay" onclick="if(event.target===this)closeNotesModal()">
+  <div class="notes-modal">
+    <div class="notes-modal-title" id="notesModalTitle">Notes</div>
+    <textarea id="notesModalText" placeholder="Add conversation notes..."></textarea>
+    <div class="notes-modal-actions">
+      <button class="notes-cancel" onclick="closeNotesModal()">Cancel</button>
+      <button class="notes-save" onclick="saveNotesModal()">Save</button>
+    </div>
+  </div>
+</div>
+<script>
+let _notesId=null;
+function openNotesModal(el){
+  _notesId=el.dataset.id;
+  document.getElementById('notesModalTitle').textContent='Notes — '+el.dataset.name;
+  document.getElementById('notesModalText').value=el.dataset.notes.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&quot;/g,'"');
+  document.getElementById('notesOverlay').classList.add('active');
+  setTimeout(()=>document.getElementById('notesModalText').focus(),100);
+}
+function closeNotesModal(){
+  document.getElementById('notesOverlay').classList.remove('active');
+  _notesId=null;
+}
+async function saveNotesModal(){
+  if(!_notesId)return;
+  const val=document.getElementById('notesModalText').value;
+  await updateOpen(_notesId,'notes',val);
+  closeNotesModal();
+  loadOpens();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&_notesId)closeNotesModal()});
 </script>
 </body>
 </html>
