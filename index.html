@@ -142,13 +142,13 @@ body::before{display:none}
 .perf-grid{display:grid;grid-template-columns:1fr;gap:20px}
 .back-btn{background:#fff;border:1px solid var(--border);color:var(--text-secondary);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;margin-bottom:16px;transition:all 0.2s}
 .back-btn:hover{color:var(--text-primary);border-color:var(--gold)}
-/* ROW COLORS */
-.row-gold{background:rgba(184,150,12,0.08)!important}
-.row-gold td input,.row-gold td select{background:rgba(184,150,12,0.05)!important}
-.row-purple{background:rgba(123,94,167,0.08)!important}
-.row-purple td input,.row-purple td select{background:rgba(123,94,167,0.05)!important}
-.row-black{background:rgba(0,0,0,0.06)!important}
-.row-black td input,.row-black td select{background:rgba(0,0,0,0.04)!important;color:#111!important}
+/* ROW COLORS - saturated for visibility */
+.row-gold{background:rgba(255,215,0,0.25)!important}
+.row-gold td input,.row-gold td select{background:rgba(255,215,0,0.15)!important}
+.row-purple{background:rgba(156,39,176,0.18)!important}
+.row-purple td input,.row-purple td select{background:rgba(156,39,176,0.10)!important}
+.row-black{background:rgba(0,0,0,0.15)!important}
+.row-black td input,.row-black td select{background:rgba(0,0,0,0.10)!important;color:#111!important}
 .color-select{width:32px!important;padding:4px!important;border:1px solid var(--border)!important;border-radius:6px!important;background:#fff!important;cursor:pointer!important;font-size:14px!important;text-align:center}
 </style>
 </head>
@@ -565,7 +565,7 @@ function renderListings(rows){
   let totalPrice=0;let totalShowings=0;rows.forEach(r=>{totalPrice+=Number(r.price||0);totalShowings+=Number(r.showings_count||0)});
   let html=`<div class="card"><div class="card-header"><h3>ACTIVE LISTINGS</h3><span class="month-label">${rows.length} LISTING${rows.length!==1?'S':''} | ${totalShowings} TOTAL SHOWINGS</span></div>
     <div class="card-body"><table class="lab-table"><thead><tr>
-      <th>#</th><th>Agent</th><th>Type</th><th>Address</th><th>Price</th><th style="text-align:center">Showings</th><th>Entry Instructions</th><th style="text-align:center">Showing Coord</th><th>Last Showing</th><th style="text-align:center">Pending FB</th><th></th>
+      <th>#</th><th>Agent</th><th>Type</th><th>Address</th><th>Price</th><th style="text-align:center">Showings</th><th>Entry Instructions</th><th style="text-align:center">Showing Coord</th><th>Last Showing</th><th style="text-align:center">Pending FB</th><th>Move</th><th></th>
     </tr></thead><tbody>`;
   rows.forEach((r,i)=>{
     const coordActive=r.showing_coord_active;
@@ -583,6 +583,7 @@ function renderListings(rows){
       <td style="text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center"><input type="checkbox" ${coordActive?'checked':''} onchange="updateListing('${r.id}','showing_coord_active',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer"></label></td>
       <td style="font-size:11px;color:var(--text-dim);white-space:nowrap;min-width:100px">${lastShow}</td>
       <td style="text-align:center">${pendingFB>0?`<span style="background:var(--danger-light);color:var(--danger);font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px">${pendingFB}</span>`:'<span style="color:var(--text-dim)">0</span>'}</td>
+      <td><select class="color-select" style="width:auto!important;min-width:44px!important;font-size:11px!important;padding:4px 6px!important" onchange="moveListing('${r.id}',this.value);this.selectedIndex=0"><option value="">→</option><option value="contracts">Under Contract</option></select></td>
       <td><button class="del-btn" onclick="deleteListing('${r.id}')">x</button></td>
     </tr>`;
   });
@@ -598,6 +599,22 @@ function renderListings(rows){
 async function addListing(){const ins={address:'New Listing'};if(!isAdmin&&currentUser)ins.agent_id=currentUser.id;await sb.from('lab_listings').insert(ins);loadListings();}
 async function updateListing(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_listings').update(u).eq('id',id);}
 async function deleteListing(id){if(!confirm('Remove listing?'))return;await sb.from('lab_listings').delete().eq('id',id);loadListings();}
+async function moveListing(id,dest){
+  if(!dest)return;
+  const{data:listing}=await sb.from('lab_listings').select('*').eq('id',id).single();
+  if(!listing)return;
+  if(!confirm(`Move "${listing.address||'this listing'}" to Under Contract?\n\nThe listing will be REMOVED from Active Listings.`))return;
+  // Create Under Contract entry
+  await sb.from('lab_contracts').insert({
+    transaction_name:(listing.address||'New Transaction'),
+    agent:listing.agent||null,
+    status:'active',
+    agent_id:listing.agent_id||null
+  });
+  // Delete from Active Listings
+  await sb.from('lab_listings').delete().eq('id',id);
+  loadListings();
+}
 
 // ============ ACTIVE BUYERS ============
 async function loadBuyers(){
