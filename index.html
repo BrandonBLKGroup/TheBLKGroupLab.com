@@ -671,7 +671,7 @@ function renderContracts(rows){
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;font-weight:600;color:var(--text-dim)">${Math.round(pct)}%</span>
-          ${pct>=100?`<button class="del-btn" onclick="deleteContract('${r.id}')" title="Remove">x</button>`:''}
+          <button class="del-btn" onclick="deleteContract('${r.id}')" title="Delete contract">x</button>
         </div>
       </div>
       <div class="card-body" style="padding:16px 20px">
