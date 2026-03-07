@@ -525,11 +525,12 @@ function renderScorecard(byMonth){
     ytdVol+=mVol;ytdGross+=mGross;ytdMy+=mMy;
     html+=`<div class="card"><div class="card-header"><h3>${MONTHS[i]} 2026</h3><span class="month-label">${rows.length} TRANSACTION${rows.length!==1?'S':''}</span></div>
       <div class="card-body"><table class="lab-table"><thead><tr>
-        <th>#</th><th>Agent</th><th>Transaction Name</th><th>Volume</th><th>Gross Commission</th><th>My Commission</th><th></th>
+        <th>#</th><th>Date</th><th>Agent</th><th>Transaction Name</th><th>Volume</th><th>Gross Commission</th><th>My Commission</th><th></th>
       </tr></thead><tbody>`;
     rows.forEach((r,ri)=>{
       html+=`<tr>
         <td><span class="row-num">${ri+1}</span></td>
+        <td><input type="date" value="${r.entry_date||''}" onchange="updateSC('${r.id}','entry_date',this.value)" style="width:130px;font-size:11px"></td>
         <td><select onchange="updateSC('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
         <td><input value="${r.transaction_name||''}" onchange="updateSC('${r.id}','transaction_name',this.value)" placeholder="Transaction name" style="min-width:200px"></td>
         <td><input type="number" value="${r.volume||''}" onchange="updateSC('${r.id}','volume',this.value)" placeholder="0" style="width:120px"></td>
@@ -761,11 +762,11 @@ async function loadPerformance(){
   // Fetch data - agents only see their own (RLS handles filtering)
   const[opensRes,scoreRes,listRes,contractRes]=await Promise.all([
     sb.from('lab_opens').select('month_year,created_at'),
-    isAdmin ? sb.from('lab_scorecard').select('month_year,volume,gross_commission,my_commission') : Promise.resolve({data:[]}),
+    isAdmin ? sb.from('lab_scorecard').select('month_year,volume,gross_commission,my_commission,entry_date,created_at') : Promise.resolve({data:[]}),
     sb.from('lab_listings').select('price').eq('status','active'),
     sb.from('lab_contracts').select('transaction_name,closed,created_at')
   ]);
-  const opens=opensRes.data||[],scores=scoreRes.data||[],listings=listRes.data||[],contracts=contractRes.data||[];
+  const opens=opensRes.data||[],scores=scoreRes.data||[],listings=listRes.data||[],contracts=contractRes.data||[];_commScoreData=scores;
   // Current month
   const now=new Date();const curMK=`2026-${String(now.getMonth()+1).padStart(2,'0')}`;
   const curMonthOpens=opens.filter(o=>o.month_year===curMK).length;
@@ -843,7 +844,7 @@ async function loadPerformance(){
     drawChart('perfOpens',MONTHS.map(m=>m.slice(0,3)),monthlyOpens,opensTarget,'Opens');
     drawChart('perfListings',['Current'],[curListings],listingsTarget,'Listings',true);
     if(isAdmin){
-      drawMonthChart('perfMyComm',MONTHS[new Date().getMonth()].slice(0,3),monthlyMyComm[new Date().getMonth()]||0,myCommTarget);
+      switchCommMonth(new Date().getMonth(),'perfMyComm',myCommTarget);
       drawChart('perfGross',MONTHS.map(m=>m.slice(0,3)),cumGross,grossCommTarget,'$',false,true);
       drawChart('perfVol',MONTHS.map(m=>m.slice(0,3)),cumVol,volTarget,'$',false,true);
     }
@@ -870,6 +871,7 @@ function graphCard(canvasId,title,cond,stat){
     </div>
   </div>`;
 }
+let _commScoreData=[];
 function monthGraphCard(canvasId,title,cond,stat,monthlyData,monthTarget){
   const now=new Date();const curM=now.getMonth();
   let tabs='<div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">';
@@ -877,7 +879,7 @@ function monthGraphCard(canvasId,title,cond,stat,monthlyData,monthTarget){
   MN.forEach((m,i)=>{
     const val=monthlyData[i]||0;
     const active=i===curM;
-    tabs+=`<button onclick="switchCommMonth(${i},'${canvasId}',${JSON.stringify(monthlyData).replace(/"/g,"'")},${monthTarget})" style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:${active?'700':'500'};border:1px solid ${active?'var(--gold)':'var(--border)'};background:${active?'rgba(184,150,12,0.1)':'transparent'};color:${active?'var(--gold)':'var(--text-dim)'};cursor:pointer;font-family:inherit">${m}${val>0?' ✓':''}</button>`;
+    tabs+=`<button id="${canvasId}Tab${i}" onclick="switchCommMonth(${i},'${canvasId}',${monthTarget})" style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:${active?'700':'500'};border:1px solid ${active?'var(--gold)':'var(--border)'};background:${active?'rgba(184,150,12,0.1)':'transparent'};color:${active?'var(--gold)':'var(--text-dim)'};cursor:pointer;font-family:inherit">${m}${val>0?' ✓':''}</button>`;
   });
   tabs+='</div>';
   return`<div class="graph-card">
@@ -901,38 +903,90 @@ function monthGraphCard(canvasId,title,cond,stat,monthlyData,monthTarget){
     </div>
   </div>`;
 }
-function switchCommMonth(monthIdx,canvasId,monthlyData,monthTarget){
-  const val=monthlyData[monthIdx]||0;
+function switchCommMonth(monthIdx,canvasId,monthTarget){
   const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const cond=getCondition(val,monthTarget);
+  // Update tab styles
+  MN.forEach((_,i)=>{
+    const tab=document.getElementById(canvasId+'Tab'+i);
+    if(tab){
+      tab.style.fontWeight=i===monthIdx?'700':'500';
+      tab.style.borderColor=i===monthIdx?'var(--gold)':'var(--border)';
+      tab.style.background=i===monthIdx?'rgba(184,150,12,0.1)':'transparent';
+      tab.style.color=i===monthIdx?'var(--gold)':'var(--text-dim)';
+    }
+  });
+  // Filter scorecard data for this month
+  const mk=`2026-${String(monthIdx+1).padStart(2,'0')}`;
+  const monthRows=_commScoreData.filter(r=>r.month_year===mk);
+  // Build daily cumulative data
+  const year=2026;const daysInMonth=new Date(year,monthIdx+1,0).getDate();
+  const dailyComm={};
+  monthRows.forEach(r=>{
+    const dateStr=r.entry_date||r.created_at?.split('T')[0]||'';
+    if(!dateStr)return;
+    const day=parseInt(dateStr.split('-')[2])||0;
+    if(day>=1&&day<=daysInMonth){
+      dailyComm[day]=(dailyComm[day]||0)+Number(r.my_commission||0);
+    }
+  });
+  // Build cumulative array
+  const labels=[];const cumData=[];const targetPace=[];
+  let running=0;
+  for(let d=1;d<=daysInMonth;d++){
+    labels.push(d);
+    running+=(dailyComm[d]||0);
+    cumData.push(running);
+    targetPace.push(Math.round(monthTarget*d/daysInMonth));
+  }
+  const totalComm=running;
+  const cond=getCondition(totalComm,monthTarget);
+  // Update stat, badge, formula
   const statEl=document.getElementById(canvasId+'Stat');
   const badgeEl=document.getElementById(canvasId+'Badge');
   const formulaEl=document.getElementById(canvasId+'Formula');
-  if(statEl)statEl.textContent='$'+val.toLocaleString()+' / $'+monthTarget.toLocaleString();
+  if(statEl)statEl.textContent='$'+totalComm.toLocaleString()+' / $'+monthTarget.toLocaleString();
   if(badgeEl){badgeEl.textContent=cond.name;badgeEl.className='condition-badge '+cond.cls;}
   if(formulaEl)formulaEl.innerHTML='<strong style="color:var(--text-secondary)">Formula ('+cond.name+'):</strong> '+cond.formula;
-  drawMonthChart(canvasId,MN[monthIdx],val,monthTarget);
+  // Draw daily line chart
+  drawDailyCommChart(canvasId,labels,cumData,targetPace,monthTarget,monthIdx);
 }
-function drawMonthChart(id,monthName,val,target){
+function drawDailyCommChart(id,labels,cumData,targetPace,monthTarget,monthIdx){
   const ctx=document.getElementById(id);if(!ctx)return;
   if(perfCharts[id])perfCharts[id].destroy();
-  const pct=Math.min(val/target*100,150);
+  const now=new Date();const isCurrentMonth=now.getMonth()===monthIdx;
+  const todayDay=isCurrentMonth?now.getDate():labels.length;
+  // Only show actual data up to today (or full month if past)
+  const actualData=cumData.map((v,i)=>i<todayDay?v:null);
+  // Projection from today
+  const projData=cumData.map(()=>null);
+  if(isCurrentMonth&&todayDay>0&&todayDay<labels.length){
+    const curVal=cumData[todayDay-1]||0;
+    const dailyRate=curVal/todayDay;
+    projData[todayDay-1]=curVal;
+    for(let i=todayDay;i<labels.length;i++){
+      projData[i]=Math.round(curVal+dailyRate*(i-todayDay+1));
+    }
+  }
   perfCharts[id]=new Chart(ctx,{
-    type:'bar',
+    type:'line',
     data:{
-      labels:[monthName],
+      labels,
       datasets:[
-        {label:'Actual',data:[val],backgroundColor:val>=target?'rgba(91,138,90,0.7)':'rgba(17,17,17,0.8)',borderRadius:6,barPercentage:0.4},
-        {label:'Target',data:[target],backgroundColor:'rgba(184,150,12,0.15)',borderColor:'rgba(184,150,12,0.4)',borderWidth:1,borderRadius:6,barPercentage:0.4}
+        {label:'Actual Commission',data:actualData,borderColor:'#111',backgroundColor:'rgba(0,0,0,0.03)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#111',pointBorderColor:'#fff',pointBorderWidth:2,spanGaps:false},
+        {label:'Target Pace ($'+monthTarget.toLocaleString()+')',data:targetPace,borderColor:'rgba(184,150,12,0.4)',borderDash:[6,4],pointRadius:0,fill:false},
+        ...(projData.some(v=>v!==null)?[{label:'Projection',data:projData,borderColor:'rgba(0,0,0,0.15)',borderDash:[3,3],pointRadius:0,fill:false,spanGaps:true}]:[])
       ]
     },
     options:{
-      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      responsive:true,maintainAspectRatio:false,
       scales:{
-        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'rgba(0,0,0,0.35)',font:{size:10},callback:v=>'$'+v.toLocaleString()}},
-        y:{display:false}
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'rgba(0,0,0,0.35)',font:{size:10},callback:v=>'$'+v.toLocaleString()},min:0},
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'rgba(0,0,0,0.35)',font:{size:10},maxTicksLimit:15},title:{display:true,text:'Day of Month',color:'rgba(0,0,0,0.3)',font:{size:10}}}
       },
-      plugins:{legend:{display:true,labels:{color:'rgba(0,0,0,0.4)',font:{size:10},boxWidth:12,padding:16}}}
+      plugins:{
+        legend:{display:true,labels:{color:'rgba(0,0,0,0.4)',font:{size:10},boxWidth:12,padding:16}},
+        annotation:isCurrentMonth?{annotations:{today:{type:'line',xMin:todayDay-1,xMax:todayDay-1,borderColor:'rgba(184,150,12,0.3)',borderWidth:1,borderDash:[3,3],label:{display:true,content:'Today',position:'start',font:{size:9},color:'rgba(0,0,0,0.3)'},}}}:{}
+      }
     }
   });
 }
