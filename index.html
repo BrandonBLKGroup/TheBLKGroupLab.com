@@ -723,7 +723,7 @@ async function updateMyComm(id,val){
   if(typeof comms==='string')try{comms=JSON.parse(comms)}catch(e){comms={}}
   comms[currentUser.id]=Number(val)||0;
   await sb.from('lab_contracts').update({user_commissions:comms,updated_at:new Date().toISOString()}).eq('id',id);
-  loadContracts();
+
 }
 async function updateContract(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_contracts').update(u).eq('id',id);}
 async function toggleStep(id,step,val){
