@@ -728,7 +728,7 @@ async function updateMyComm(id,val){
 async function updateContract(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_contracts').update(u).eq('id',id);}
 async function toggleStep(id,step,val){
   const u={};u[step]=val;u.updated_at=new Date().toISOString();
-  await sb.from('lab_contracts').update(u).eq('id',id);loadContracts();
+  await sb.from('lab_contracts').update(u).eq('id',id);
 }
 async function contractDateChange(id,dateStr){
   const u={contract_date:dateStr,updated_at:new Date().toISOString()};
@@ -742,7 +742,7 @@ async function contractDateChange(id,dateStr){
     while(biz<10){irsa.setDate(irsa.getDate()+1);if(irsa.getDay()!==0&&irsa.getDay()!==6)biz++;}
     u.irsa_due=irsa.toISOString().split('T')[0];
   }
-  await sb.from('lab_contracts').update(u).eq('id',id);loadContracts();
+  await sb.from('lab_contracts').update(u).eq('id',id);
 }
 async function deleteContract(id){if(!confirm('Remove this transaction?'))return;await sb.from('lab_contracts').delete().eq('id',id);loadContracts();}
 
