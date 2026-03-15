@@ -766,7 +766,7 @@ async function loadPerformance(){
     sb.from('lab_listings').select('price').eq('status','active'),
     sb.from('lab_contracts').select('transaction_name,closed,created_at')
   ]);
-  const opens=opensRes.data||[],scores=scoreRes.data||[],listings=listRes.data||[],contracts=contractRes.data||[];_commScoreData=scores;
+  const opens=opensRes.data||[],scores=scoreRes.data||[],listings=listRes.data||[],contracts=contractRes.data||[];_commScoreData=scores;_opensData=opens;
   // Current month
   const now=new Date();const curMK=`2026-${String(now.getMonth()+1).padStart(2,'0')}`;
   const curMonthOpens=opens.filter(o=>o.month_year===curMK).length;
@@ -800,7 +800,7 @@ async function loadPerformance(){
 
   let html='';
   // 1. Opens (everyone sees)
-  html+=graphCard('perfOpens',isAdmin?'OPENS THIS MONTH':'MY OPENS THIS MONTH',condOpens,`${curMonthOpens} / ${opensTarget}`);
+  html+=opensMonthGraphCard('perfOpens',isAdmin?'OPENS THIS MONTH':'MY OPENS THIS MONTH',condOpens,`${curMonthOpens} / ${opensTarget}`,monthlyOpens,opensTarget);
   // 2. Active Listings (everyone sees)
   html+=graphCard('perfListings','ACTIVE LISTINGS',condListings,`${curListings} / ${listingsTarget}`);
   if(isAdmin){
@@ -841,7 +841,7 @@ async function loadPerformance(){
 
   // Draw charts
   setTimeout(()=>{
-    drawChart('perfOpens',MONTHS.map(m=>m.slice(0,3)),monthlyOpens,opensTarget,'Opens');
+    switchOpensMonth(new Date().getMonth(),'perfOpens',opensTarget);
     drawChart('perfListings',['Current'],[curListings],listingsTarget,'Listings',true);
     if(isAdmin){
       switchCommMonth(new Date().getMonth(),'perfMyComm',myCommTarget);
@@ -871,7 +871,7 @@ function graphCard(canvasId,title,cond,stat){
     </div>
   </div>`;
 }
-let _commScoreData=[];
+let _commScoreData=[];let _opensData=[];
 function monthGraphCard(canvasId,title,cond,stat,monthlyData,monthTarget){
   const now=new Date();const curM=now.getMonth();
   let tabs='<div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">';
@@ -987,6 +987,112 @@ function drawDailyCommChart(id,labels,cumData,targetPace,monthTarget,monthIdx){
         legend:{display:true,labels:{color:'rgba(0,0,0,0.4)',font:{size:10},boxWidth:12,padding:16}},
         annotation:isCurrentMonth?{annotations:{today:{type:'line',xMin:todayDay-1,xMax:todayDay-1,borderColor:'rgba(184,150,12,0.3)',borderWidth:1,borderDash:[3,3],label:{display:true,content:'Today',position:'start',font:{size:9},color:'rgba(0,0,0,0.3)'},}}}:{}
       }
+    }
+  });
+}
+function opensMonthGraphCard(canvasId,title,cond,stat,monthlyData,monthTarget){
+  const now=new Date();const curM=now.getMonth();
+  let tabs='<div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">';
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  MN.forEach((m,i)=>{
+    const val=monthlyData[i]||0;
+    const active=i===curM;
+    tabs+=`<button id="${canvasId}Tab${i}" onclick="switchOpensMonth(${i},'${canvasId}',${monthTarget})" style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:${active?'700':'500'};border:1px solid ${active?'var(--gold)':'var(--border)'};background:${active?'rgba(184,150,12,0.1)':'transparent'};color:${active?'var(--gold)':'var(--text-dim)'};cursor:pointer;font-family:inherit">${m}${val>0?' ✓':''}</button>`;
+  });
+  tabs+='</div>';
+  return`<div class="graph-card">
+    <div class="graph-header">
+      <h4>${title}</h4>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="${canvasId}Stat" style="font-size:12px;font-weight:500;color:var(--text-secondary)">${stat}</span>
+        <span id="${canvasId}Badge" class="condition-badge ${cond.cls}">${cond.name}</span>
+      </div>
+    </div>
+    ${tabs}
+    <div class="graph-container"><canvas id="${canvasId}"></canvas></div>
+    <div id="${canvasId}Formula" class="cond-formula"><strong style="color:var(--text-secondary)">Formula (${cond.name}):</strong> ${cond.formula}</div>
+    <div class="condition-sidebar">
+      <span class="cond-item" style="border-color:rgba(91,138,90,0.3)">Power 93%+</span>
+      <span class="cond-item" style="border-color:rgba(255,215,0,0.2)">Affluence 73%+</span>
+      <span class="cond-item" style="border-color:rgba(70,130,255,0.2)">Normal 60%+</span>
+      <span class="cond-item" style="border-color:rgba(255,140,0,0.2)">Emergency 47%+</span>
+      <span class="cond-item" style="border-color:rgba(255,60,60,0.2)">Danger 27%+</span>
+      <span class="cond-item" style="border-color:rgba(128,128,128,0.2)">Non-E &lt;27%</span>
+    </div>
+  </div>`;
+}
+function switchOpensMonth(monthIdx,canvasId,monthTarget){
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Update tab styles
+  MN.forEach((_,i)=>{
+    const tab=document.getElementById(canvasId+'Tab'+i);
+    if(tab){
+      tab.style.fontWeight=i===monthIdx?'700':'500';
+      tab.style.borderColor=i===monthIdx?'var(--gold)':'var(--border)';
+      tab.style.background=i===monthIdx?'rgba(184,150,12,0.1)':'transparent';
+      tab.style.color=i===monthIdx?'var(--gold)':'var(--text-dim)';
+    }
+  });
+  const mk=`2026-${String(monthIdx+1).padStart(2,'0')}`;
+  const monthOpens=_opensData.filter(o=>o.month_year===mk);
+  const year=2026;const daysInMonth=new Date(year,monthIdx+1,0).getDate();
+  // Build daily counts from created_at
+  const dailyCounts={};
+  monthOpens.forEach(o=>{
+    const dateStr=(o.created_at||'').split('T')[0];
+    if(!dateStr)return;
+    const day=parseInt(dateStr.split('-')[2])||0;
+    if(day>=1&&day<=daysInMonth) dailyCounts[day]=(dailyCounts[day]||0)+1;
+  });
+  // Build cumulative
+  const labels=[];const cumData=[];const targetPace=[];
+  let running=0;
+  for(let d=1;d<=daysInMonth;d++){
+    labels.push(d);
+    running+=(dailyCounts[d]||0);
+    cumData.push(running);
+    targetPace.push(Math.round(monthTarget*d/daysInMonth));
+  }
+  const totalOpens=running;
+  const cond=getCondition(totalOpens,monthTarget);
+  const statEl=document.getElementById(canvasId+'Stat');
+  const badgeEl=document.getElementById(canvasId+'Badge');
+  const formulaEl=document.getElementById(canvasId+'Formula');
+  if(statEl)statEl.textContent=totalOpens+' / '+monthTarget;
+  if(badgeEl){badgeEl.textContent=cond.name;badgeEl.className='condition-badge '+cond.cls;}
+  if(formulaEl)formulaEl.innerHTML='<strong style="color:var(--text-secondary)">Formula ('+cond.name+'):</strong> '+cond.formula;
+  drawDailyOpensChart(canvasId,labels,cumData,targetPace,monthTarget,monthIdx);
+}
+function drawDailyOpensChart(id,labels,cumData,targetPace,monthTarget,monthIdx){
+  const ctx=document.getElementById(id);if(!ctx)return;
+  if(perfCharts[id])perfCharts[id].destroy();
+  const now=new Date();const isCurrentMonth=now.getMonth()===monthIdx;
+  const todayDay=isCurrentMonth?now.getDate():labels.length;
+  const actualData=cumData.map((v,i)=>i<todayDay?v:null);
+  const projData=cumData.map(()=>null);
+  if(isCurrentMonth&&todayDay>0&&todayDay<labels.length){
+    const curVal=cumData[todayDay-1]||0;
+    const dailyRate=curVal/todayDay;
+    projData[todayDay-1]=curVal;
+    for(let i=todayDay;i<labels.length;i++) projData[i]=Math.round(curVal+dailyRate*(i-todayDay+1));
+  }
+  perfCharts[id]=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Actual Opens',data:actualData,borderColor:'#111',backgroundColor:'rgba(0,0,0,0.03)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#111',pointBorderColor:'#fff',pointBorderWidth:2,spanGaps:false},
+        {label:'Target Pace ('+monthTarget+')',data:targetPace,borderColor:'rgba(184,150,12,0.4)',borderDash:[6,4],pointRadius:0,fill:false},
+        ...(projData.some(v=>v!==null)?[{label:'Projection',data:projData,borderColor:'rgba(0,0,0,0.15)',borderDash:[3,3],pointRadius:0,fill:false,spanGaps:true}]:[])
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      scales:{
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'rgba(0,0,0,0.35)',font:{size:10}},min:0},
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'rgba(0,0,0,0.35)',font:{size:10},maxTicksLimit:15},title:{display:true,text:'Day of Month',color:'rgba(0,0,0,0.3)',font:{size:10}}}
+      },
+      plugins:{legend:{display:true,labels:{color:'rgba(0,0,0,0.4)',font:{size:10},boxWidth:12,padding:16}}}
     }
   });
 }
