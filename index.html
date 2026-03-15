@@ -921,14 +921,23 @@ function switchCommMonth(monthIdx,canvasId,monthTarget){
   // Build daily cumulative data
   const year=2026;const daysInMonth=new Date(year,monthIdx+1,0).getDate();
   const dailyComm={};
+  let hasAnyDailyData=false;
   monthRows.forEach(r=>{
-    const dateStr=r.entry_date||r.created_at?.split('T')[0]||'';
+    let dateStr=r.entry_date||r.created_at?.split('T')[0]||'';
     if(!dateStr)return;
-    const day=parseInt(dateStr.split('-')[2])||0;
-    if(day>=1&&day<=daysInMonth){
+    const parts=dateStr.split('-');
+    const dateMonth=parseInt(parts[1])||0;
+    const day=parseInt(parts[2])||0;
+    if(dateMonth===(monthIdx+1)&&day>=1&&day<=daysInMonth){
       dailyComm[day]=(dailyComm[day]||0)+Number(r.my_commission||0);
+      hasAnyDailyData=true;
     }
   });
+  // If rows exist but no dates match this month (created_at in wrong month), show total on last day
+  if(!hasAnyDailyData&&monthRows.length>0){
+    const monthTotal=monthRows.reduce((s,r)=>s+Number(r.my_commission||0),0);
+    if(monthTotal>0)dailyComm[daysInMonth]=monthTotal;
+  }
   // Build cumulative array
   const labels=[];const cumData=[];const targetPace=[];
   let running=0;
