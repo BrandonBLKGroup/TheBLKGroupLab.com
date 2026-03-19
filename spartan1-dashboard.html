@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spartan 1 Dashboard - The BLK Group Lab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #FAFAFA;
+            color: #111;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid #DDD;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #111;
+            background: #F5F5F5;
+        }
+
+        .tab.active {
+            color: #B8960C;
+            border-bottom-color: #B8960C;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #111;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #F5F5F5;
+            font-weight: 600;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid #DDD;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #EEE;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #FAFAFA;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .status-sold {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .status-withdrawn {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .days-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .days-green {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .days-yellow {
+            background: #FFF9C4;
+            color: #F57C00;
+        }
+
+        .days-red {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .grade-s {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .grade-b {
+            background: #8BC34A;
+            color: white;
+        }
+
+        .grade-c {
+            background: #FFC107;
+            color: white;
+        }
+
+        .grade-f {
+            background: #F44336;
+            color: white;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #B8960C;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #8B7209;
+        }
+
+        .btn-secondary {
+            background: #F5F5F5;
+            color: #111;
+        }
+
+        .btn-secondary:hover {
+            background: #EEEEEE;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #DDD;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .copy-box {
+            background: #F5F5F5;
+            border: 1px solid #DDD;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px 12px;
+            background: #B8960C;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .copy-btn:hover {
+            background: #8B7209;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #B8960C;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #111;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .error {
+            background: #FFEBEE;
+            border: 1px solid #FFCDD2;
+            border-radius: 6px;
+            padding: 16px;
+            color: #C62828;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #E8F5E9;
+            border: 1px solid #C8E6C9;
+            border-radius: 6px;
+            padding: 16px;
+            color: #2E7D32;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #DDD;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .narrative-entry {
+            border-left: 4px solid #B8960C;
+            padding-left: 20px;
+            margin-bottom: 24px;
+        }
+
+        .narrative-entry h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 8px;
+        }
+
+        .narrative-entry .meta {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .narrative-entry p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spartan 1 Dashboard</h1>
+        <p class="subtitle">Listing Analytics & Email Continuity System</p>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="active-listings">Active Listings</button>
+            <button class="tab" data-tab="stats-entry">Stats Entry</button>
+            <button class="tab" data-tab="narrative-log">Narrative Log</button>
+            <button class="tab" data-tab="copy-station">Copy Station</button>
+        </div>
+
+        <!-- Tab 1: Active Listings Dashboard -->
+        <div class="tab-content active" id="active-listings">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Active</h3>
+                    <div class="value" id="total-active">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Need Update</h3>
+                    <div class="value" id="need-update">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Avg Days on Market</h3>
+                    <div class="value" id="avg-dom">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Sold (YTD)</h3>
+                    <div class="value" id="total-sold">-</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Active Listings</h2>
+                <div class="filter-bar">
+                    <input type="text" id="search-listings" placeholder="Search address...">
+                    <select id="filter-status">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="sold">Sold</option>
+                        <option value="withdrawn">Withdrawn</option>
+                    </select>
+                    <button class="btn btn-primary btn-small" onclick="addNewListing()">+ New Listing</button>
+                </div>
+                <table id="listings-table">
+                    <thead>
+                        <tr>
+                            <th>Address</th>
+                            <th>List Date</th>
+                            <th>DOM</th>
+                            <th>Days Since Update</th>
+                            <th>Week Cycle</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listings-tbody">
+                        <tr><td colspan="7" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 2: Stats Entry -->
+        <div class="tab-content" id="stats-entry">
+            <div class="card">
+                <h2>Enter Listing Stats</h2>
+                <form id="stats-form">
+                    <div class="form-group">
+                        <label for="stats-listing">Select Listing</label>
+                        <select id="stats-listing" required>
+                            <option value="">-- Choose Listing --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stats-date">Date</label>
+                            <input type="date" id="stats-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="zillow-views">Zillow Views</label>
+                            <input type="number" id="zillow-views">
+                        </div>
+                        <div class="form-group">
+                            <label for="zillow-saves">Zillow Saves</label>
+                            <input type="number" id="zillow-saves">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="homes-views">Homes.com Views</label>
+                            <input type="number" id="homes-views">
+                        </div>
+                        <div class="form-group">
+                            <label for="mls-matches">MLS Matches</label>
+                            <input type="number" id="mls-matches">
+                        </div>
+                        <div class="form-group">
+                            <label for="mls-emailed">MLS Emailed</label>
+                            <input type="number" id="mls-emailed">
+                        </div>
+                        <div class="form-group">
+                            <label for="showings">Showings</label>
+                            <input type="text" id="showings" placeholder="e.g., 2, 3-4, none">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="step-diagnosis">Step Diagnosis</label>
+                        <select id="step-diagnosis">
+                            <option value="">-- Select --</option>
+                            <option value="Step 1 broken">Step 1 broken</option>
+                            <option value="Step 1to2 breakdown">Step 1to2 breakdown</option>
+                            <option value="Step 1to2 flowing">Step 1to2 flowing</option>
+                            <option value="Step 2to3 breakdown">Step 2to3 breakdown</option>
+                            <option value="Step 2to3 in progress">Step 2to3 in progress</option>
+                            <option value="Step 2to3 trending">Step 2to3 trending</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Stats</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Recent Stats History</h2>
+                <table id="stats-history-table">
+                    <thead>
+                        <tr>
+                            <th>Address</th>
+                            <th>Date</th>
+                            <th>Grade</th>
+                            <th>Zillow</th>
+                            <th>Homes.com</th>
+                            <th>MLS</th>
+                            <th>Showings</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-history-tbody">
+                        <tr><td colspan="8" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Narrative Log -->
+        <div class="tab-content" id="narrative-log">
+            <div class="card">
+                <h2>Email Narrative Log</h2>
+                <p style="margin-bottom: 20px; color: #666;">Track email continuity for each listing over time.</p>
+                
+                <div class="filter-bar">
+                    <input type="text" id="search-narrative" placeholder="Search address...">
+                    <select id="filter-narrative-listing">
+                        <option value="">All Listings</option>
+                    </select>
+                </div>
+
+                <div id="narrative-entries">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Copy Station -->
+        <div class="tab-content" id="copy-station">
+            <div class="card">
+                <h2>Copy for Claude</h2>
+                <p style="margin-bottom: 20px; color: #666;">One-click copy for AI agent integration.</p>
+
+                <div class="form-group">
+                    <label for="copy-listing">Select Listing</label>
+                    <select id="copy-listing">
+                        <option value="">-- Choose Listing --</option>
+                    </select>
+                </div>
+
+                <div id="copy-output">
+                    <div class="empty-state">
+                        <h3>Select a listing to view copy</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="listing-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">New Listing</h2>
+                <button class="modal-close" onclick="closeModal('listing-modal')">&times;</button>
+            </div>
+            <form id="listing-form">
+                <input type="hidden" id="listing-id">
+                <div class="form-group">
+                    <label for="listing-address">Property Address *</label>
+                    <input type="text" id="listing-address" required placeholder="e.g., 123 Main St, Little Rock, AR">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="listing-date">List Date *</label>
+                        <input type="date" id="listing-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="listing-status">Status</label>
+                        <select id="listing-status">
+                            <option value="active">Active</option>
+                            <option value="sold">Sold</option>
+                            <option value="withdrawn">Withdrawn</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="listing-notes">Notes</label>
+                    <textarea id="listing-notes"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('listing-modal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase connection
+        const SUPABASE_URL = 'https://fzlwkbhpsklsgkinwljt.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTE0MzEsImV4cCI6MjA4NzYyNzQzMX0.bXLBxn3hDUmAl2I-W_aJr9Yo5Rlq2lf9uDaLPy0xF5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Check authentication on load
+        let currentUser = null;
+        let userProfile = null;
+        
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                // Not logged in - redirect to Lab
+                window.location.href = '/index.html';
+                return false;
+            }
+            
+            currentUser = session.user;
+            
+            // Check if admin
+            const { data: profile } = await supabase
+                .from('agent_profiles')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .single();
+            
+            userProfile = profile;
+            
+            if (!profile || profile.role !== 'admin') {
+                alert('Access denied. Spartan 1 Dashboard is admin-only.');
+                window.location.href = '/index.html';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Run auth check before loading dashboard
+        (async () => {
+            const isAuthed = await checkAuth();
+            if (isAuthed) {
+                loadActiveListings(); // Initial load
+            }
+        })();
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                // Update active states
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+                
+                // Load data for the tab
+                loadTabData(targetTab);
+            });
+        });
+
+        // Load data for each tab
+        async function loadTabData(tab) {
+            switch(tab) {
+                case 'active-listings':
+                    await loadActiveListings();
+                    break;
+                case 'stats-entry':
+                    await loadStatsEntry();
+                    break;
+                case 'narrative-log':
+                    await loadNarrativeLog();
+                    break;
+                case 'copy-station':
+                    await loadCopyStation();
+                    break;
+            }
+        }
+
+        // Active Listings Tab
+        async function loadActiveListings() {
+            try {
+                const { data, error } = await supabase
+                    .from('spartan1_listings')
+                    .select('*')
+                    .order('days_since_update', { ascending: false });
+
+                if (error) throw error;
+
+                // Update stats
+                const activeListings = data.filter(l => l.status === 'active');
+                const needUpdate = activeListings.filter(l => l.days_since_update >= 7);
+                const sold = data.filter(l => l.status === 'sold');
+                const avgDom = activeListings.length > 0
+                    ? Math.round(activeListings.reduce((sum, l) => sum + l.days_on_market, 0) / activeListings.length)
+                    : 0;
+
+                document.getElementById('total-active').textContent = activeListings.length;
+                document.getElementById('need-update').textContent = needUpdate.length;
+                document.getElementById('avg-dom').textContent = avgDom;
+                document.getElementById('total-sold').textContent = sold.length;
+
+                // Render table
+                const tbody = document.getElementById('listings-tbody');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><h3>No listings yet</h3></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(listing => `
+                    <tr>
+                        <td><strong>${listing.address}</strong></td>
+                        <td>${formatDate(listing.list_date)}</td>
+                        <td>${listing.days_on_market} days</td>
+                        <td><span class="days-badge ${getDaysBadgeClass(listing.days_since_update)}">${listing.days_since_update} days</span></td>
+                        <td>${getWeekCycle(listing)}</td>
+                        <td><span class="status-badge status-${listing.status}">${listing.status}</span></td>
+                        <td>
+                            <button class="btn btn-secondary btn-small" onclick="editListing('${listing.id}')">Edit</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading listings:', error);
+                document.getElementById('listings-tbody').innerHTML = `<tr><td colspan="7" class="error">Error loading data: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Stats Entry Tab
+        async function loadStatsEntry() {
+            try {
+                // Load listings into dropdown
+                const { data: listings } = await supabase
+                    .from('spartan1_listings')
+                    .select('id, address, status')
+                    .eq('status', 'active')
+                    .order('address');
+
+                const listingSelect = document.getElementById('stats-listing');
+                listingSelect.innerHTML = '<option value="">-- Choose Listing --</option>' +
+                    listings.map(l => `<option value="${l.id}">${l.address}</option>`).join('');
+
+                // Load recent stats
+                const { data: stats } = await supabase
+                    .from('spartan1_listing_stats')
+                    .select('*')
+                    .order('date', { ascending: false })
+                    .limit(20);
+
+                const tbody = document.getElementById('stats-history-tbody');
+                if (stats.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><h3>No stats entered yet</h3></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = stats.map(stat => `
+                    <tr>
+                        <td>${stat.address}</td>
+                        <td>${formatDate(stat.date)}</td>
+                        <td>${stat.internal_grade ? `<span class="grade-badge grade-${stat.internal_grade.toLowerCase()}">${stat.internal_grade}</span>` : '-'}</td>
+                        <td>${stat.zillow_views || '-'} views / ${stat.zillow_saves || '-'} saves</td>
+                        <td>${stat.homes_views || '-'} views</td>
+                        <td>${stat.mls_matches || '-'} / ${stat.mls_emailed || '-'}</td>
+                        <td>${stat.showings || '-'}</td>
+                        <td><button class="btn btn-secondary btn-small" onclick="viewStatsDetail('${stat.id}')">View</button></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Stats form submission
+        document.getElementById('stats-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const listingId = document.getElementById('stats-listing').value;
+            const { data: listing } = await supabase
+                .from('spartan1_listings')
+                .select('address, list_date')
+                .eq('id', listingId)
+                .single();
+
+            const statsDate = document.getElementById('stats-date').value;
+            const daysSinceListing = Math.floor((new Date(statsDate) - new Date(listing.list_date)) / (1000 * 60 * 60 * 24));
+
+            const statsData = {
+                listing_id: listingId,
+                address: listing.address,
+                date: statsDate,
+                zillow_views: parseInt(document.getElementById('zillow-views').value) || null,
+                zillow_saves: parseInt(document.getElementById('zillow-saves').value) || null,
+                homes_views: parseInt(document.getElementById('homes-views').value) || null,
+                mls_matches: parseInt(document.getElementById('mls-matches').value) || null,
+                mls_emailed: parseInt(document.getElementById('mls-emailed').value) || null,
+                showings: document.getElementById('showings').value || null,
+                step_diagnosis: document.getElementById('step-diagnosis').value || null,
+                days_on_market: daysSinceListing
+            };
+
+            const { error } = await supabase
+                .from('spartan1_listing_stats')
+                .insert(statsData);
+
+            if (error) {
+                alert('Error saving stats: ' + error.message);
+            } else {
+                alert('Stats saved successfully!');
+                document.getElementById('stats-form').reset();
+                loadStatsEntry();
+            }
+        });
+
+        // Narrative Log Tab
+        async function loadNarrativeLog() {
+            try {
+                const { data } = await supabase
+                    .from('spartan1_narrative_log')
+                    .select('*')
+                    .order('date', { ascending: false });
+
+                const container = document.getElementById('narrative-entries');
+                if (data.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><h3>No narrative entries yet</h3></div>';
+                    return;
+                }
+
+                container.innerHTML = data.map(entry => `
+                    <div class="narrative-entry">
+                        <h4>${entry.address} - ${entry.week || 'Update'}</h4>
+                        <div class="meta">${formatDate(entry.date)} | ${entry.tone || 'Standard tone'}</div>
+                        ${entry.stats_snapshot ? `<p><strong>Stats:</strong> ${entry.stats_snapshot}</p>` : ''}
+                        ${entry.diagnosis ? `<p><strong>Diagnosis:</strong> ${entry.diagnosis}</p>` : ''}
+                        ${entry.recommendation ? `<p><strong>Recommendation:</strong> ${entry.recommendation}</p>` : ''}
+                        ${entry.summary ? `<p><strong>Summary:</strong> ${entry.summary}</p>` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading narrative log:', error);
+            }
+        }
+
+        // Copy Station Tab
+        async function loadCopyStation() {
+            try {
+                const { data: listings } = await supabase
+                    .from('spartan1_listings')
+                    .select('id, address')
+                    .eq('status', 'active')
+                    .order('address');
+
+                const select = document.getElementById('copy-listing');
+                select.innerHTML = '<option value="">-- Choose Listing --</option>' +
+                    listings.map(l => `<option value="${l.id}">${l.address}</option>`).join('');
+
+                select.addEventListener('change', async (e) => {
+                    if (!e.target.value) {
+                        document.getElementById('copy-output').innerHTML = '<div class="empty-state"><h3>Select a listing to view copy</h3></div>';
+                        return;
+                    }
+
+                    const { data: stats } = await supabase
+                        .from('spartan1_listing_stats')
+                        .select('*')
+                        .eq('listing_id', e.target.value)
+                        .order('date', { ascending: false })
+                        .limit(1)
+                        .single();
+
+                    if (stats && stats.copy_for_claude) {
+                        document.getElementById('copy-output').innerHTML = `
+                            <div class="copy-box">
+                                <button class="copy-btn" onclick="copyToClipboard('${stats.copy_for_claude}')">Copy</button>
+                                <pre>${stats.copy_for_claude}</pre>
+                            </div>
+                        `;
+                    } else {
+                        document.getElementById('copy-output').innerHTML = '<div class="empty-state"><h3>No stats available for this listing</h3></div>';
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading copy station:', error);
+            }
+        }
+
+        // Helper functions
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getDaysBadgeClass(days) {
+            if (days <= 7) return 'days-green';
+            if (days <= 14) return 'days-yellow';
+            return 'days-red';
+        }
+
+        function getWeekCycle(listing) {
+            const weeks = [];
+            if (listing.week_1_sent) weeks.push('W1');
+            if (listing.week_2_sent) weeks.push('W2');
+            if (listing.week_3_sent) weeks.push('W3');
+            if (listing.week_4_sent) weeks.push('W4');
+            return weeks.length > 0 ? weeks.join(', ') : 'Not started';
+        }
+
+        function addNewListing() {
+            document.getElementById('modal-title').textContent = 'New Listing';
+            document.getElementById('listing-form').reset();
+            document.getElementById('listing-id').value = '';
+            document.getElementById('listing-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard!');
+        }
+
+        // Listing form submission
+        document.getElementById('listing-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const listingData = {
+                address: document.getElementById('listing-address').value,
+                list_date: document.getElementById('listing-date').value,
+                status: document.getElementById('listing-status').value,
+                notes: document.getElementById('listing-notes').value || null
+            };
+
+            const { error } = await supabase
+                .from('spartan1_listings')
+                .upsert(listingData, { onConflict: 'address' });
+
+            if (error) {
+                alert('Error saving listing: ' + error.message);
+            } else {
+                closeModal('listing-modal');
+                loadActiveListings();
+            }
+        });
+
+        // Auto-set today's date in stats form
+        document.getElementById('stats-date').valueAsDate = new Date();
+    </script>
+</body>
+</html>
