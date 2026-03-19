@@ -687,6 +687,7 @@
         let currentUser = null;
         let userProfile = null;
         
+        // Simple auth check - just verify logged in
         async function checkAuth() {
             const { data: { session } } = await supabase.auth.getSession();
             
@@ -697,26 +698,10 @@
             }
             
             currentUser = session.user;
-            
-            // Check if admin
-            const { data: profile } = await supabase
-                .from('agent_profiles')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .single();
-            
-            userProfile = profile;
-            
-            if (!profile || profile.role !== 'admin') {
-                alert('Access denied. Spartan 1 Dashboard is admin-only.');
-                window.location.href = '/index.html';
-                return false;
-            }
-            
             return true;
         }
         
-        // Run auth check before loading dashboard
+        // Run auth check then load dashboard
         (async () => {
             const isAuthed = await checkAuth();
             if (isAuthed) {
