@@ -978,7 +978,64 @@
             document.getElementById('listing-id').value = '';
             document.getElementById('listing-modal').classList.add('active');
         }
+        
+        async function editListing(id) {
+            // Fetch the listing data
+            const { data, error } = await sb
+                .from('spartan1_listings')
+                .select('*')
+                .eq('id', id)
+                .single();
+            
+            if (error) {
+                alert('Error loading listing: ' + error.message);
+                return;
+            }
+            
+            // Populate form
+            document.getElementById('modal-title').textContent = 'Edit Listing';
+            document.getElementById('listing-id').value = data.id;
+            document.getElementById('listing-address').value = data.address;
+            document.getElementById('listing-date').value = data.list_date;
+            document.getElementById('listing-status').value = data.status;
+            document.getElementById('listing-notes').value = data.notes || '';
+            
+            // Show modal
+            document.getElementById('listing-modal').classList.add('active');
+        }
 
+        async function viewStatsDetail(id) {
+            const { data, error } = await sb
+                .from('spartan1_listing_stats')
+                .select('*')
+                .eq('id', id)
+                .single();
+            
+            if (error) {
+                alert('Error loading stats: ' + error.message);
+                return;
+            }
+            
+            const details = `
+Address: ${data.address}
+Date: ${formatDate(data.date)}
+Grade: ${data.internal_grade || '-'}
+
+Zillow: ${data.zillow_views || '-'} views, ${data.zillow_saves || '-'} saves
+Projected Monthly Saves: ${data.projected_monthly_saves || '-'}
+Homes.com: ${data.homes_views || '-'} views
+MLS: ${data.mls_matches || '-'} matches, ${data.mls_emailed || '-'} emailed
+Showings: ${data.showings || '-'}
+Days on Market: ${data.days_on_market || '-'}
+Step Diagnosis: ${data.step_diagnosis || '-'}
+
+Copy for Claude:
+${data.copy_for_claude || '-'}
+            `;
+            
+            alert(details);
+        }
+        
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
