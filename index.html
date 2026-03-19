@@ -1597,6 +1597,14 @@ async function deleteBattlePlan(id){
 }
 
 // ============ INIT ============
+function updateDate(){
+  const now=new Date();
+  const opts={weekday:'short',month:'short',day:'numeric',year:'numeric'};
+  const dateStr=now.toLocaleDateString('en-US',opts);
+  const timeStr=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+  const el=document.querySelector('.topbar .date');
+  if(el)el.textContent=`${dateStr} • ${timeStr}`;
+}
 function updateGreeting(){
   const name=userProfile?.full_name?.split(' ')[0]||currentUser?.email?.split('@')[0]||'';
   // Central Time = UTC-6 (CST) or UTC-5 (CDT). Feb = CST = UTC-6
