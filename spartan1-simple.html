@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spartan 1 Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #FAFAFA; color: #111; padding: 40px 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { font-size: 32px; font-weight: 600; margin-bottom: 30px; }
+        table { width: 100%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th { background: #F5F5F5; padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666; border-bottom: 2px solid #DDD; }
+        td { padding: 12px; border-bottom: 1px solid #EEE; font-size: 14px; }
+        tr:hover { background: #FAFAFA; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge-green { background: #E8F5E9; color: #2E7D32; }
+        .badge-yellow { background: #FFF9C4; color: #F57C00; }
+        .badge-red { background: #FFEBEE; color: #C62828; }
+        .status-active { background: #E8F5E9; color: #2E7D32; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .error { background: #FFEBEE; border: 1px solid #FFCDD2; border-radius: 6px; padding: 16px; color: #C62828; margin-bottom: 20px; }
+        .loading { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Spartan 1 Dashboard - Active Listings</h1>
+        
+        <div id="error" style="display:none" class="error"></div>
+        <div id="loading" class="loading">Loading listings...</div>
+        
+        <table id="table" style="display:none">
+            <thead>
+                <tr>
+                    <th>Address</th>
+                    <th>List Date</th>
+                    <th>Days on Market</th>
+                    <th>Days Since Update</th>
+                    <th>Status</th>
+                    <th>Week Cycle</th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://fzlwkbhpsklsgkinwljt.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTE0MzEsImV4cCI6MjA4NzYyNzQzMX0.lc6A8RCUySU0Hn9MjPcR9rH1c8DjSj_A7MV8JuLvwik'
+        );
+
+        async function loadData() {
+            try {
+                console.log('Fetching listings...');
+                
+                const { data, error } = await supabase
+                    .from('spartan1_listings')
+                    .select('*')
+                    .order('days_since_update', { ascending: false });
+
+                console.log('Response:', { data, error });
+
+                if (error) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error').textContent = 'Error: ' + error.message;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error').textContent = 'No listings found in database.';
+                    return;
+                }
+
+                // Success - render table
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('table').style.display = 'table';
+
+                const tbody = document.getElementById('tbody');
+                tbody.innerHTML = data.map(listing => {
+                    const daysBadge = getDaysBadgeClass(listing.days_since_update);
+                    const weeks = getWeekCycle(listing);
+                    
+                    return `
+                        <tr>
+                            <td><strong>${listing.address}</strong></td>
+                            <td>${formatDate(listing.list_date)}</td>
+                            <td>${listing.days_on_market} days</td>
+                            <td><span class="badge ${daysBadge}">${listing.days_since_update} days</span></td>
+                            <td><span class="status-active">${listing.status}</span></td>
+                            <td>${weeks}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Exception:', err);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'Exception: ' + err.message;
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getDaysBadgeClass(days) {
+            if (days <= 7) return 'badge-green';
+            if (days <= 14) return 'badge-yellow';
+            return 'badge-red';
+        }
+
+        function getWeekCycle(listing) {
+            const weeks = [];
+            if (listing.week_1_sent) weeks.push('W1');
+            if (listing.week_2_sent) weeks.push('W2');
+            if (listing.week_3_sent) weeks.push('W3');
+            if (listing.week_4_sent) weeks.push('W4');
+            return weeks.length > 0 ? weeks.join(', ') : 'Not started';
+        }
+
+        // Load immediately
+        loadData();
+    </script>
+</body>
+</html>
