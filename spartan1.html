@@ -681,7 +681,7 @@
         // Supabase connection
         const SUPABASE_URL = 'https://fzlwkbhpsklsgkinwljt.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTE0MzEsImV4cCI6MjA4NzYyNzQzMX0.lc6A8RCUySU0Hn9MjPcR9rH1c8DjSj_A7MV8JuLvwik';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Check authentication on load
         let currentUser = null;
@@ -689,7 +689,7 @@
         
         // Simple auth check - just verify logged in
         async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await sb.auth.getSession();
             
             if (!session) {
                 // Not logged in - redirect to Lab
@@ -747,7 +747,7 @@
         // Active Listings Tab
         async function loadActiveListings() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await sb
                     .from('spartan1_listings')
                     .select('*')
                     .order('days_since_update', { ascending: false });
@@ -797,7 +797,7 @@
         async function loadStatsEntry() {
             try {
                 // Load listings into dropdown
-                const { data: listings } = await supabase
+                const { data: listings } = await sb
                     .from('spartan1_listings')
                     .select('id, address, status')
                     .eq('status', 'active')
@@ -808,7 +808,7 @@
                     listings.map(l => `<option value="${l.id}">${l.address}</option>`).join('');
 
                 // Load recent stats
-                const { data: stats } = await supabase
+                const { data: stats } = await sb
                     .from('spartan1_listing_stats')
                     .select('*')
                     .order('date', { ascending: false })
@@ -842,7 +842,7 @@
             e.preventDefault();
 
             const listingId = document.getElementById('stats-listing').value;
-            const { data: listing } = await supabase
+            const { data: listing } = await sb
                 .from('spartan1_listings')
                 .select('address, list_date')
                 .eq('id', listingId)
@@ -865,7 +865,7 @@
                 days_on_market: daysSinceListing
             };
 
-            const { error } = await supabase
+            const { error } = await sb
                 .from('spartan1_listing_stats')
                 .insert(statsData);
 
@@ -881,7 +881,7 @@
         // Narrative Log Tab
         async function loadNarrativeLog() {
             try {
-                const { data } = await supabase
+                const { data } = await sb
                     .from('spartan1_narrative_log')
                     .select('*')
                     .order('date', { ascending: false });
@@ -910,7 +910,7 @@
         // Copy Station Tab
         async function loadCopyStation() {
             try {
-                const { data: listings } = await supabase
+                const { data: listings } = await sb
                     .from('spartan1_listings')
                     .select('id, address')
                     .eq('status', 'active')
@@ -926,7 +926,7 @@
                         return;
                     }
 
-                    const { data: stats } = await supabase
+                    const { data: stats } = await sb
                         .from('spartan1_listing_stats')
                         .select('*')
                         .eq('listing_id', e.target.value)
@@ -999,7 +999,7 @@
                 notes: document.getElementById('listing-notes').value || null
             };
 
-            const { error } = await supabase
+            const { error } = await sb
                 .from('spartan1_listings')
                 .upsert(listingData, { onConflict: 'address' });
 
