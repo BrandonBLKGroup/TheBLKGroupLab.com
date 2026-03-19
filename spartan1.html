@@ -682,6 +682,47 @@
         const SUPABASE_URL = 'https://fzlwkbhpsklsgkinwljt.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTE0MzEsImV4cCI6MjA4NzYyNzQzMX0.bXLBxn3hDUmAl2I-W_aJr9Yo5Rlq2lf9uDaLPy0xF5U';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Check authentication on load
+        let currentUser = null;
+        let userProfile = null;
+        
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                // Not logged in - redirect to Lab
+                window.location.href = '/index.html';
+                return false;
+            }
+            
+            currentUser = session.user;
+            
+            // Check if admin
+            const { data: profile } = await supabase
+                .from('agent_profiles')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .single();
+            
+            userProfile = profile;
+            
+            if (!profile || profile.role !== 'admin') {
+                alert('Access denied. Spartan 1 Dashboard is admin-only.');
+                window.location.href = '/index.html';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Run auth check before loading dashboard
+        (async () => {
+            const isAuthed = await checkAuth();
+            if (isAuthed) {
+                loadActiveListings(); // Initial load
+            }
+        })();
 
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
@@ -987,9 +1028,6 @@
 
         // Auto-set today's date in stats form
         document.getElementById('stats-date').valueAsDate = new Date();
-
-        // Initial load
-        loadActiveListings();
     </script>
 </body>
 </html>
