@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spartan 1 Data Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Spartan 1 Data Test</h1>
+    <div id="output">Loading...</div>
+    
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://fzlwkbhpsklsgkinwljt.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTE0MzEsImV4cCI6MjA4NzYyNzQzMX0.lc6A8RCUySU0Hn9MjPcR9rH1c8DjSj_A7MV8JuLvwik'
+        );
+        
+        async function test() {
+            try {
+                console.log('Testing Spartan 1 data access...');
+                
+                const { data, error } = await supabase
+                    .from('spartan1_listings')
+                    .select('*')
+                    .limit(5);
+                
+                if (error) {
+                    document.getElementById('output').innerHTML = 
+                        '<pre style="color:red">ERROR: ' + JSON.stringify(error, null, 2) + '</pre>';
+                    console.error('Error:', error);
+                } else {
+                    document.getElementById('output').innerHTML = 
+                        '<pre style="color:green">SUCCESS! Found ' + data.length + ' listings:\n\n' + 
+                        JSON.stringify(data, null, 2) + '</pre>';
+                    console.log('Data:', data);
+                }
+            } catch (err) {
+                document.getElementById('output').innerHTML = 
+                    '<pre style="color:red">EXCEPTION: ' + err.message + '</pre>';
+                console.error('Exception:', err);
+            }
+        }
+        
+        test();
+    </script>
+</body>
+</html>
