@@ -518,6 +518,7 @@
             <div class="card">
                 <h2>Enter Listing Stats</h2>
                 <form id="stats-form">
+                    <input type="hidden" id="stats-id">
                     <div class="form-group">
                         <label for="stats-listing">Select Listing</label>
                         <select id="stats-listing" required>
@@ -829,7 +830,7 @@
                         <td>${stat.homes_views || '-'} views</td>
                         <td>${stat.mls_matches || '-'} / ${stat.mls_emailed || '-'}</td>
                         <td>${stat.showings || '-'}</td>
-                        <td><button class="btn btn-secondary btn-small" onclick="viewStatsDetail('${stat.id}')">View</button></td>
+                        <td><button class="btn btn-secondary btn-small" onclick="editStats('${stat.id}')">Edit</button></td>
                     </tr>
                 `).join('');
             } catch (error) {
@@ -841,6 +842,7 @@
         document.getElementById('stats-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const statsId = document.getElementById('stats-id').value;
             const listingId = document.getElementById('stats-listing').value;
             const { data: listing } = await sb
                 .from('spartan1_listings')
@@ -865,15 +867,26 @@
                 days_on_market: daysSinceListing
             };
 
-            const { error } = await sb
-                .from('spartan1_listing_stats')
-                .insert(statsData);
+            let error;
+            if (statsId) {
+                // Update existing
+                ({ error } = await sb
+                    .from('spartan1_listing_stats')
+                    .update(statsData)
+                    .eq('id', statsId));
+            } else {
+                // Insert new
+                ({ error } = await sb
+                    .from('spartan1_listing_stats')
+                    .insert(statsData));
+            }
 
             if (error) {
                 alert('Error saving stats: ' + error.message);
             } else {
                 alert('Stats saved successfully!');
                 document.getElementById('stats-form').reset();
+                document.getElementById('stats-id').value = '';
                 loadStatsEntry();
             }
         });
@@ -1004,7 +1017,7 @@
             document.getElementById('listing-modal').classList.add('active');
         }
 
-        async function viewStatsDetail(id) {
+        async function editStats(id) {
             const { data, error } = await sb
                 .from('spartan1_listing_stats')
                 .select('*')
@@ -1016,24 +1029,20 @@
                 return;
             }
             
-            const details = `
-Address: ${data.address}
-Date: ${formatDate(data.date)}
-Grade: ${data.internal_grade || '-'}
-
-Zillow: ${data.zillow_views || '-'} views, ${data.zillow_saves || '-'} saves
-Projected Monthly Saves: ${data.projected_monthly_saves || '-'}
-Homes.com: ${data.homes_views || '-'} views
-MLS: ${data.mls_matches || '-'} matches, ${data.mls_emailed || '-'} emailed
-Showings: ${data.showings || '-'}
-Days on Market: ${data.days_on_market || '-'}
-Step Diagnosis: ${data.step_diagnosis || '-'}
-
-Copy for Claude:
-${data.copy_for_claude || '-'}
-            `;
+            // Scroll to form
+            document.querySelector('#stats-entry').scrollIntoView({ behavior: 'smooth' });
             
-            alert(details);
+            // Populate form
+            document.getElementById('stats-id').value = data.id;
+            document.getElementById('stats-listing').value = data.listing_id;
+            document.getElementById('stats-date').value = data.date;
+            document.getElementById('zillow-views').value = data.zillow_views || '';
+            document.getElementById('zillow-saves').value = data.zillow_saves || '';
+            document.getElementById('homes-views').value = data.homes_views || '';
+            document.getElementById('mls-matches').value = data.mls_matches || '';
+            document.getElementById('mls-emailed').value = data.mls_emailed || '';
+            document.getElementById('showings').value = data.showings || '';
+            document.getElementById('step-diagnosis').value = data.step_diagnosis || '';
         }
         
         function closeModal(modalId) {
