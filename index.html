@@ -178,6 +178,7 @@ body::before{display:none}
       <div class="nav-item" data-page="coaching" onclick="showPage('coaching')"><span class="icon">🏋️</span>Jarvis Coaching</div>
       <div class="nav-item" data-page="battleplan" onclick="showPage('battleplan')"><span class="icon">⚔️</span>Battle Plan</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
+      <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -264,7 +265,7 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['leads','scorecard','nuggets','jarvis'];
+  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
