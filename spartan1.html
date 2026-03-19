@@ -602,7 +602,59 @@
         <!-- Tab 3: Narrative Log -->
         <div class="tab-content" id="narrative-log">
             <div class="card">
-                <h2>Email Narrative Log</h2>
+                <h2>Add/Edit Narrative Entry</h2>
+                <form id="narrative-form">
+                    <input type="hidden" id="narrative-id">
+                    <div class="form-group">
+                        <label for="narrative-listing">Select Listing</label>
+                        <select id="narrative-listing" required>
+                            <option value="">-- Choose Listing --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="narrative-date">Date</label>
+                            <input type="date" id="narrative-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="narrative-week">Week</label>
+                            <input type="text" id="narrative-week" placeholder="e.g., Week 1, Day 28">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="narrative-stats">Stats Snapshot</label>
+                        <textarea id="narrative-stats" placeholder="e.g., Zillow 1158v/28s 168mo S-tier, Homes 4039v, MLS 264 buyers, 2 showings"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="narrative-diagnosis">Diagnosis</label>
+                        <textarea id="narrative-diagnosis" placeholder="e.g., Step 1 crushing. Step 1to2 slight gap but only 5 days."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="narrative-recommendation">Recommendation</label>
+                        <textarea id="narrative-recommendation" placeholder="e.g., Hold steady. Warm buyer pending roofer meeting."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="narrative-tone">Tone/Energy</label>
+                        <input type="text" id="narrative-tone" placeholder="e.g., Confident, educational, introducing 3-Step Framework">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="narrative-summary">Email Summary</label>
+                        <textarea id="narrative-summary" placeholder="e.g., Week 1 intro. Taught 3-Step Framework. S-tier saves."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Narrative</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('narrative-form').reset(); document.getElementById('narrative-id').value='';">Clear Form</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Narrative Log History</h2>
                 <p style="margin-bottom: 20px; color: #666;">Track email continuity for each listing over time.</p>
                 
                 <div class="filter-bar">
@@ -894,6 +946,18 @@
         // Narrative Log Tab
         async function loadNarrativeLog() {
             try {
+                // Load listings dropdown
+                const { data: listings } = await sb
+                    .from('spartan1_listings')
+                    .select('id, address')
+                    .eq('status', 'active')
+                    .order('address');
+                
+                const select = document.getElementById('narrative-listing');
+                select.innerHTML = '<option value="">-- Choose Listing --</option>' +
+                    listings.map(l => `<option value="${l.id}">${l.address}</option>`).join('');
+                
+                // Load narrative entries
                 const { data } = await sb
                     .from('spartan1_narrative_log')
                     .select('*')
@@ -907,8 +971,13 @@
 
                 container.innerHTML = data.map(entry => `
                     <div class="narrative-entry">
-                        <h4>${entry.address} - ${entry.week || 'Update'}</h4>
-                        <div class="meta">${formatDate(entry.date)} | ${entry.tone || 'Standard tone'}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div style="flex:1;">
+                                <h4>${entry.address} - ${entry.week || 'Update'}</h4>
+                                <div class="meta">${formatDate(entry.date)} | ${entry.tone || 'Standard tone'}</div>
+                            </div>
+                            <button class="btn btn-secondary btn-small" onclick="editNarrative('${entry.id}')">Edit</button>
+                        </div>
                         ${entry.stats_snapshot ? `<p><strong>Stats:</strong> ${entry.stats_snapshot}</p>` : ''}
                         ${entry.diagnosis ? `<p><strong>Diagnosis:</strong> ${entry.diagnosis}</p>` : ''}
                         ${entry.recommendation ? `<p><strong>Recommendation:</strong> ${entry.recommendation}</p>` : ''}
@@ -1045,6 +1114,33 @@
             document.getElementById('step-diagnosis').value = data.step_diagnosis || '';
         }
         
+        async function editNarrative(id) {
+            const { data, error } = await sb
+                .from('spartan1_narrative_log')
+                .select('*')
+                .eq('id', id)
+                .single();
+            
+            if (error) {
+                alert('Error loading narrative: ' + error.message);
+                return;
+            }
+            
+            // Scroll to form
+            document.querySelector('#narrative-log').scrollIntoView({ behavior: 'smooth' });
+            
+            // Populate form
+            document.getElementById('narrative-id').value = data.id;
+            document.getElementById('narrative-listing').value = data.listing_id;
+            document.getElementById('narrative-date').value = data.date;
+            document.getElementById('narrative-week').value = data.week || '';
+            document.getElementById('narrative-stats').value = data.stats_snapshot || '';
+            document.getElementById('narrative-diagnosis').value = data.diagnosis || '';
+            document.getElementById('narrative-recommendation').value = data.recommendation || '';
+            document.getElementById('narrative-tone').value = data.tone || '';
+            document.getElementById('narrative-summary').value = data.summary || '';
+        }
+        
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
@@ -1077,8 +1173,57 @@
             }
         });
 
-        // Auto-set today's date in stats form
+        // Narrative form submission
+        document.getElementById('narrative-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const narrativeId = document.getElementById('narrative-id').value;
+            const listingId = document.getElementById('narrative-listing').value;
+            const { data: listing } = await sb
+                .from('spartan1_listings')
+                .select('address')
+                .eq('id', listingId)
+                .single();
+
+            const narrativeData = {
+                listing_id: listingId,
+                address: listing.address,
+                date: document.getElementById('narrative-date').value,
+                week: document.getElementById('narrative-week').value || null,
+                stats_snapshot: document.getElementById('narrative-stats').value || null,
+                diagnosis: document.getElementById('narrative-diagnosis').value || null,
+                recommendation: document.getElementById('narrative-recommendation').value || null,
+                tone: document.getElementById('narrative-tone').value || null,
+                summary: document.getElementById('narrative-summary').value || null
+            };
+
+            let error;
+            if (narrativeId) {
+                // Update existing
+                ({ error } = await sb
+                    .from('spartan1_narrative_log')
+                    .update(narrativeData)
+                    .eq('id', narrativeId));
+            } else {
+                // Insert new
+                ({ error } = await sb
+                    .from('spartan1_narrative_log')
+                    .insert(narrativeData));
+            }
+
+            if (error) {
+                alert('Error saving narrative: ' + error.message);
+            } else {
+                alert('Narrative saved successfully!');
+                document.getElementById('narrative-form').reset();
+                document.getElementById('narrative-id').value = '';
+                loadNarrativeLog();
+            }
+        });
+
+        // Auto-set today's date in stats and narrative forms
         document.getElementById('stats-date').valueAsDate = new Date();
+        document.getElementById('narrative-date').valueAsDate = new Date();
     </script>
 </body>
 </html>
