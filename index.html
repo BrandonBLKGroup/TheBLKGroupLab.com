@@ -1682,16 +1682,33 @@ function renderThirtyDayPush(rows){
   const goal=5000000;
   const pct=(totalVolume/goal*100).toFixed(1);
   
+  // Calculate current day and condition for header
+  const today=new Date();
+  const startDate=new Date('2026-03-24');
+  const daysPassed=Math.max(1,Math.min(30,Math.floor((today-startDate)/(1000*60*60*24))+1));
+  const targetAtDay=(goal/30)*daysPassed;
+  const pctOfTarget=(totalVolume/targetAtDay)*100;
+  
+  let condition='';
+  let conditionColor='';
+  if(pctOfTarget>=133){condition='POWER';conditionColor='#00cc66';}
+  else if(pctOfTarget>=110){condition='AFFLUENCE';conditionColor='#73e073';}
+  else if(pctOfTarget>=80){condition='NORMAL';conditionColor='#ffaa00';}
+  else if(pctOfTarget>=50){condition='EMERGENCY';conditionColor='#ff6600';}
+  else if(pctOfTarget>=27.5){condition='DANGER';conditionColor='#e54545';}
+  else{condition='NON-E';conditionColor='#990000';}
+  
   let html=`<div class="card">
     <div class="card-header">
-      <h3>30 DAY PUSH - $5M GOAL</h3>
-      <div style="display:flex;gap:20px;align-items:center">
-        <div style="font-size:28px;font-weight:700;color:var(--gold)">$${totalVolume.toLocaleString()}/<span style="color:var(--text-secondary)">$5,000,000</span></div>
-        <div style="font-size:14px;color:var(--text-dim)">${pct}% Complete</div>
+      <h3>30 DAY PUSH</h3>
+      <div style="display:flex;gap:30px;align-items:center">
+        <div style="font-size:24px;font-weight:700;color:var(--gold)">$${totalVolume.toLocaleString()} / $5,000,000</div>
+        <div style="padding:8px 16px;background:${conditionColor};color:#fff;border-radius:6px;font-weight:700;font-size:14px;letter-spacing:1px">${condition} ${pctOfTarget.toFixed(0)}%</div>
+        <div style="font-size:13px;color:var(--text-dim)">Day ${daysPassed}/30</div>
       </div>
     </div>
     <div class="card-body">
-      <canvas id="thirtyDayChart" width="800" height="200" style="max-width:100%;margin-bottom:30px"></canvas>
+      <canvas id="thirtyDayChart" width="1000" height="400" style="max-width:100%;margin-bottom:30px"></canvas>
       <table class="lab-table"><thead><tr>
         <th>#</th><th style="width:36px"></th><th>Agent</th><th>Source</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Volume</th><th>Last Contact</th><th>Next Contact</th><th>Notes</th><th>Move</th><th></th>
       </tr></thead><tbody id="thirty-day-tbody">`;
@@ -1775,52 +1792,148 @@ function renderThirtyDayChart(current,goal){
   const ctx=canvas.getContext('2d');
   const w=canvas.width;
   const h=canvas.height;
-  const pad=60;
+  const padL=80;
+  const padR=40;
+  const padT=40;
+  const padB=80;
+  const chartW=w-padL-padR;
+  const chartH=h-padT-padB;
   
   // Clear
   ctx.clearRect(0,0,w,h);
   
-  // Draw goal line
-  ctx.strokeStyle='rgba(184,150,12,0.3)';
+  // Calculate current day (simulate for now - in production, track actual daily snapshots)
+  const today=new Date();
+  const startDate=new Date('2026-03-24'); // Start of 30-day push
+  const daysPassed=Math.max(1,Math.min(30,Math.floor((today-startDate)/(1000*60*60*24))+1));
+  
+  // Target pace: linear growth to goal over 30 days
+  const targetPace=goal/30;
+  
+  // Actual pace (simulate daily cumulative)
+  const actualPerDay=current/daysPassed;
+  
+  // Calculate condition
+  let condition='';
+  let conditionColor='';
+  const targetAtDay=targetPace*daysPassed;
+  const pctOfTarget=(current/targetAtDay)*100;
+  
+  if(pctOfTarget>=133){condition='POWER';conditionColor='#00cc66';}
+  else if(pctOfTarget>=110){condition='AFFLUENCE';conditionColor='#73e073';}
+  else if(pctOfTarget>=80){condition='NORMAL';conditionColor='#ffaa00';}
+  else if(pctOfTarget>=50){condition='EMERGENCY';conditionColor='#ff6600';}
+  else if(pctOfTarget>=27.5){condition='DANGER';conditionColor='#e54545';}
+  else{condition='NON-E';conditionColor='#990000';}
+  
+  // Draw axes
+  ctx.strokeStyle='rgba(0,0,0,0.2)';
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(padL,padT);
+  ctx.lineTo(padL,h-padB);
+  ctx.lineTo(w-padR,h-padB);
+  ctx.stroke();
+  
+  // Y-axis labels (0 to 6M)
+  ctx.fillStyle='var(--text-dim)';
+  ctx.font='11px Inter';
+  ctx.textAlign='right';
+  for(let i=0;i<=6;i++){
+    const val=i*1000000;
+    const y=h-padB-(val/6000000)*chartH;
+    ctx.fillText('$'+(val/1000000)+'M',padL-10,y+4);
+    ctx.strokeStyle='rgba(0,0,0,0.05)';
+    ctx.beginPath();
+    ctx.moveTo(padL,y);
+    ctx.lineTo(w-padR,y);
+    ctx.stroke();
+  }
+  
+  // X-axis labels (days 1-30, show every 3 days)
+  ctx.textAlign='center';
+  for(let day=1;day<=30;day+=3){
+    const x=padL+(day/30)*chartW;
+    ctx.fillText(day,x,h-padB+20);
+  }
+  ctx.fillText('30',padL+chartW,h-padB+20);
+  ctx.fillText('Day of Month',w/2,h-padB+40);
+  
+  // Draw target pace line (tan dashed)
+  ctx.strokeStyle='#d4a574';
   ctx.lineWidth=2;
   ctx.setLineDash([5,5]);
   ctx.beginPath();
-  ctx.moveTo(pad,h-pad);
-  ctx.lineTo(w-pad,h-pad);
+  for(let day=0;day<=30;day++){
+    const x=padL+(day/30)*chartW;
+    const val=targetPace*day;
+    const y=h-padB-(val/6000000)*chartH;
+    if(day===0)ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
   ctx.stroke();
   ctx.setLineDash([]);
   
-  // Draw current progress line
-  const pct=Math.min(current/goal,1);
-  const progressX=pad+(w-pad*2)*pct;
-  
-  ctx.strokeStyle='var(--gold)';
+  // Draw actual progress line (black solid)
+  ctx.strokeStyle='#000';
   ctx.lineWidth=3;
   ctx.beginPath();
-  ctx.moveTo(pad,h-pad);
-  ctx.lineTo(progressX,h-pad);
+  for(let day=0;day<=daysPassed;day++){
+    const x=padL+(day/30)*chartW;
+    const val=actualPerDay*day;
+    const y=h-padB-(val/6000000)*chartH;
+    if(day===0)ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
   ctx.stroke();
   
-  // Draw progress point
-  ctx.fillStyle='var(--gold)';
+  // Draw current point
+  const currentX=padL+(daysPassed/30)*chartW;
+  const currentY=h-padB-(current/6000000)*chartH;
+  ctx.fillStyle='#000';
   ctx.beginPath();
-  ctx.arc(progressX,h-pad,6,0,Math.PI*2);
+  ctx.arc(currentX,currentY,5,0,Math.PI*2);
   ctx.fill();
   
-  // Labels
-  ctx.fillStyle='var(--text-primary)';
+  // Legend
   ctx.font='12px Inter';
   ctx.textAlign='left';
-  ctx.fillText('Day 1',pad,h-pad+20);
-  ctx.textAlign='right';
-  ctx.fillText('Day 30',w-pad,h-pad+20);
-  ctx.textAlign='center';
-  ctx.fillText('$'+current.toLocaleString(),progressX,h-pad-15);
-  ctx.fillText('$'+goal.toLocaleString(),w-pad,h-pad-15);
   
-  // Title
+  // Actual line
+  ctx.fillStyle='#000';
+  ctx.fillRect(padL,padT-25,30,3);
+  ctx.fillText('Actual Progress',padL+35,padT-20);
+  
+  // Target line
+  ctx.strokeStyle='#d4a574';
+  ctx.lineWidth=2;
+  ctx.setLineDash([5,5]);
+  ctx.beginPath();
+  ctx.moveTo(padL+200,padT-23);
+  ctx.lineTo(padL+230,padT-23);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#d4a574';
+  ctx.fillText('Target Pace',padL+235,padT-20);
+  
+  // Condition display
+  ctx.fillStyle=conditionColor;
   ctx.font='14px Inter';
-  ctx.fillText('30 Day Progress to $5M Goal',w/2,30);
+  ctx.textAlign='right';
+  ctx.fillText(condition+' '+pctOfTarget.toFixed(0)+'%',w-padR,padT-20);
+  
+  // Formula at bottom
+  ctx.fillStyle='var(--text-dim)';
+  ctx.font='11px Inter';
+  ctx.textAlign='center';
+  let formula='Formula: ';
+  if(condition==='POWER')formula+='Handle the bypassed charge. Reorganize. Deliver a viable product. Stabilize.';
+  else if(condition==='AFFLUENCE')formula+='Economize. Pay every bill. Invest heavily in expansion.';
+  else if(condition==='NORMAL')formula+='Don\'t change anything. Promote. Only economize by making more.';
+  else if(condition==='EMERGENCY')formula+='Promote. Change operating basis. Economize.';
+  else if(condition==='DANGER')formula+='Bypass habits. Economize. Prepare to deliver.';
+  else formula+='Find out who you really are. Adopt the purpose. Ignore everyone else.';
+  ctx.fillText(formula,w/2,h-10);
 }
 
 function initApp(){
