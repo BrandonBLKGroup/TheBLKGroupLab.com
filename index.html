@@ -357,7 +357,7 @@ function renderOpens(byMonth){
     html+=`<div class="card" data-month="${mk}">
       <div class="card-header"><h3>${MONTHS[i]} 2026</h3><span class="month-label">${rows.length} OPEN${rows.length!==1?'S':''}</span></div>
       <div class="card-body"><table class="lab-table"><thead><tr>
-        <th>#</th><th style="width:36px"></th><th>Agent</th><th>Source</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Last Contact</th><th>Next Contact</th><th>Notes</th><th>Move</th><th></th>
+        <th>#</th><th style="width:36px"></th><th style="min-width:140px">Agent</th><th style="min-width:140px">Source</th><th style="min-width:180px">Address</th><th>Last Contact</th><th>Next Contact</th><th>Notes</th><th>Name</th><th>Phone</th><th>Email</th><th>Move</th><th></th>
       </tr></thead><tbody id="opens-${mk}">`;
     rows.forEach((r,ri)=>{
       html+=openRow(r,ri+1,mk);
@@ -378,15 +378,15 @@ function openRow(r,num,mk){
   return`<tr draggable="true" data-id="${r.id}" data-month="${mk}" class="${colorClass}">
     <td><span class="row-num">${num}</span></td>
     <td><select class="color-select" onchange="updateOpen('${r.id}','status',this.value);loadOpens()"><option value="active"${r.status==='active'||!r.status?' selected':''}>⚪</option><option value="gold"${r.status==='gold'?' selected':''}>🟡</option><option value="purple"${r.status==='purple'?' selected':''}>🟣</option><option value="black"${r.status==='black'?' selected':''}>⚫</option></select></td>
-    <td><select onchange="updateOpen('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
-    <td><select onchange="updateOpen('${r.id}','lead_source',this.value)">${srcOpts(r.lead_source)}</select></td>
-    <td><input value="${r.name||''}" onchange="updateOpen('${r.id}','name',this.value)" placeholder="Name" style="min-width:130px"></td>
-    <td><input value="${r.phone||''}" onchange="updateOpen('${r.id}','phone',this.value)" placeholder="Phone" style="min-width:115px"></td>
-    <td><input value="${r.email||''}" onchange="updateOpen('${r.id}','email',this.value)" placeholder="Email" style="min-width:160px"></td>
-    <td><input value="${r.address||''}" onchange="updateOpen('${r.id}','address',this.value)" placeholder="Address" style="min-width:160px"></td>
+    <td><select onchange="updateOpen('${r.id}','agent',this.value)" style="min-width:140px">${agentOpts(r.agent)}</select></td>
+    <td><select onchange="updateOpen('${r.id}','lead_source',this.value)" style="min-width:140px">${srcOpts(r.lead_source)}</select></td>
+    <td><input value="${r.address||''}" onchange="updateOpen('${r.id}','address',this.value)" placeholder="Address" style="min-width:180px"></td>
     <td><input type="date" value="${r.last_contact||''}" onchange="updateOpen('${r.id}','last_contact',this.value)"></td>
     <td><input type="date" value="${r.next_contact||''}" onchange="updateOpen('${r.id}','next_contact',this.value)"></td>
     <td><div class="notes-cell ${r.notes?'':'empty'}" data-id="${r.id}" data-notes="${(r.notes||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" data-name="${(r.name||'Lead').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onclick="openNotesModal(this)">${r.notes?(r.notes.length>15?r.notes.substring(0,15)+'…':r.notes):'+ Add notes'}</div></td>
+    <td><input value="${r.name||''}" onchange="updateOpen('${r.id}','name',this.value)" placeholder="Name" style="min-width:130px"></td>
+    <td><input value="${r.phone||''}" onchange="updateOpen('${r.id}','phone',this.value)" placeholder="Phone" style="min-width:115px"></td>
+    <td><input value="${r.email||''}" onchange="updateOpen('${r.id}','email',this.value)" placeholder="Email" style="min-width:160px"></td>
     <td><select class="color-select" style="width:auto!important;min-width:44px!important;font-size:11px!important;padding:4px 6px!important" onchange="moveOpen('${r.id}',this.value);this.selectedIndex=0"><option value="">→</option><option value="listings">Active Listings</option><option value="contracts">Under Contract</option></select></td>
     <td><button class="del-btn" onclick="deleteOpen('${r.id}')">x</button></td>
   </tr>`;
