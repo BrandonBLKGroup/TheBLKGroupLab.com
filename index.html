@@ -181,6 +181,7 @@ body::before{display:none}
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
       <div class="nav-item" data-page="fsbo-leads" onclick="showPage('fsbo-leads')"><span class="icon">🏡</span>FSBO Leads<span class="badge" id="fsboLeadsBadge" style="display:none">0</span></div>
+      <div class="nav-item" data-page="thirty-day-leads" onclick="showPage('thirty-day-leads')"><span class="icon">📅</span>30 Day Leads<span class="badge" id="thirtyDayLeadsBadge" style="display:none">0</span></div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -209,6 +210,12 @@ body::before{display:none}
         <div class="card">
           <h2 style="margin-bottom:20px">FSBO Leads</h2>
           <div id="fsbo-leads-list"></div>
+        </div>
+      </div>
+      <div class="page" id="page-thirty-day-leads">
+        <div class="card">
+          <h2 style="margin-bottom:20px">30 Day Listing Leads</h2>
+          <div id="thirty-day-leads-list"></div>
         </div>
       </div>
     </div>
@@ -331,7 +338,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','fsbo-leads':'FSBO LEADS'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','fsbo-leads':'FSBO LEADS','thirty-day-leads':'30 DAY LISTING LEADS'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -340,7 +347,7 @@ function showPage(p){
   $('pageTitle').textContent=TITLES[p];
   if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
   if(p==='listings')loadListings();if(p==='buyers')loadBuyers();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
-  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();if(p==='fsbo-leads')loadFSBOLeads();
+  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();if(p==='fsbo-leads')loadFSBOLeads();if(p==='thirty-day-leads')loadThirtyDayLeads();
 }
 
 // ============ OPENS ============
@@ -1671,6 +1678,53 @@ async function deleteFSBOLead(id){
   loadFSBOLeads();
 }
 
+// ============ 30 DAY LISTING LEADS ============
+async function loadThirtyDayLeads(){
+  const{data}=await sb.from('thirty_day_leads').select('*').order('created_at',{ascending:false});
+  renderThirtyDayLeads(data||[]);
+  // Update badge
+  const newCount=(data||[]).filter(l=>l.status==='new').length;
+  if(newCount>0){$('thirtyDayLeadsBadge').style.display='inline';$('thirtyDayLeadsBadge').textContent=newCount;}
+  else{$('thirtyDayLeadsBadge').style.display='none';}
+}
+function renderThirtyDayLeads(leads){
+  if(leads.length===0){
+    $('thirty-day-leads-list').innerHTML='<div class="empty-state" style="padding:60px;text-align:center;color:var(--text-dim)"><h3 style="font-size:18px;margin-bottom:10px">No 30 Day Listing Leads Yet</h3><p style="font-size:14px">Leads from 30daylistings.com will appear here</p></div>';
+    return;
+  }
+  let html='<table class="lab-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Property Address</th><th>Timeline</th><th>Price Desired</th><th>Pricing Analysis</th><th>Status</th><th></th></tr></thead><tbody>';
+  leads.forEach(l=>{
+    const statusColor=l.status==='new'?'var(--sage)':l.status==='contacted'?'var(--gold)':l.status==='converted'?'var(--purple)':'var(--text-dim)';
+    html+=`<tr>
+      <td>${new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+      <td style="font-weight:600">${l.name||'-'}</td>
+      <td><a href="mailto:${l.email}" style="color:var(--gold)">${l.email||'-'}</a></td>
+      <td>${l.property_address||'-'}</td>
+      <td>${l.timeline||'-'}</td>
+      <td>${l.price_desired||'-'}</td>
+      <td style="text-align:center">${l.pricing_analysis?'✅':'—'}</td>
+      <td><select onchange="updateThirtyDayLeadStatus('${l.id}',this.value)" style="background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;color:${statusColor};font-weight:600;cursor:pointer">
+        <option value="new" ${l.status==='new'?'selected':''}>New</option>
+        <option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option>
+        <option value="converted" ${l.status==='converted'?'selected':''}>Converted</option>
+        <option value="lost" ${l.status==='lost'?'selected':''}>Lost</option>
+      </select></td>
+      <td><button onclick="deleteThirtyDayLead('${l.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:6px">Delete</button></td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  $('thirty-day-leads-list').innerHTML=html;
+}
+async function updateThirtyDayLeadStatus(id,status){
+  await sb.from('thirty_day_leads').update({status,updated_at:new Date().toISOString()}).eq('id',id);
+  loadThirtyDayLeads();
+}
+async function deleteThirtyDayLead(id){
+  if(!confirm('Delete this 30 Day Listing lead?'))return;
+  await sb.from('thirty_day_leads').delete().eq('id',id);
+  loadThirtyDayLeads();
+}
+
 // ============ 30 DAY PUSH ============
 async function loadThirtyDayPush(){
   const{data}=await sb.from('lab_thirty_day_push').select('*').order('sort_order');
@@ -1947,6 +2001,10 @@ function initApp(){
   // Check for new FSBO leads
   sb.from('fsbo_leads').select('id',{count:'exact'}).eq('status','new').then(({count})=>{
     if(count>0){$('fsboLeadsBadge').style.display='inline';$('fsboLeadsBadge').textContent=count;}
+  });
+  // Check for new 30 Day Listing leads
+  sb.from('thirty_day_leads').select('id',{count:'exact'}).eq('status','new').then(({count})=>{
+    if(count>0){$('thirtyDayLeadsBadge').style.display='inline';$('thirtyDayLeadsBadge').textContent=count;}
   });
 }
 checkAuth();
