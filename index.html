@@ -180,9 +180,6 @@ body::before{display:none}
       <div class="nav-item" data-page="thirty-day-push" onclick="showPage('thirty-day-push')"><span class="icon">🚀</span>30 Day Push</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
-      <div class="nav-item" data-page="fsbo-leads" onclick="showPage('fsbo-leads')"><span class="icon">🏡</span>FSBO Leads<span class="badge" id="fsboLeadsBadge" style="display:none">0</span></div>
-      <div class="nav-item" data-page="thirty-day-leads" onclick="showPage('thirty-day-leads')"><span class="icon">📅</span>30 Day Leads<span class="badge" id="thirtyDayLeadsBadge" style="display:none">0</span></div>
-      <div class="nav-item" data-page="expired-listing-leads" onclick="showPage('expired-listing-leads')"><span class="icon">🏚️</span>Expired Listing Leads<span class="badge" id="expiredListingLeadsBadge" style="display:none">0</span></div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -207,24 +204,7 @@ body::before{display:none}
       <div class="page" id="page-coaching"></div>
       <div class="page" id="page-battleplan"></div>
       <div class="page" id="page-thirty-day-push"></div>
-      <div class="page" id="page-fsbo-leads">
-        <div class="card">
-          <h2 style="margin-bottom:20px">FSBO Leads</h2>
-          <div id="fsbo-leads-list"></div>
-        </div>
-      </div>
-      <div class="page" id="page-thirty-day-leads">
-        <div class="card">
-          <h2 style="margin-bottom:20px">30 Day Listing Leads</h2>
-          <div id="thirty-day-leads-list"></div>
-        </div>
-      </div>
-      <div class="page" id="page-expired-listing-leads">
-        <div class="card">
-          <h2 style="margin-bottom:20px">Expired Listing Leads</h2>
-          <div id="expired-listing-leads-list"></div>
-        </div>
-      </div>
+
     </div>
   </div>
 </div>
@@ -245,7 +225,10 @@ const SOURCE_CARDS=[
   {key:'expired_backup',name:'Expired Backup',icon:'📞'},
   {key:'fsbo_backup',name:'FSBO Backup',icon:'🔑'},
   {key:'off_market',name:'Off-Market Leads',icon:'🔒'},
-  {key:'website_chat',name:'Website Chat',icon:'💬'}
+  {key:'website_chat',name:'Website Chat',icon:'💬'},
+  {key:'fsbo_leads_website',name:'FSBO Backup Plan (Web)',icon:'🏡',isWebLead:true},
+  {key:'thirty_day_leads_website',name:'30 Day Listings (Web)',icon:'📅',isWebLead:true},
+  {key:'expired_listing_leads_website',name:'Expired Listings (Web)',icon:'🏚️',isWebLead:true}
 ];
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MK=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
@@ -345,7 +328,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','fsbo-leads':'FSBO LEADS','thirty-day-leads':'30 DAY LISTING LEADS','expired-listing-leads':'EXPIRED LISTING LEADS'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -354,7 +337,7 @@ function showPage(p){
   $('pageTitle').textContent=TITLES[p];
   if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
   if(p==='listings')loadListings();if(p==='buyers')loadBuyers();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
-  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();if(p==='fsbo-leads')loadFSBOLeads();if(p==='thirty-day-leads')loadThirtyDayLeads();if(p==='expired-listing-leads')loadExpiredListingLeads();
+  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();
 }
 
 // ============ OPENS ============
@@ -471,8 +454,32 @@ function setupDrag(tbody,mk){
 // ============ ACTIVE LEADS ============
 let leadsData=[];
 async function loadLeads(){
-  const{data}=await sb.from('lab_leads').select('*').order('created_at',{ascending:false});
-  leadsData=data||[];
+  const{data:labLeads}=await sb.from('lab_leads').select('*').order('created_at',{ascending:false});
+  const{data:fsboLeads}=await sb.from('fsbo_leads').select('*').order('created_at',{ascending:false});
+  const{data:thirtyDayLeads}=await sb.from('thirty_day_leads').select('*').order('created_at',{ascending:false});
+  const{data:expiredLeads}=await sb.from('expired_listing_leads').select('*').order('created_at',{ascending:false});
+  
+  // Convert web leads to lab_leads format
+  const convertedFsbo=(fsboLeads||[]).map(l=>({
+    id:l.id,name:l.name,phone:l.phone||'',email:l.email,address:l.property_address,
+    notes:`Timeline: ${l.timeline||'N/A'}, Message: ${l.message||'N/A'}`,
+    date_added:new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    lead_source:'fsbo_leads_website',claimed:l.status!=='new',created_at:l.created_at
+  }));
+  const convertedThirtyDay=(thirtyDayLeads||[]).map(l=>({
+    id:l.id,name:l.name,phone:'',email:l.email,address:l.property_address,
+    notes:`Timeline: ${l.timeline||'N/A'}, Price: ${l.price_desired||'N/A'}, Analysis: ${l.pricing_analysis?'Yes':'No'}`,
+    date_added:new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    lead_source:'thirty_day_leads_website',claimed:l.status!=='new',created_at:l.created_at
+  }));
+  const convertedExpired=(expiredLeads||[]).map(l=>({
+    id:l.id,name:l.name,phone:'',email:l.email,address:l.property_address,
+    notes:`Timeline: ${l.timeline||'N/A'}, Price: ${l.price_desired||'N/A'}, Analysis: ${l.pricing_analysis?'Yes':'No'}`,
+    date_added:new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    lead_source:'expired_listing_leads_website',claimed:l.status!=='new',created_at:l.created_at
+  }));
+  
+  leadsData=[...(labLeads||[]),...convertedFsbo,...convertedThirtyDay,...convertedExpired];
   renderLeadSources();
   updateLeadBadge();
 }
@@ -522,8 +529,16 @@ async function claimLead(id,source){
     month_year:mk,name:lead.name,phone:lead.phone,email:lead.email,
     address:lead.address,lead_source:source,notes:lead.notes
   });
-  // Mark lead as claimed
-  await sb.from('lab_leads').update({claimed:true,claimed_at:now.toISOString()}).eq('id',id);
+  // Mark lead as claimed in appropriate table
+  if(source==='fsbo_leads_website'){
+    await sb.from('fsbo_leads').update({status:'contacted',updated_at:now.toISOString()}).eq('id',id);
+  }else if(source==='thirty_day_leads_website'){
+    await sb.from('thirty_day_leads').update({status:'contacted',updated_at:now.toISOString()}).eq('id',id);
+  }else if(source==='expired_listing_leads_website'){
+    await sb.from('expired_listing_leads').update({status:'contacted',updated_at:now.toISOString()}).eq('id',id);
+  }else{
+    await sb.from('lab_leads').update({claimed:true,claimed_at:now.toISOString()}).eq('id',id);
+  }
   loadLeads();
 }
 function updateLeadBadge(){
@@ -1638,147 +1653,6 @@ function updateGreeting(){
   else if(ctH>=12&&ctH<17)greet='Good afternoon';
   if(name)$('greeting').textContent=`${greet}, ${name}`;
 }
-// ============ FSBO LEADS ============
-async function loadFSBOLeads(){
-  const{data}=await sb.from('fsbo_leads').select('*').order('created_at',{ascending:false});
-  renderFSBOLeads(data||[]);
-  // Update badge
-  const newCount=(data||[]).filter(l=>l.status==='new').length;
-  if(newCount>0){$('fsboLeadsBadge').style.display='inline';$('fsboLeadsBadge').textContent=newCount;}
-  else{$('fsboLeadsBadge').style.display='none';}
-}
-function renderFSBOLeads(leads){
-  if(leads.length===0){
-    $('fsbo-leads-list').innerHTML='<div class="empty-state" style="padding:60px;text-align:center;color:var(--text-dim)"><h3 style="font-size:18px;margin-bottom:10px">No FSBO Leads Yet</h3><p style="font-size:14px">Leads from theblk.group/fsbo-backup-plan will appear here</p></div>';
-    return;
-  }
-  let html='<table class="lab-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Phone</th><th>Property Address</th><th>Timeline</th><th>Message</th><th>Status</th><th></th></tr></thead><tbody>';
-  leads.forEach(l=>{
-    const statusColor=l.status==='new'?'var(--sage)':l.status==='contacted'?'var(--gold)':l.status==='converted'?'var(--purple)':'var(--text-dim)';
-    html+=`<tr>
-      <td>${new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
-      <td style="font-weight:600">${l.name||'-'}</td>
-      <td><a href="mailto:${l.email}" style="color:var(--gold)">${l.email||'-'}</a></td>
-      <td><a href="tel:${l.phone}" style="color:var(--gold)">${l.phone||'-'}</a></td>
-      <td>${l.property_address||'-'}</td>
-      <td>${l.timeline||'-'}</td>
-      <td style="max-width:300px;white-space:normal;font-size:12px;color:var(--text-secondary)">${l.message||'-'}</td>
-      <td><select onchange="updateFSBOLeadStatus('${l.id}',this.value)" style="background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;color:${statusColor};font-weight:600;cursor:pointer">
-        <option value="new" ${l.status==='new'?'selected':''}>New</option>
-        <option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option>
-        <option value="converted" ${l.status==='converted'?'selected':''}>Converted</option>
-        <option value="lost" ${l.status==='lost'?'selected':''}>Lost</option>
-      </select></td>
-      <td><button onclick="deleteFSBOLead('${l.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:6px">Delete</button></td>
-    </tr>`;
-  });
-  html+='</tbody></table>';
-  $('fsbo-leads-list').innerHTML=html;
-}
-async function updateFSBOLeadStatus(id,status){
-  await sb.from('fsbo_leads').update({status,updated_at:new Date().toISOString()}).eq('id',id);
-  loadFSBOLeads();
-}
-async function deleteFSBOLead(id){
-  if(!confirm('Delete this FSBO lead?'))return;
-  await sb.from('fsbo_leads').delete().eq('id',id);
-  loadFSBOLeads();
-}
-
-// ============ 30 DAY LISTING LEADS ============
-async function loadThirtyDayLeads(){
-  const{data}=await sb.from('thirty_day_leads').select('*').order('created_at',{ascending:false});
-  renderThirtyDayLeads(data||[]);
-  // Update badge
-  const newCount=(data||[]).filter(l=>l.status==='new').length;
-  if(newCount>0){$('thirtyDayLeadsBadge').style.display='inline';$('thirtyDayLeadsBadge').textContent=newCount;}
-  else{$('thirtyDayLeadsBadge').style.display='none';}
-}
-function renderThirtyDayLeads(leads){
-  if(leads.length===0){
-    $('thirty-day-leads-list').innerHTML='<div class="empty-state" style="padding:60px;text-align:center;color:var(--text-dim)"><h3 style="font-size:18px;margin-bottom:10px">No 30 Day Listing Leads Yet</h3><p style="font-size:14px">Leads from 30daylistings.com will appear here</p></div>';
-    return;
-  }
-  let html='<table class="lab-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Property Address</th><th>Timeline</th><th>Price Desired</th><th>Pricing Analysis</th><th>Status</th><th></th></tr></thead><tbody>';
-  leads.forEach(l=>{
-    const statusColor=l.status==='new'?'var(--sage)':l.status==='contacted'?'var(--gold)':l.status==='converted'?'var(--purple)':'var(--text-dim)';
-    html+=`<tr>
-      <td>${new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
-      <td style="font-weight:600">${l.name||'-'}</td>
-      <td><a href="mailto:${l.email}" style="color:var(--gold)">${l.email||'-'}</a></td>
-      <td>${l.property_address||'-'}</td>
-      <td>${l.timeline||'-'}</td>
-      <td>${l.price_desired||'-'}</td>
-      <td style="text-align:center">${l.pricing_analysis?'✅':'—'}</td>
-      <td><select onchange="updateThirtyDayLeadStatus('${l.id}',this.value)" style="background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;color:${statusColor};font-weight:600;cursor:pointer">
-        <option value="new" ${l.status==='new'?'selected':''}>New</option>
-        <option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option>
-        <option value="converted" ${l.status==='converted'?'selected':''}>Converted</option>
-        <option value="lost" ${l.status==='lost'?'selected':''}>Lost</option>
-      </select></td>
-      <td><button onclick="deleteThirtyDayLead('${l.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:6px">Delete</button></td>
-    </tr>`;
-  });
-  html+='</tbody></table>';
-  $('thirty-day-leads-list').innerHTML=html;
-}
-async function updateThirtyDayLeadStatus(id,status){
-  await sb.from('thirty_day_leads').update({status,updated_at:new Date().toISOString()}).eq('id',id);
-  loadThirtyDayLeads();
-}
-async function deleteThirtyDayLead(id){
-  if(!confirm('Delete this 30 Day Listing lead?'))return;
-  await sb.from('thirty_day_leads').delete().eq('id',id);
-  loadThirtyDayLeads();
-}
-
-// ============ EXPIRED LISTING LEADS ============
-async function loadExpiredListingLeads(){
-  const{data}=await sb.from('expired_listing_leads').select('*').order('created_at',{ascending:false});
-  renderExpiredListingLeads(data||[]);
-  // Update badge
-  const newCount=(data||[]).filter(l=>l.status==='new').length;
-  if(newCount>0){$('expiredListingLeadsBadge').style.display='inline';$('expiredListingLeadsBadge').textContent=newCount;}
-  else{$('expiredListingLeadsBadge').style.display='none';}
-}
-function renderExpiredListingLeads(leads){
-  if(leads.length===0){
-    $('expired-listing-leads-list').innerHTML='<div class="empty-state" style="padding:60px;text-align:center;color:var(--text-dim)"><h3 style="font-size:18px;margin-bottom:10px">No Expired Listing Leads Yet</h3><p style="font-size:14px">Leads from expiredlistingstrategy.com will appear here</p></div>';
-    return;
-  }
-  let html='<table class="lab-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Property Address</th><th>Timeline</th><th>Price Desired</th><th>Pricing Analysis</th><th>Status</th><th></th></tr></thead><tbody>';
-  leads.forEach(l=>{
-    const statusColor=l.status==='new'?'var(--sage)':l.status==='contacted'?'var(--gold)':l.status==='converted'?'var(--purple)':'var(--text-dim)';
-    html+=`<tr>
-      <td>${new Date(l.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
-      <td style="font-weight:600">${l.name||'-'}</td>
-      <td><a href="mailto:${l.email}" style="color:var(--gold)">${l.email||'-'}</a></td>
-      <td>${l.property_address||'-'}</td>
-      <td>${l.timeline||'-'}</td>
-      <td>${l.price_desired||'-'}</td>
-      <td style="text-align:center">${l.pricing_analysis?'✅':'—'}</td>
-      <td><select onchange="updateExpiredListingLeadStatus('${l.id}',this.value)" style="background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;color:${statusColor};font-weight:600;cursor:pointer">
-        <option value="new" ${l.status==='new'?'selected':''}>New</option>
-        <option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option>
-        <option value="converted" ${l.status==='converted'?'selected':''}>Converted</option>
-        <option value="lost" ${l.status==='lost'?'selected':''}>Lost</option>
-      </select></td>
-      <td><button onclick="deleteExpiredListingLead('${l.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:6px">Delete</button></td>
-    </tr>`;
-  });
-  html+='</tbody></table>';
-  $('expired-listing-leads-list').innerHTML=html;
-}
-async function updateExpiredListingLeadStatus(id,status){
-  await sb.from('expired_listing_leads').update({status,updated_at:new Date().toISOString()}).eq('id',id);
-  loadExpiredListingLeads();
-}
-async function deleteExpiredListingLead(id){
-  if(!confirm('Delete this Expired Listing lead?'))return;
-  await sb.from('expired_listing_leads').delete().eq('id',id);
-  loadExpiredListingLeads();
-}
-
 // ============ 30 DAY PUSH ============
 async function loadThirtyDayPush(){
   const{data}=await sb.from('lab_thirty_day_push').select('*').order('sort_order');
@@ -2051,18 +1925,6 @@ function initApp(){
   // Check for unclaimed leads
   sb.from('lab_leads').select('id',{count:'exact'}).eq('claimed',false).then(({count})=>{
     if(count>0){$('leadsBadge').style.display='inline';$('leadsBadge').textContent=count;}
-  });
-  // Check for new FSBO leads
-  sb.from('fsbo_leads').select('id',{count:'exact'}).eq('status','new').then(({count})=>{
-    if(count>0){$('fsboLeadsBadge').style.display='inline';$('fsboLeadsBadge').textContent=count;}
-  });
-  // Check for new 30 Day Listing leads
-  sb.from('thirty_day_leads').select('id',{count:'exact'}).eq('status','new').then(({count})=>{
-    if(count>0){$('thirtyDayLeadsBadge').style.display='inline';$('thirtyDayLeadsBadge').textContent=count;}
-  });
-  // Check for new Expired Listing leads
-  sb.from('expired_listing_leads').select('id',{count:'exact'}).eq('status','new').then(({count})=>{
-    if(count>0){$('expiredListingLeadsBadge').style.display='inline';$('expiredListingLeadsBadge').textContent=count;}
   });
 }
 checkAuth();
