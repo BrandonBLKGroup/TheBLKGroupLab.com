@@ -379,7 +379,7 @@ function openRow(r,num,mk){
     <td><select onchange="updateOpen('${r.id}','lead_source',this.value)" style="min-width:140px">${srcOpts(r.lead_source)}</select></td>
     <td><input value="${r.address||''}" onchange="updateOpen('${r.id}','address',this.value)" placeholder="Address" style="min-width:180px"></td>
     <td><input type="date" value="${r.last_contact||''}" onchange="updateOpen('${r.id}','last_contact',this.value)"></td>
-    <td><input type="date" value="${r.next_contact||''}" onchange="updateOpen('${r.id}','next_contact',this.value)"></td>
+    <td><input type="date" value="${r.next_contact||''}" onchange="updateOpen('${r.id}','next_contact',this.value)" style="${r.next_contact && new Date(r.next_contact) < new Date(new Date().setHours(0,0,0,0)) ? 'background:#ff4444;color:#fff;border:2px solid #ff0000' : ''}"></td>
     <td><div class="notes-cell ${r.notes?'':'empty'}" data-id="${r.id}" data-notes="${(r.notes||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" data-name="${(r.name||'Lead').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onclick="openNotesModal(this)">${r.notes?(r.notes.length>15?r.notes.substring(0,15)+'…':r.notes):'+ Add notes'}</div></td>
     <td><input value="${r.name||''}" onchange="updateOpen('${r.id}','name',this.value)" placeholder="Name" style="min-width:130px"></td>
     <td><input value="${r.phone||''}" onchange="updateOpen('${r.id}','phone',this.value)" placeholder="Phone" style="min-width:115px"></td>
@@ -1720,7 +1720,7 @@ function thirtyDayRow(r,num){
     <td><input value="${r.address||''}" onchange="updateThirtyDay('${r.id}','address',this.value)" style="width:200px;background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px"></td>
     <td><input type="number" value="${r.volume||0}" onchange="updateThirtyDay('${r.id}','volume',this.value)" placeholder="0" style="width:120px;background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--gold)"></td>
     <td><input type="date" value="${r.last_contact||''}" onchange="updateThirtyDay('${r.id}','last_contact',this.value)" style="width:140px;background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px"></td>
-    <td><input type="date" value="${r.next_contact||''}" onchange="updateThirtyDay('${r.id}','next_contact',this.value)" style="width:140px;background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px"></td>
+    <td><input type="date" value="${r.next_contact||''}" onchange="updateThirtyDay('${r.id}','next_contact',this.value)" style="width:140px;${r.next_contact && new Date(r.next_contact) < new Date(new Date().setHours(0,0,0,0)) ? 'background:#ff4444;color:#fff;border:2px solid #ff0000' : 'background:none;border:1px solid var(--border)'};padding:6px 10px;border-radius:6px;font-size:12px"></td>
     <td><input value="${r.notes||''}" onchange="updateThirtyDay('${r.id}','notes',this.value)" style="width:200px;background:none;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px"></td>
     <td style="font-size:18px;color:var(--text-dim);cursor:grab">⋮</td>
     <td><button onclick="deleteThirtyDayRow('${r.id}')" style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer">×</button></td>
