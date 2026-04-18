@@ -2222,16 +2222,20 @@ async function savePolicy(silent = false){
     updated_at: new Date().toISOString()
   };
   
+  let result;
   try {
     if(policyId){
-      // Update existing
-      await sb.from('lab_policies').update(policyData).eq('id', policyId);
+      result = await sb.from('lab_policies').update(policyData).eq('id', policyId);
     } else {
-      // Create new
-      const {data} = await sb.from('lab_policies').insert([{...policyData, created_at: new Date().toISOString()}]).select();
-      if(data && data[0]){
-        $('currentPolicyId').value = data[0].id;
+      result = await sb.from('lab_policies').insert([{...policyData, created_at: new Date().toISOString()}]).select();
+      if(result.data && result.data[0]){
+        $('currentPolicyId').value = result.data[0].id;
       }
+    }
+    if(result.error){
+      console.error('Save error:', result.error);
+      if(!silent) alert('Error saving: ' + result.error.message);
+      return;
     }
     
     if(!silent){
