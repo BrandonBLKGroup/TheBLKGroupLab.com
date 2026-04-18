@@ -244,8 +244,18 @@ body::before{display:none}
                 <button onclick="savePolicy()" class="btn btn-arc" style="font-weight:700"><span>💾</span>Save Policy</button>
               </div>
             </div>
-            <input type="text" id="policyTitle" placeholder="Policy Title..." style="width:100%;padding:14px 18px;border:1px solid var(--border);border-radius:8px;font-size:18px;font-weight:700;margin-bottom:24px;background:var(--bg)">
-            <div id="policyEditor" style="height:600px;background:#fff;border:1px solid var(--border);border-radius:8px"></div>
+            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:40px 50px;max-width:900px;margin:0 auto;">
+              <div style="text-align:center;margin-bottom:8px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#333;">The BLK Group at LPT Realty</div>
+              <div style="text-align:center;margin-bottom:16px;font-size:15px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#111;">BLK Group Policy Letter</div>
+              <div style="text-align:center;margin-bottom:24px;font-size:12px;color:#666;" id="policyDateLine"></div>
+              <input type="text" id="policyTitle" placeholder="Policy Title..." style="width:100%;padding:14px 18px;border:none;border-bottom:2px solid var(--border);font-size:18px;font-weight:700;margin-bottom:24px;background:transparent;text-align:center;letter-spacing:1px;">
+              <div id="policyEditor" style="min-height:500px;background:#fff;border:none;font-size:14px;line-height:1.7"></div>
+              <div style="margin-top:40px;padding-top:24px;border-top:1px solid #ddd;">
+                <div style="font-size:14px;font-weight:700;color:#111;">Brandon Bruning</div>
+                <div style="font-size:12px;color:#555;margin-top:2px;">Founder</div>
+                <div style="font-size:12px;color:#555;">The BLK Group at LPT Realty</div>
+              </div>
+            </div>
             <input type="hidden" id="currentPolicyId">
           </div>
         </div>
@@ -2174,12 +2184,14 @@ function showPolicyEditor(policyId = null){
       $('currentPolicyId').value = policy.id;
       $('policyTitle').value = policy.title || '';
       $('policyStatus').value = policy.status || 'draft';
+      if($('policyDateLine')) $('policyDateLine').textContent = new Date(policy.created_at).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
       quillEditor.root.innerHTML = policy.content || '';
     }
   } else {
     $('currentPolicyId').value = '';
     $('policyTitle').value = '';
     $('policyStatus').value = 'draft';
+    if($('policyDateLine')) $('policyDateLine').textContent = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
     quillEditor.setText('');
   }
   
