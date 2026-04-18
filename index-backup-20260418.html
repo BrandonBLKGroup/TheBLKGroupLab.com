@@ -150,57 +150,7 @@ body::before{display:none}
 .row-black{background:rgba(0,0,0,0.15)!important}
 .row-black td input,.row-black td select{background:rgba(0,0,0,0.10)!important;color:#111!important}
 .color-select{width:32px!important;padding:4px!important;border:1px solid var(--border)!important;border-radius:6px!important;background:#fff!important;cursor:pointer!important;font-size:14px!important;text-align:center}
-/* Policy Library Styles */
-.policy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
-.policy-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;cursor:pointer;transition:all 0.25s;position:relative;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-.policy-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.08)}
-.policy-card .policy-title{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px;line-height:1.4}
-.policy-card .policy-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-dim);margin-top:12px}
-.policy-card .policy-date{color:var(--text-secondary)}
-.policy-status-badge{padding:4px 10px;border-radius:12px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
-.policy-status-badge.draft{background:rgba(128,128,128,0.1);color:#888;border:1px solid rgba(128,128,128,0.2)}
-.policy-status-badge.final{background:var(--gold-light);color:var(--gold);border:1px solid rgba(184,150,12,0.2)}
-.add-policy-btn{width:100%;padding:16px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;margin-bottom:24px;transition:all 0.2s;text-transform:uppercase}
-.add-policy-btn:hover{background:#8B7209;transform:translateY(-1px)}
-.policy-search{width:100%;padding:12px 16px;background:#fafafa;border:1px solid var(--border);border-radius:10px;font-size:13px;margin-bottom:20px;outline:none;transition:all 0.2s}
-.policy-search:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-light)}
-/* Full-Screen Editor */
-.editor-overlay{position:fixed;inset:0;background:#fff;z-index:99999;display:none;flex-direction:column}
-.editor-overlay.active{display:flex}
-.editor-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:#fafafa}
-.editor-title-input{flex:1;padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:18px;font-weight:600;margin:0 20px;outline:none}
-.editor-title-input:focus{border-color:var(--gold)}
-.editor-actions{display:flex;gap:12px}
-.editor-btn{padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none}
-.editor-btn.close{background:#f0f0f0;color:var(--text-secondary)}
-.editor-btn.save{background:var(--gold);color:#fff}
-.editor-btn:hover{opacity:0.9}
-.editor-status-toggle{display:flex;gap:8px;align-items:center;padding:6px;background:#fff;border:1px solid var(--border);border-radius:8px}
-.editor-status-toggle button{padding:6px 14px;border:none;background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s}
-.editor-status-toggle button.active{background:var(--gold);color:#fff}
-.editor-body{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.editor-toolbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;background:#fafafa}
-.editor-toolbar button{padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;transition:all 0.2s}
-.editor-toolbar button:hover{background:var(--gold-light);border-color:var(--gold)}
-.editor-toolbar button.is-active{background:var(--gold);color:#fff;border-color:var(--gold)}
-.editor-content{flex:1;overflow-y:auto;padding:40px 80px}
-.ProseMirror{outline:none;min-height:100%;font-size:16px;line-height:1.8;color:var(--text-primary)}
-.ProseMirror h1{font-size:32px;font-weight:700;margin:32px 0 16px;color:var(--text-primary)}
-.ProseMirror h2{font-size:26px;font-weight:600;margin:28px 0 14px;color:var(--text-primary)}
-.ProseMirror h3{font-size:20px;font-weight:600;margin:24px 0 12px;color:var(--text-primary)}
-.ProseMirror p{margin-bottom:16px}
-.ProseMirror ul,.ProseMirror ol{margin:16px 0;padding-left:32px}
-.ProseMirror li{margin-bottom:8px}
-.ProseMirror strong{font-weight:600}
-.ProseMirror em{font-style:italic}
-.ProseMirror u{text-decoration:underline}
-.ProseMirror s{text-decoration:line-through}
 </style>
-<!-- TipTap Rich Text Editor -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tiptap/pm@latest/style.css">
-<script src="https://cdn.jsdelivr.net/npm/@tiptap/pm@latest/dist/index.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tiptap/core@latest/dist/tiptap-core.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tiptap/starter-kit@latest/dist/tiptap-starter-kit.umd.js"></script>
 </head>
 <body>
 <div class="login-overlay" id="loginOverlay">
@@ -227,7 +177,6 @@ body::before{display:none}
       <div class="nav-item" data-page="capabilities" onclick="showPage('capabilities')"><span class="icon">🧠</span>Jarvis Capabilities</div>
       <div class="nav-item" data-page="coaching" onclick="showPage('coaching')"><span class="icon">🏋️</span>Jarvis Coaching</div>
       <div class="nav-item" data-page="battleplan" onclick="showPage('battleplan')"><span class="icon">⚔️</span>Battle Plan</div>
-      <div class="nav-item admin-only" data-page="listing-specialist" onclick="showPage('listing-specialist')" style="display:none"><span class="icon">📋</span>Listing Specialist</div>
       <div class="nav-item" data-page="thirty-day-push" onclick="showPage('thirty-day-push')"><span class="icon">🚀</span>30 Day Push</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
@@ -255,7 +204,6 @@ body::before{display:none}
       <div class="page" id="page-coaching"></div>
       <div class="page" id="page-battleplan"></div>
       <div class="page" id="page-thirty-day-push"></div>
-      <div class="page" id="page-listing-specialist"></div>
 
     </div>
   </div>
@@ -380,7 +328,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST - POLICY LIBRARY'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -2067,23 +2015,6 @@ async function jcSend(){const inp=$('jcInput'),txt=inp.value.trim();if(!txt||jcB
     </div>
   </div>
 </div>
-
-<!-- Policy Editor Full-Screen Overlay -->
-<div class="editor-overlay" id="policyEditor">
-  <div class="editor-header">
-    <button class="editor-btn close" onclick="closePolicyEditor()">← Back to Library</button>
-    <input type="text" id="policyTitleInput" class="editor-title-input" placeholder="Policy Title...">
-    <div class="editor-status-toggle">
-      <button id="statusDraft" onclick="setPolicyStatus('draft')">Draft</button>
-      <button id="statusFinal" onclick="setPolicyStatus('final')">Final</button>
-    </div>
-    <button class="editor-btn save" onclick="savePolicyEditor()">Save Policy</button>
-  </div>
-  <div class="editor-body">
-    <div class="editor-toolbar" id="editorToolbar"></div>
-    <div class="editor-content" id="editorContent"></div>
-  </div>
-</div>
 <script>
 let _notesId=null;
 function openNotesModal(el){
@@ -2105,226 +2036,6 @@ async function saveNotesModal(){
   loadOpens();
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&_notesId)closeNotesModal()});
-// ============================================
-// POLICY LIBRARY - Listing Specialist Feature
-// ============================================
-
-let policyEditor = null;
-let currentPolicy = null;
-let policies = [];
-
-// Show admin-only nav items
-function showAdminNav() {
-  document.querySelectorAll('.admin-only').forEach(el => {
-    el.style.display = isAdmin ? '' : 'none';
-  });
-}
-
-// Initialize Policy Library page
-async function initPolicyLibrary() {
-  const html = `
-    <button class="add-policy-btn" onclick="openPolicyEditor()">+ Add New Policy</button>
-    <input type="text" class="policy-search" placeholder="Search policies..." oninput="filterPolicies(this.value)">
-    <div class="policy-grid" id="policyGrid"></div>
-  `;
-  $('page-listing-specialist').innerHTML = html;
-  await loadPolicies();
-}
-
-// Load all policies from Supabase
-async function loadPolicies() {
-  const { data, error } = await sb
-    .from('policy_library')
-    .select('*')
-    .order('updated_at', { ascending: false });
-  
-  if (error) {
-    console.error('Error loading policies:', error);
-    return;
-  }
-  
-  policies = data || [];
-  renderPolicies(policies);
-}
-
-// Render policy grid
-function renderPolicies(policiesToRender) {
-  const grid = $('policyGrid');
-  if (!grid) return;
-  
-  if (policiesToRender.length === 0) {
-    grid.innerHTML = `
-      <div style="text-align:center;padding:60px 20px;color:var(--text-dim)">
-        <div style="font-size:48px;margin-bottom:16px">📋</div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:8px">No policies yet</div>
-        <div style="font-size:12px">Click "Add New Policy" to create your first policy letter</div>
-      </div>
-    `;
-    return;
-  }
-  
-  let html = '';
-  policiesToRender.forEach(policy => {
-    const date = new Date(policy.created_at).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-    
-    html += `
-      <div class="policy-card" onclick="openPolicyEditor('${policy.id}')">
-        <div class="policy-title">${policy.title || 'Untitled Policy'}</div>
-        <div class="policy-meta">
-          <span class="policy-date">${date}</span>
-          <span class="policy-status-badge ${policy.status}">${policy.status}</span>
-        </div>
-      </div>
-    `;
-  });
-  
-  grid.innerHTML = html;
-}
-
-// Filter policies by search term
-function filterPolicies(term) {
-  const filtered = policies.filter(p => 
-    p.title.toLowerCase().includes(term.toLowerCase()) ||
-    p.content.toLowerCase().includes(term.toLowerCase())
-  );
-  renderPolicies(filtered);
-}
-
-// Open policy editor (new or existing)
-async function openPolicyEditor(policyId = null) {
-  currentPolicy = null;
-  
-  if (policyId) {
-    // Load existing policy
-    const policy = policies.find(p => p.id === policyId);
-    if (policy) {
-      currentPolicy = policy;
-      $('policyTitleInput').value = policy.title || '';
-      setPolicyStatus(policy.status || 'draft');
-    }
-  } else {
-    // New policy
-    $('policyTitleInput').value = '';
-    setPolicyStatus('draft');
-  }
-  
-  // Show editor
-  $('policyEditor').classList.add('active');
-  
-  // Initialize TipTap editor
-  initTipTapEditor(currentPolicy ? currentPolicy.content : '');
-}
-
-// Close policy editor
-function closePolicyEditor() {
-  $('policyEditor').classList.remove('active');
-  if (policyEditor) {
-    policyEditor.destroy();
-    policyEditor = null;
-  }
-}
-
-// Set policy status (draft/final)
-function setPolicyStatus(status) {
-  $('statusDraft').classList.toggle('active', status === 'draft');
-  $('statusFinal').classList.toggle('active', status === 'final');
-}
-
-// Initialize TipTap rich text editor
-function initTipTapEditor(content = '') {
-  if (policyEditor) {
-    policyEditor.destroy();
-  }
-  
-  const { Editor } = window.Tiptap;
-  const { StarterKit } = window.TiptapStarterKit;
-  
-  policyEditor = new Editor({
-    element: $('editorContent'),
-    extensions: [StarterKit],
-    content: content,
-    editorProps: {
-      attributes: {
-        class: 'ProseMirror'
-      }
-    }
-  });
-  
-  // Build toolbar
-  const toolbar = $('editorToolbar');
-  toolbar.innerHTML = `
-    <button onclick="policyEditor.chain().focus().toggleBold().run()" title="Bold"><strong>B</strong></button>
-    <button onclick="policyEditor.chain().focus().toggleItalic().run()" title="Italic"><em>I</em></button>
-    <button onclick="policyEditor.chain().focus().toggleUnderline().run()" title="Underline"><u>U</u></button>
-    <button onclick="policyEditor.chain().focus().toggleStrike().run()" title="Strikethrough"><s>S</s></button>
-    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
-    <button onclick="policyEditor.chain().focus().toggleHeading({level:1}).run()" title="Heading 1">H1</button>
-    <button onclick="policyEditor.chain().focus().toggleHeading({level:2}).run()" title="Heading 2">H2</button>
-    <button onclick="policyEditor.chain().focus().toggleHeading({level:3}).run()" title="Heading 3">H3</button>
-    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
-    <button onclick="policyEditor.chain().focus().toggleBulletList().run()" title="Bullet List">• List</button>
-    <button onclick="policyEditor.chain().focus().toggleOrderedList().run()" title="Numbered List">1. List</button>
-    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
-    <button onclick="policyEditor.chain().focus().setTextAlign('left').run()" title="Align Left">⬅</button>
-    <button onclick="policyEditor.chain().focus().setTextAlign('center').run()" title="Align Center">↔</button>
-    <button onclick="policyEditor.chain().focus().setTextAlign('right').run()" title="Align Right">➡</button>
-  `;
-}
-
-// Save policy
-async function savePolicyEditor() {
-  const title = $('policyTitleInput').value.trim();
-  if (!title) {
-    alert('Please enter a policy title');
-    return;
-  }
-  
-  const content = policyEditor.getHTML();
-  const status = $('statusFinal').classList.contains('active') ? 'final' : 'draft';
-  
-  const policyData = {
-    title,
-    content,
-    status,
-    created_by: currentUser?.id
-  };
-  
-  let error;
-  
-  if (currentPolicy) {
-    // Update existing
-    const { error: updateError } = await sb
-      .from('policy_library')
-      .update(policyData)
-      .eq('id', currentPolicy.id);
-    error = updateError;
-  } else {
-    // Insert new
-    const { error: insertError } = await sb
-      .from('policy_library')
-      .insert([policyData]);
-    error = insertError;
-  }
-  
-  if (error) {
-    alert('Error saving policy: ' + error.message);
-    return;
-  }
-  
-  // Close editor and reload
-  closePolicyEditor();
-  await loadPolicies();
-}
-
-// Export policy to print-ready format (future enhancement)
-function exportPolicy(policyId) {
-  // TODO: Generate PDF or print-friendly HTML
-  window.print();
-}
 </script>
 </body>
 </html>
