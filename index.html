@@ -2204,12 +2204,24 @@ function closePolicyEditor(){
 }
 
 async function savePolicy(silent = false){
+  console.log('savePolicy called, silent:', silent);
+  console.log('quillEditor:', quillEditor);
+  console.log('currentUser:', currentUser);
   const title = $('policyTitle').value.trim();
   if(!title && !silent){
     alert('Please enter a policy title');
     return;
   }
-  
+  if(!quillEditor){
+    console.error('quillEditor is null!');
+    if(!silent) alert('Editor not initialized. Close and reopen the policy.');
+    return;
+  }
+  if(!currentUser || !currentUser.id){
+    console.error('currentUser is null or has no id!');
+    if(!silent) alert('Not logged in. Please refresh and log in again.');
+    return;
+  }
   const content = quillEditor.root.innerHTML;
   const status = $('policyStatus').value;
   const policyId = $('currentPolicyId').value;
