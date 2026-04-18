@@ -6,6 +6,12 @@
 <title>The BLK Group Lab</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Quill Rich Text Editor -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<!-- jsPDF for PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -180,6 +186,7 @@ body::before{display:none}
       <div class="nav-item" data-page="thirty-day-push" onclick="showPage('thirty-day-push')"><span class="icon">🚀</span>30 Day Push</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
+      <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -204,6 +211,45 @@ body::before{display:none}
       <div class="page" id="page-coaching"></div>
       <div class="page" id="page-battleplan"></div>
       <div class="page" id="page-thirty-day-push"></div>
+      <div class="page" id="page-listing-specialist">
+        <!-- Policy Library View -->
+        <div id="policyLibraryView">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div style="flex:1;max-width:400px">
+              <input type="text" id="policySearch" placeholder="Search policies..." style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">
+            </div>
+            <div style="display:flex;gap:12px">
+              <select id="policySortBy" onchange="loadPolicies()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;cursor:pointer">
+                <option value="date">Sort by Date</option>
+                <option value="title">Sort by Title</option>
+              </select>
+              <button onclick="downloadAllPoliciesPDF()" class="btn btn-arc"><span>📄</span>Download All (PDF)</button>
+              <button onclick="showPolicyEditor()" class="btn btn-arc"><span>➕</span>Add Policy</button>
+            </div>
+          </div>
+          <div id="policyGrid" class="source-grid"></div>
+        </div>
+
+        <!-- Policy Editor (Full Screen) -->
+        <div id="policyEditorView" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:50000;overflow:auto">
+          <div style="max-width:900px;margin:0 auto;padding:40px 24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
+              <button onclick="closePolicyEditor()" class="btn"><span>←</span>Back to Library</button>
+              <div style="display:flex;gap:12px;align-items:center">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary)">Status:</label>
+                <select id="policyStatus" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);cursor:pointer">
+                  <option value="draft">Draft</option>
+                  <option value="final">Final</option>
+                </select>
+                <button onclick="savePolicy()" class="btn btn-arc" style="font-weight:700"><span>💾</span>Save Policy</button>
+              </div>
+            </div>
+            <input type="text" id="policyTitle" placeholder="Policy Title..." style="width:100%;padding:14px 18px;border:1px solid var(--border);border-radius:8px;font-size:18px;font-weight:700;margin-bottom:24px;background:var(--bg)">
+            <div id="policyEditor" style="height:600px;background:#fff;border:1px solid var(--border);border-radius:8px"></div>
+            <input type="hidden" id="currentPolicyId">
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -271,7 +317,7 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1'];
+  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1','listing-specialist'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
@@ -328,7 +374,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -337,7 +383,7 @@ function showPage(p){
   $('pageTitle').textContent=TITLES[p];
   if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
   if(p==='listings')loadListings();if(p==='buyers')loadBuyers();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
-  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();
+  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();if(p==='listing-specialist')loadPolicies();
 }
 
 // ============ OPENS ============
@@ -2036,6 +2082,276 @@ async function saveNotesModal(){
   loadOpens();
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&_notesId)closeNotesModal()});
+
+// ============ LISTING SPECIALIST POLICY LIBRARY ============
+let quillEditor = null;
+let allPolicies = [];
+
+async function loadPolicies(){
+  const sortBy = $('policySortBy')?.value || 'date';
+  const{data}=await sb.from('lab_policies').select('*').order(sortBy === 'date' ? 'created_at' : 'title', {ascending: sortBy === 'title'});
+  allPolicies = data || [];
+  renderPolicyGrid();
+  
+  // Setup search listener
+  const searchInput = $('policySearch');
+  if(searchInput && !searchInput.dataset.listenerAdded){
+    searchInput.addEventListener('input', filterPolicies);
+    searchInput.dataset.listenerAdded = 'true';
+  }
+}
+
+function filterPolicies(){
+  const query = $('policySearch').value.toLowerCase();
+  const filtered = allPolicies.filter(p => 
+    p.title.toLowerCase().includes(query) || 
+    (p.content && p.content.toLowerCase().includes(query))
+  );
+  renderPolicyGrid(filtered);
+}
+
+function renderPolicyGrid(policies = null){
+  const policiesToRender = policies || allPolicies;
+  const grid = $('policyGrid');
+  if(!grid) return;
+  
+  if(policiesToRender.length === 0){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-dim)">
+      <div style="font-size:48px;margin-bottom:12px">📚</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:6px">No policies yet</div>
+      <div style="font-size:12px">Click "Add Policy" to create your first policy document</div>
+    </div>`;
+    return;
+  }
+  
+  grid.innerHTML = policiesToRender.map(p => {
+    const date = new Date(p.created_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+    const statusClass = p.status === 'final' ? 'power' : '';
+    const statusText = p.status === 'final' ? 'FINAL' : 'DRAFT';
+    
+    return `<div class="source-card" onclick="editPolicy('${p.id}')" style="text-align:left">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+        <div class="source-icon">📄</div>
+        <span class="condition-badge ${statusClass}" style="font-size:9px;padding:4px 10px">${statusText}</span>
+      </div>
+      <div class="source-name" style="margin-bottom:6px;min-height:40px">${p.title || 'Untitled Policy'}</div>
+      <div class="source-count" style="margin-bottom:8px">${date}</div>
+      <div style="display:flex;gap:6px;margin-top:12px">
+        <button onclick="event.stopPropagation();editPolicy('${p.id}')" class="btn" style="flex:1;font-size:11px;padding:6px 10px">Edit</button>
+        <button onclick="event.stopPropagation();deletePolicy('${p.id}')" class="btn" style="font-size:11px;padding:6px 10px;color:var(--danger);border-color:var(--danger)">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showPolicyEditor(policyId = null){
+  $('policyLibraryView').style.display = 'none';
+  $('policyEditorView').style.display = 'block';
+  
+  // Initialize Quill if not already done
+  if(!quillEditor){
+    quillEditor = new Quill('#policyEditor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'align': [] }],
+          [{ 'indent': '-1'}, { 'indent': '+1' }],
+          [{ 'size': ['small', false, 'large', 'huge'] }],
+          ['clean']
+        ]
+      },
+      placeholder: 'Start writing your policy document...'
+    });
+  }
+  
+  // Clear or load policy
+  if(policyId){
+    const policy = allPolicies.find(p => p.id === policyId);
+    if(policy){
+      $('currentPolicyId').value = policy.id;
+      $('policyTitle').value = policy.title || '';
+      $('policyStatus').value = policy.status || 'draft';
+      quillEditor.root.innerHTML = policy.content || '';
+    }
+  } else {
+    $('currentPolicyId').value = '';
+    $('policyTitle').value = '';
+    $('policyStatus').value = 'draft';
+    quillEditor.setText('');
+  }
+  
+  // Auto-save every 30 seconds
+  if(window.policySaveInterval) clearInterval(window.policySaveInterval);
+  window.policySaveInterval = setInterval(() => {
+    if($('policyEditorView').style.display !== 'none'){
+      savePolicy(true); // Silent save
+    }
+  }, 30000);
+}
+
+function editPolicy(policyId){
+  showPolicyEditor(policyId);
+}
+
+function closePolicyEditor(){
+  if(window.policySaveInterval) clearInterval(window.policySaveInterval);
+  $('policyEditorView').style.display = 'none';
+  $('policyLibraryView').style.display = 'block';
+  loadPolicies();
+}
+
+async function savePolicy(silent = false){
+  const title = $('policyTitle').value.trim();
+  if(!title && !silent){
+    alert('Please enter a policy title');
+    return;
+  }
+  
+  const content = quillEditor.root.innerHTML;
+  const status = $('policyStatus').value;
+  const policyId = $('currentPolicyId').value;
+  
+  const policyData = {
+    title: title || 'Untitled Policy',
+    content: content,
+    status: status,
+    user_id: currentUser.id,
+    updated_at: new Date().toISOString()
+  };
+  
+  try {
+    if(policyId){
+      // Update existing
+      await sb.from('lab_policies').update(policyData).eq('id', policyId);
+    } else {
+      // Create new
+      const {data} = await sb.from('lab_policies').insert([{...policyData, created_at: new Date().toISOString()}]).select();
+      if(data && data[0]){
+        $('currentPolicyId').value = data[0].id;
+      }
+    }
+    
+    if(!silent){
+      // Show brief success message
+      const saveBtn = event?.target;
+      if(saveBtn){
+        const originalHTML = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<span>✓</span>Saved!';
+        saveBtn.style.background = 'var(--sage)';
+        saveBtn.style.color = '#fff';
+        setTimeout(() => {
+          saveBtn.innerHTML = originalHTML;
+          saveBtn.style.background = '';
+          saveBtn.style.color = '';
+        }, 1500);
+      }
+    }
+    
+    await loadPolicies();
+  } catch(error){
+    console.error('Error saving policy:', error);
+    if(!silent) alert('Error saving policy. Please try again.');
+  }
+}
+
+async function deletePolicy(policyId){
+  if(!confirm('Are you sure you want to delete this policy? This cannot be undone.')) return;
+  
+  try {
+    await sb.from('lab_policies').delete().eq('id', policyId);
+    await loadPolicies();
+  } catch(error){
+    console.error('Error deleting policy:', error);
+    alert('Error deleting policy. Please try again.');
+  }
+}
+
+async function downloadAllPoliciesPDF(){
+  const finalPolicies = allPolicies.filter(p => p.status === 'final');
+  
+  if(finalPolicies.length === 0){
+    alert('No final policies to export. Mark policies as "Final" to include them in the PDF.');
+    return;
+  }
+  
+  // Show loading message
+  const btn = event?.target;
+  const originalHTML = btn?.innerHTML;
+  if(btn) btn.innerHTML = '<span>⏳</span>Generating PDF...';
+  
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'letter');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 60;
+    const maxWidth = pageWidth - (margin * 2);
+    
+    // Cover page
+    pdf.setFontSize(28);
+    pdf.setFont('helvetica', 'bold');
+    const coverTitle = 'Listing Specialist Hat Pack';
+    pdf.text(coverTitle, pageWidth / 2, 250, { align: 'center' });
+    
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'normal');
+    const coverSubtitle = 'The BLK Group at LPT Realty';
+    pdf.text(coverSubtitle, pageWidth / 2, 290, { align: 'center' });
+    
+    pdf.setFontSize(10);
+    pdf.setTextColor(120);
+    const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    pdf.text(date, pageWidth / 2, 320, { align: 'center' });
+    
+    // Add policies
+    for(let i = 0; i < finalPolicies.length; i++){
+      pdf.addPage();
+      pdf.setTextColor(0);
+      
+      const policy = finalPolicies[i];
+      let y = margin;
+      
+      // Title
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      const titleLines = pdf.splitTextToSize(policy.title, maxWidth);
+      pdf.text(titleLines, margin, y);
+      y += titleLines.length * 28;
+      y += 20;
+      
+      // Content (strip HTML and format)
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = policy.content || '';
+      const textContent = tempDiv.textContent || tempDiv.innerText || '';
+      
+      const contentLines = pdf.splitTextToSize(textContent, maxWidth);
+      const lineHeight = 16;
+      
+      for(let line of contentLines){
+        if(y + lineHeight > pageHeight - margin){
+          pdf.addPage();
+          y = margin;
+        }
+        pdf.text(line, margin, y);
+        y += lineHeight;
+      }
+    }
+    
+    // Save PDF
+    pdf.save('Listing-Specialist-Hat-Pack.pdf');
+    
+    if(btn) btn.innerHTML = originalHTML;
+  } catch(error){
+    console.error('Error generating PDF:', error);
+    alert('Error generating PDF. Please try again.');
+    if(btn) btn.innerHTML = originalHTML;
+  }
+}
 </script>
 </body>
 </html>
