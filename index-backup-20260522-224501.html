@@ -6,12 +6,6 @@
 <title>The BLK Group Lab</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Quill Rich Text Editor -->
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-<!-- jsPDF for PDF Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -156,8 +150,61 @@ body::before{display:none}
 .row-black{background:rgba(0,0,0,0.15)!important}
 .row-black td input,.row-black td select{background:rgba(0,0,0,0.10)!important;color:#111!important}
 .color-select{width:32px!important;padding:4px!important;border:1px solid var(--border)!important;border-radius:6px!important;background:#fff!important;cursor:pointer!important;font-size:14px!important;text-align:center}
+/* Policy Library Styles */
+.policy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.policy-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;cursor:pointer;transition:all 0.25s;position:relative;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.policy-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+.policy-card .policy-title{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px;line-height:1.4}
+.policy-card .policy-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-dim);margin-top:12px}
+.policy-card .policy-date{color:var(--text-secondary)}
+.policy-status-badge{padding:4px 10px;border-radius:12px;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.policy-status-badge.draft{background:rgba(128,128,128,0.1);color:#888;border:1px solid rgba(128,128,128,0.2)}
+.policy-status-badge.final{background:var(--gold-light);color:var(--gold);border:1px solid rgba(184,150,12,0.2)}
+.add-policy-btn{width:100%;padding:16px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;margin-bottom:24px;transition:all 0.2s;text-transform:uppercase}
+.add-policy-btn:hover{background:#8B7209;transform:translateY(-1px)}
+.policy-search{width:100%;padding:12px 16px;background:#fafafa;border:1px solid var(--border);border-radius:10px;font-size:13px;margin-bottom:20px;outline:none;transition:all 0.2s}
+.policy-search:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-light)}
+/* Full-Screen Editor */
+.editor-overlay{position:fixed;inset:0;background:#fff;z-index:99999;display:none;flex-direction:column}
+.editor-overlay.active{display:flex}
+.editor-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:#fafafa}
+.editor-title-input{flex:1;padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:18px;font-weight:600;margin:0 20px;outline:none}
+.editor-title-input:focus{border-color:var(--gold)}
+.editor-actions{display:flex;gap:12px}
+.editor-btn{padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none}
+.editor-btn.close{background:#f0f0f0;color:var(--text-secondary)}
+.editor-btn.save{background:var(--gold);color:#fff}
+.editor-btn:hover{opacity:0.9}
+.editor-status-toggle{display:flex;gap:8px;align-items:center;padding:6px;background:#fff;border:1px solid var(--border);border-radius:8px}
+.editor-status-toggle button{padding:6px 14px;border:none;background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s}
+.editor-status-toggle button.active{background:var(--gold);color:#fff}
+.editor-body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.editor-toolbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;background:#fafafa}
+.editor-toolbar button{padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;transition:all 0.2s}
+.editor-toolbar button:hover{background:var(--gold-light);border-color:var(--gold)}
+.editor-toolbar button.is-active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.editor-content{flex:1;overflow-y:auto;padding:40px 80px}
+.ProseMirror{outline:none;min-height:100%;font-size:16px;line-height:1.8;color:var(--text-primary)}
+.ProseMirror h1{font-size:32px;font-weight:700;margin:32px 0 16px;color:var(--text-primary)}
+.ProseMirror h2{font-size:26px;font-weight:600;margin:28px 0 14px;color:var(--text-primary)}
+.ProseMirror h3{font-size:20px;font-weight:600;margin:24px 0 12px;color:var(--text-primary)}
+.ProseMirror p{margin-bottom:16px}
+.ProseMirror ul,.ProseMirror ol{margin:16px 0;padding-left:32px}
+.ProseMirror li{margin-bottom:8px}
+.ProseMirror strong{font-weight:600}
+.ProseMirror em{font-style:italic}
+.ProseMirror u{text-decoration:underline}
+.ProseMirror s{text-decoration:line-through}
 </style>
+<!-- TipTap Rich Text Editor -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tiptap/pm@latest/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@tiptap/pm@latest/dist/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tiptap/core@latest/dist/tiptap-core.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tiptap/starter-kit@latest/dist/tiptap-starter-kit.umd.js"></script>
 </head>
+<!-- jsPDF for PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <body>
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
@@ -183,10 +230,10 @@ body::before{display:none}
       <div class="nav-item" data-page="capabilities" onclick="showPage('capabilities')"><span class="icon">🧠</span>Jarvis Capabilities</div>
       <div class="nav-item" data-page="coaching" onclick="showPage('coaching')"><span class="icon">🏋️</span>Jarvis Coaching</div>
       <div class="nav-item" data-page="battleplan" onclick="showPage('battleplan')"><span class="icon">⚔️</span>Battle Plan</div>
+      <div class="nav-item admin-only" data-page="listing-specialist" onclick="showPage('listing-specialist')" style="display:none"><span class="icon">📋</span>Listing Specialist</div>
       <div class="nav-item" data-page="thirty-day-push" onclick="showPage('thirty-day-push')"><span class="icon">🚀</span>30 Day Push</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
-      <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -211,55 +258,7 @@ body::before{display:none}
       <div class="page" id="page-coaching"></div>
       <div class="page" id="page-battleplan"></div>
       <div class="page" id="page-thirty-day-push"></div>
-      <div class="page" id="page-listing-specialist">
-        <!-- Policy Library View -->
-        <div id="policyLibraryView">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-            <div style="flex:1;max-width:400px">
-              <input type="text" id="policySearch" placeholder="Search policies..." style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">
-            </div>
-            <div style="display:flex;gap:12px">
-              <select id="policySortBy" onchange="loadPolicies()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;cursor:pointer">
-                <option value="date">Sort by Date</option>
-                <option value="title">Sort by Title</option>
-              </select>
-              <button onclick="downloadAllPoliciesPDF()" class="btn btn-arc"><span>📄</span>Download All (PDF)</button>
-              <button onclick="showPolicyEditor()" class="btn btn-arc"><span>➕</span>Add Policy</button>
-            </div>
-          </div>
-          <div id="policyGrid" class="source-grid"></div>
-        </div>
-
-        <!-- Policy Editor (Full Screen) -->
-        <div id="policyEditorView" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:50000;overflow:auto">
-          <div style="max-width:900px;margin:0 auto;padding:40px 24px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
-              <button onclick="closePolicyEditor()" class="btn"><span>←</span>Back to Library</button>
-              <div style="display:flex;gap:12px;align-items:center">
-                <label style="font-size:12px;font-weight:600;color:var(--text-secondary)">Status:</label>
-                <select id="policyStatus" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);cursor:pointer">
-                  <option value="draft">Draft</option>
-                  <option value="final">Final</option>
-                </select>
-                <button onclick="savePolicy()" class="btn btn-arc" style="font-weight:700"><span>💾</span>Save Policy</button>
-              </div>
-            </div>
-            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:40px 50px;max-width:900px;margin:0 auto;">
-              <div style="text-align:center;margin-bottom:16px;"><img src="https://theblk.group/blk-logo.png" alt="The BLK Group" style="max-height:60px;"></div>
-              
-              <div style="text-align:center;margin-bottom:16px;font-size:15px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#111;">BLK Group Policy Letter</div>
-              <div style="text-align:center;margin-bottom:24px;font-size:12px;color:#666;" id="policyDateLine"></div>
-              <input type="text" id="policyTitle" placeholder="Policy Title..." style="width:100%;padding:14px 18px;border:none;border-bottom:2px solid var(--border);font-size:18px;font-weight:700;margin-bottom:24px;background:transparent;text-align:center;letter-spacing:1px;">
-              <div id="policyEditor" style="min-height:500px;background:#fff;border:none;font-size:14px;line-height:1.7"></div>
-              <div style="margin-top:40px;text-align:right;">
-                <div style="font-size:14px;font-weight:700;color:#111;">Brandon Bruning</div>
-                <div style="font-size:12px;color:#555;margin-top:2px;">Founder</div>
-              </div>
-            </div>
-            <input type="hidden" id="currentPolicyId">
-          </div>
-        </div>
-      </div>
+      <div class="page" id="page-listing-specialist"></div>
 
     </div>
   </div>
@@ -327,7 +326,7 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1','listing-specialist'];
+  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
@@ -384,7 +383,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST - POLICY LIBRARY'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -393,7 +392,7 @@ function showPage(p){
   $('pageTitle').textContent=TITLES[p];
   if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
   if(p==='listings')loadListings();if(p==='buyers')loadBuyers();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
-  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();if(p==='listing-specialist')loadPolicies();
+  if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();
 }
 
 // ============ OPENS ============
@@ -612,38 +611,25 @@ async function loadScorecard(){
   renderScorecard(byMonth);
 }
 function renderScorecard(byMonth){
-  let html='';let ytdVol=0,ytdGross=0,ytdMy=0,ytdPaid=0,ytdNotPaid=0;
+  let html='';let ytdVol=0,ytdGross=0,ytdMy=0;
   MK.forEach((mk,i)=>{
     const rows=byMonth[mk]||[];
-    let mVol=0,mGross=0,mMy=0,mPaid=0,mNotPaid=0;
-    rows.forEach(r=>{
-      mVol+=Number(r.volume||0);
-      mGross+=Number(r.gross_commission||0);
-      mMy+=Number(r.my_commission||0);
-      if(r.payment_status==='PAID'){
-        mPaid+=Number(r.my_commission||0);
-      }else{
-        mNotPaid+=Number(r.my_commission||0);
-      }
-    });
-    ytdVol+=mVol;ytdGross+=mGross;ytdMy+=mMy;ytdPaid+=mPaid;ytdNotPaid+=mNotPaid;
+    let mVol=0,mGross=0,mMy=0;
+    rows.forEach(r=>{mVol+=Number(r.volume||0);mGross+=Number(r.gross_commission||0);mMy+=Number(r.my_commission||0)});
+    ytdVol+=mVol;ytdGross+=mGross;ytdMy+=mMy;
     html+=`<div class="card"><div class="card-header"><h3>${MONTHS[i]} 2026</h3><span class="month-label">${rows.length} TRANSACTION${rows.length!==1?'S':''}</span></div>
       <div class="card-body"><table class="lab-table"><thead><tr>
-        <th>#</th><th>Date</th><th>Agent</th><th>Transaction Name</th><th>Volume</th><th>Gross Commission</th><th>My Commission</th><th>Payment Status</th><th></th>
+        <th>#</th><th>Date</th><th>Agent</th><th>Transaction Name</th><th>Volume</th><th>Gross Commission</th><th>My Commission</th><th></th>
       </tr></thead><tbody>`;
     rows.forEach((r,ri)=>{
       html+=`<tr>
         <td><span class="row-num">${ri+1}</span></td>
-        <td><input type="date" value="${r.entry_date||''}" onchange="updateSCAndSync('${r.id}','entry_date',this.value)" style="width:130px;font-size:11px"></td>
-        <td><select onchange="updateSCAndSync('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
-        <td><input value="${r.transaction_name||''}" onchange="updateSCAndSync('${r.id}','transaction_name',this.value)" placeholder="Transaction name" style="min-width:200px"></td>
-        <td><input type="number" value="${r.volume||''}" onchange="updateSCAndSync('${r.id}','volume',this.value)" placeholder="0" style="width:120px"></td>
+        <td><input type="date" value="${r.entry_date||''}" onchange="updateSC('${r.id}','entry_date',this.value)" style="width:130px;font-size:11px"></td>
+        <td><select onchange="updateSC('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
+        <td><input value="${r.transaction_name||''}" onchange="updateSC('${r.id}','transaction_name',this.value)" placeholder="Transaction name" style="min-width:200px"></td>
+        <td><input type="number" value="${r.volume||''}" onchange="updateSC('${r.id}','volume',this.value)" placeholder="0" style="width:120px"></td>
         <td><input type="number" value="${r.gross_commission||''}" onchange="updateSC('${r.id}','gross_commission',this.value)" placeholder="0" style="width:120px"></td>
         <td><input type="number" value="${r.my_commission||''}" onchange="updateSC('${r.id}','my_commission',this.value)" placeholder="0" style="width:120px"></td>
-        <td><select onchange="updateSC('${r.id}','payment_status',this.value)" style="width:100px;font-size:11px;padding:4px 8px;background:${r.payment_status==='PAID'?'#e8f5e9':'#fff3e0'};color:${r.payment_status==='PAID'?'#2e7d32':'#e65100'};font-weight:600;border:1px solid ${r.payment_status==='PAID'?'#81c784':'#ffb74d'};border-radius:6px">
-          <option value="NOT PAID" ${r.payment_status!=='PAID'?'selected':''}>NOT PAID</option>
-          <option value="PAID" ${r.payment_status==='PAID'?'selected':''}>PAID</option>
-        </select></td>
         <td><button class="del-btn" onclick="deleteSC('${r.id}')">x</button></td>
       </tr>`;
     });
@@ -651,82 +637,19 @@ function renderScorecard(byMonth){
       <div class="totals-row">
         <div class="total-item"><div class="val">${money(mVol)}</div><div class="lbl">Volume</div></div>
         <div class="total-item"><div class="val">${money(mGross)}</div><div class="lbl">Gross Commission</div></div>
-        <div class="total-item"><div class="val">${money(mMy)}</div><div class="lbl">Monthly Total</div></div>
-        <div class="total-item"><div class="val" style="color:#2e7d32">${money(mPaid)}</div><div class="lbl">Paid</div></div>
-        <div class="total-item"><div class="val" style="color:#e65100">${money(mNotPaid)}</div><div class="lbl">Not Paid</div></div>
+        <div class="total-item"><div class="val">${money(mMy)}</div><div class="lbl">My Commission</div></div>
       </div>
       <button class="add-row-btn" onclick="addSC('${mk}')">+ Add Transaction</button></div>`;
   });
   html+=`<div class="ytd-bar">
-    <div class="ytd-item"><div class="ytd-val">${money(ytdMy)}</div><div class="ytd-lbl">YTD Total</div></div>
-    <div class="ytd-item"><div class="ytd-val" style="color:#2e7d32">${money(ytdPaid)}</div><div class="ytd-lbl">YTD Total Paid</div></div>
-    <div class="ytd-item"><div class="ytd-val" style="color:#e65100">${money(ytdNotPaid)}</div><div class="ytd-lbl">Total Not Paid</div></div>
-    <div class="ytd-item"><div class="ytd-val">${money(ytdGross)}</div><div class="ytd-lbl">YTD Gross Commission</div></div>
     <div class="ytd-item"><div class="ytd-val">${money(ytdVol)}</div><div class="ytd-lbl">YTD Volume</div></div>
+    <div class="ytd-item"><div class="ytd-val">${money(ytdGross)}</div><div class="ytd-lbl">YTD Gross Commission</div></div>
+    <div class="ytd-item"><div class="ytd-val">${money(ytdMy)}</div><div class="ytd-lbl">YTD My Commission</div></div>
   </div>`;
   $('page-scorecard').innerHTML=html;
 }
-async function addSC(mk){
-  const{data}=await sb.from('lab_scorecard').insert({month_year:mk,payment_status:'NOT PAID'}).select().single();
-  if(data){
-    // Auto-create Under Contract entry
-    await sb.from('lab_contracts').insert({
-      transaction_name:data.transaction_name||'New Transaction',
-      agent:data.agent||null,
-      agent_id:data.agent_id||null,
-      volume:data.volume||0,
-      status:'active'
-    });
-  }
-  loadScorecard();
-}
+async function addSC(mk){await sb.from('lab_scorecard').insert({month_year:mk});loadScorecard();}
 async function updateSC(id,f,v){const u={};u[f]=v||null;u.updated_at=new Date().toISOString();await sb.from('lab_scorecard').update(u).eq('id',id);}
-async function updateSCAndSync(id,f,v){
-  // Update scorecard
-  const u={};u[f]=v||null;u.updated_at=new Date().toISOString();
-  await sb.from('lab_scorecard').update(u).eq('id',id);
-  
-  // Get the updated scorecard entry
-  const{data:scorecard}=await sb.from('lab_scorecard').select('*').eq('id',id).single();
-  if(!scorecard)return;
-  
-  // Check if Under Contract entry exists with matching transaction_name
-  const{data:existingContract}=await sb.from('lab_contracts').select('*').eq('transaction_name',scorecard.transaction_name).maybeSingle();
-  
-  if(existingContract){
-    // Update existing contract
-    const contractUpdate={
-      agent:scorecard.agent||null,
-      agent_id:scorecard.agent_id||null,
-      volume:scorecard.volume||0,
-      updated_at:new Date().toISOString()
-    };
-    if(scorecard.entry_date){
-      contractUpdate.contract_date=scorecard.entry_date;
-      // Calculate deadline dates (SPD due 10 days, IRSA due 5 days after contract)
-      const contractDate=new Date(scorecard.entry_date);
-      contractUpdate.spd_due=new Date(contractDate.getTime()+10*24*60*60*1000).toISOString().split('T')[0];
-      contractUpdate.irsa_due=new Date(contractDate.getTime()+5*24*60*60*1000).toISOString().split('T')[0];
-    }
-    await sb.from('lab_contracts').update(contractUpdate).eq('id',existingContract.id);
-  }else{
-    // Create new contract entry
-    const contractData={
-      transaction_name:scorecard.transaction_name||'New Transaction',
-      agent:scorecard.agent||null,
-      agent_id:scorecard.agent_id||null,
-      volume:scorecard.volume||0,
-      status:'active'
-    };
-    if(scorecard.entry_date){
-      contractData.contract_date=scorecard.entry_date;
-      const contractDate=new Date(scorecard.entry_date);
-      contractData.spd_due=new Date(contractDate.getTime()+10*24*60*60*1000).toISOString().split('T')[0];
-      contractData.irsa_due=new Date(contractDate.getTime()+5*24*60*60*1000).toISOString().split('T')[0];
-    }
-    await sb.from('lab_contracts').insert(contractData);
-  }
-}
 async function deleteSC(id){if(!confirm('Remove?'))return;await sb.from('lab_scorecard').delete().eq('id',id);loadScorecard();}
 
 // ============ ACTIVE LISTINGS ============
@@ -2147,6 +2070,23 @@ async function jcSend(){const inp=$('jcInput'),txt=inp.value.trim();if(!txt||jcB
     </div>
   </div>
 </div>
+
+<!-- Policy Editor Full-Screen Overlay -->
+<div class="editor-overlay" id="policyEditor">
+  <div class="editor-header">
+    <button class="editor-btn close" onclick="closePolicyEditor()">← Back to Library</button>
+    <input type="text" id="policyTitleInput" class="editor-title-input" placeholder="Policy Title...">
+    <div class="editor-status-toggle">
+      <button id="statusDraft" onclick="setPolicyStatus('draft')">Draft</button>
+      <button id="statusFinal" onclick="setPolicyStatus('final')">Final</button>
+    </div>
+    <button class="editor-btn save" onclick="savePolicyEditor()">Save Policy</button>
+  </div>
+  <div class="editor-body">
+    <div class="editor-toolbar" id="editorToolbar"></div>
+    <div class="editor-content" id="editorContent"></div>
+  </div>
+</div>
 <script>
 let _notesId=null;
 function openNotesModal(el){
@@ -2168,292 +2108,387 @@ async function saveNotesModal(){
   loadOpens();
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&_notesId)closeNotesModal()});
+// ============================================
+// POLICY LIBRARY - Listing Specialist Feature
+// ============================================
 
-// ============ LISTING SPECIALIST POLICY LIBRARY ============
-let quillEditor = null;
-let allPolicies = [];
+let policyEditor = null;
+let currentPolicy = null;
+let policies = [];
 
-async function loadPolicies(){
-  const sortBy = $('policySortBy')?.value || 'date';
-  const{data}=await sb.from('lab_policies').select('*').order(sortBy === 'date' ? 'created_at' : 'title', {ascending: sortBy === 'title'});
-  allPolicies = data || [];
-  renderPolicyGrid();
-  
-  // Setup search listener
-  const searchInput = $('policySearch');
-  if(searchInput && !searchInput.dataset.listenerAdded){
-    searchInput.addEventListener('input', filterPolicies);
-    searchInput.dataset.listenerAdded = 'true';
-  }
+// Show admin-only nav items
+function showAdminNav() {
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
 }
 
-function filterPolicies(){
-  const query = $('policySearch').value.toLowerCase();
-  const filtered = allPolicies.filter(p => 
-    p.title.toLowerCase().includes(query) || 
-    (p.content && p.content.toLowerCase().includes(query))
-  );
-  renderPolicyGrid(filtered);
+// Initialize Policy Library page
+async function initPolicyLibrary() {
+  const html = `
+    <button class="add-policy-btn" onclick="openPolicyEditor()">+ Add New Policy</button>
+    <button class="add-policy-btn" onclick="downloadAllPolicies()" style="background:#5B8A5A;margin-top:12px">📥 Download All Final Policies (PDF)</button>
+    <input type="text" class="policy-search" placeholder="Search policies..." oninput="filterPolicies(this.value)">
+    <div class="policy-grid" id="policyGrid"></div>
+  `;
+  $('page-listing-specialist').innerHTML = html;
+  await loadPolicies();
 }
 
-function renderPolicyGrid(policies = null){
-  const policiesToRender = policies || allPolicies;
-  const grid = $('policyGrid');
-  if(!grid) return;
+// Load all policies from Supabase
+async function loadPolicies() {
+  const { data, error } = await sb
+    .from('lab_policies')
+    .select('*')
+    .order('updated_at', { ascending: false });
   
-  if(policiesToRender.length === 0){
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-dim)">
-      <div style="font-size:48px;margin-bottom:12px">📚</div>
-      <div style="font-size:14px;font-weight:600;margin-bottom:6px">No policies yet</div>
-      <div style="font-size:12px">Click "Add Policy" to create your first policy document</div>
-    </div>`;
+  if (error) {
+    console.error('Error loading policies:', error);
     return;
   }
   
-  grid.innerHTML = policiesToRender.map(p => {
-    const date = new Date(p.created_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
-    const statusClass = p.status === 'final' ? 'power' : '';
-    const statusText = p.status === 'final' ? 'FINAL' : 'DRAFT';
-    
-    return `<div class="source-card" onclick="editPolicy('${p.id}')" style="text-align:left">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-        <div class="source-icon">📄</div>
-        <span class="condition-badge ${statusClass}" style="font-size:9px;padding:4px 10px">${statusText}</span>
-      </div>
-      <div class="source-name" style="margin-bottom:6px;min-height:40px">${p.title || 'Untitled Policy'}</div>
-      <div class="source-count" style="margin-bottom:8px">${date}</div>
-      <div style="display:flex;gap:6px;margin-top:12px">
-        <button onclick="event.stopPropagation();editPolicy('${p.id}')" class="btn" style="flex:1;font-size:11px;padding:6px 10px">Edit</button>
-        <button onclick="event.stopPropagation();deletePolicy('${p.id}')" class="btn" style="font-size:11px;padding:6px 10px;color:var(--danger);border-color:var(--danger)">🗑️</button>
-      </div>
-    </div>`;
-  }).join('');
+  policies = data || [];
+  renderPolicies(policies);
 }
 
-function showPolicyEditor(policyId = null){
-  $('policyLibraryView').style.display = 'none';
-  $('policyEditorView').style.display = 'block';
+// Render policy grid
+function renderPolicies(policiesToRender) {
+  const grid = $('policyGrid');
+  if (!grid) return;
   
-  // Initialize Quill if not already done
-  if(!quillEditor){
-    quillEditor = new Quill('#policyEditor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'align': [] }],
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'size': ['small', false, 'large', 'huge'] }],
-          ['clean']
-        ]
-      },
-      placeholder: 'Start writing your policy document...'
-    });
+  if (policiesToRender.length === 0) {
+    grid.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;color:var(--text-dim)">
+        <div style="font-size:48px;margin-bottom:16px">📋</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px">No policies yet</div>
+        <div style="font-size:12px">Click "Add New Policy" to create your first policy letter</div>
+      </div>
+    `;
+    return;
   }
   
-  // Clear or load policy
-  if(policyId){
-    const policy = allPolicies.find(p => p.id === policyId);
-    if(policy){
-      $('currentPolicyId').value = policy.id;
-      $('policyTitle').value = policy.title || '';
-      $('policyStatus').value = policy.status || 'draft';
-      if($('policyDateLine')) $('policyDateLine').textContent = new Date(policy.created_at).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
-      quillEditor.root.innerHTML = policy.content || '';
+  let html = '';
+  policiesToRender.forEach(policy => {
+    const date = new Date(policy.created_at).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    
+    html += `
+      <div class="policy-card" onclick="openPolicyEditor('${policy.id}')">
+        <div class="policy-title">${policy.title || 'Untitled Policy'}</div>
+        <div class="policy-meta">
+          <span class="policy-date">${date}</span>
+          <span class="policy-status-badge ${policy.status}">${policy.status}</span>
+        </div>
+      </div>
+    `;
+  });
+  
+  grid.innerHTML = html;
+}
+
+// Filter policies by search term
+function filterPolicies(term) {
+  const filtered = policies.filter(p => 
+    p.title.toLowerCase().includes(term.toLowerCase()) ||
+    p.content.toLowerCase().includes(term.toLowerCase())
+  );
+  renderPolicies(filtered);
+}
+
+// Open policy editor (new or existing)
+async function openPolicyEditor(policyId = null) {
+  currentPolicy = null;
+  
+  if (policyId) {
+    // Load existing policy
+    const policy = policies.find(p => p.id === policyId);
+    if (policy) {
+      currentPolicy = policy;
+      $('policyTitleInput').value = policy.title || '';
+      setPolicyStatus(policy.status || 'draft');
     }
   } else {
-    $('currentPolicyId').value = '';
-    $('policyTitle').value = '';
-    $('policyStatus').value = 'draft';
-    if($('policyDateLine')) $('policyDateLine').textContent = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
-    quillEditor.setText('');
+    // New policy
+    $('policyTitleInput').value = '';
+    setPolicyStatus('draft');
   }
   
-  // Auto-save every 30 seconds
-  if(window.policySaveInterval) clearInterval(window.policySaveInterval);
-  window.policySaveInterval = setInterval(() => {
-    if($('policyEditorView').style.display !== 'none'){
-      savePolicy(true); // Silent save
+  // Show editor
+  $('policyEditor').classList.add('active');
+  
+  // Initialize TipTap editor
+  initTipTapEditor(currentPolicy ? currentPolicy.content : '');
+}
+
+// Close policy editor
+function closePolicyEditor() {
+  $('policyEditor').classList.remove('active');
+  if (policyEditor) {
+    policyEditor.destroy();
+    policyEditor = null;
+  }
+}
+
+// Set policy status (draft/final)
+function setPolicyStatus(status) {
+  $('statusDraft').classList.toggle('active', status === 'draft');
+  $('statusFinal').classList.toggle('active', status === 'final');
+}
+
+// Initialize TipTap rich text editor
+function initTipTapEditor(content = '') {
+  if (policyEditor) {
+    policyEditor.destroy();
+  }
+  
+  const { Editor } = window.Tiptap;
+  const { StarterKit } = window.TiptapStarterKit;
+  
+  policyEditor = new Editor({
+    element: $('editorContent'),
+    extensions: [StarterKit],
+    content: content,
+    editorProps: {
+      attributes: {
+        class: 'ProseMirror'
+      }
     }
-  }, 30000);
+  });
+  
+  // Build toolbar
+  const toolbar = $('editorToolbar');
+  toolbar.innerHTML = `
+    <button onclick="policyEditor.chain().focus().toggleBold().run()" title="Bold"><strong>B</strong></button>
+    <button onclick="policyEditor.chain().focus().toggleItalic().run()" title="Italic"><em>I</em></button>
+    <button onclick="policyEditor.chain().focus().toggleUnderline().run()" title="Underline"><u>U</u></button>
+    <button onclick="policyEditor.chain().focus().toggleStrike().run()" title="Strikethrough"><s>S</s></button>
+    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
+    <button onclick="policyEditor.chain().focus().toggleHeading({level:1}).run()" title="Heading 1">H1</button>
+    <button onclick="policyEditor.chain().focus().toggleHeading({level:2}).run()" title="Heading 2">H2</button>
+    <button onclick="policyEditor.chain().focus().toggleHeading({level:3}).run()" title="Heading 3">H3</button>
+    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
+    <button onclick="policyEditor.chain().focus().toggleBulletList().run()" title="Bullet List">• List</button>
+    <button onclick="policyEditor.chain().focus().toggleOrderedList().run()" title="Numbered List">1. List</button>
+    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
+    <button onclick="policyEditor.chain().focus().setTextAlign('left').run()" title="Align Left">⬅</button>
+    <button onclick="policyEditor.chain().focus().setTextAlign('center').run()" title="Align Center">↔</button>
+    <button onclick="policyEditor.chain().focus().setTextAlign('right').run()" title="Align Right">➡</button>
+  `;
 }
 
-function editPolicy(policyId){
-  showPolicyEditor(policyId);
-}
-
-function closePolicyEditor(){
-  if(window.policySaveInterval) clearInterval(window.policySaveInterval);
-  $('policyEditorView').style.display = 'none';
-  $('policyLibraryView').style.display = 'block';
-  loadPolicies();
-}
-
-async function savePolicy(silent = false){
-  console.log('savePolicy called, silent:', silent);
-  console.log('quillEditor:', quillEditor);
-  console.log('currentUser:', currentUser);
-  const title = $('policyTitle').value.trim();
-  if(!title && !silent){
+// Save policy
+async function savePolicyEditor() {
+  const title = $('policyTitleInput').value.trim();
+  if (!title) {
     alert('Please enter a policy title');
     return;
   }
-  if(!quillEditor){
-    console.error('quillEditor is null!');
-    if(!silent) alert('Editor not initialized. Close and reopen the policy.');
-    return;
-  }
-  if(!currentUser || !currentUser.id){
-    console.error('currentUser is null or has no id!');
-    if(!silent) alert('Not logged in. Please refresh and log in again.');
-    return;
-  }
-  const content = quillEditor.root.innerHTML;
-  const status = $('policyStatus').value;
-  const policyId = $('currentPolicyId').value;
+  
+  const content = policyEditor.getHTML();
+  const status = $('statusFinal').classList.contains('active') ? 'final' : 'draft';
   
   const policyData = {
-    title: title || 'Untitled Policy',
-    content: content,
-    status: status,
-    user_id: currentUser.id,
-    updated_at: new Date().toISOString()
+    title,
+    content,
+    status,
+    user_id: currentUser?.id
   };
   
-  let result;
-  try {
-    if(policyId){
-      result = await sb.from('lab_policies').update(policyData).eq('id', policyId);
-    } else {
-      result = await sb.from('lab_policies').insert([{...policyData, created_at: new Date().toISOString()}]).select();
-      if(result.data && result.data[0]){
-        $('currentPolicyId').value = result.data[0].id;
-      }
-    }
-    if(result.error){
-      console.error('Save error:', result.error);
-      if(!silent) alert('Error saving: ' + result.error.message);
-      return;
-    }
-    
-    if(!silent){
-      // Show brief success message
-      const saveBtn = event?.target;
-      if(saveBtn){
-        const originalHTML = saveBtn.innerHTML;
-        saveBtn.innerHTML = '<span>✓</span>Saved!';
-        saveBtn.style.background = 'var(--sage)';
-        saveBtn.style.color = '#fff';
-        setTimeout(() => {
-          saveBtn.innerHTML = originalHTML;
-          saveBtn.style.background = '';
-          saveBtn.style.color = '';
-        }, 1500);
-      }
-    }
-    
-    await loadPolicies();
-  } catch(error){
-    console.error('Error saving policy:', error);
-    if(!silent) alert('Error saving policy. Please try again.');
-  }
-}
-
-async function deletePolicy(policyId){
-  if(!confirm('Are you sure you want to delete this policy? This cannot be undone.')) return;
+  let error;
   
-  try {
-    await sb.from('lab_policies').delete().eq('id', policyId);
-    await loadPolicies();
-  } catch(error){
-    console.error('Error deleting policy:', error);
-    alert('Error deleting policy. Please try again.');
+  if (currentPolicy) {
+    // Update existing
+    const { error: updateError } = await sb
+      .from('lab_policies')
+      .update(policyData)
+      .eq('id', currentPolicy.id);
+    error = updateError;
+  } else {
+    // Insert new
+    const { error: insertError } = await sb
+      .from('lab_policies')
+      .insert([policyData]);
+    error = insertError;
   }
-}
-
-async function downloadAllPoliciesPDF(){
-  const finalPolicies = allPolicies.filter(p => p.status === 'final');
   
-  if(finalPolicies.length === 0){
-    alert('No final policies to export. Mark policies as "Final" to include them in the PDF.');
+  if (error) {
+    alert('Error saving policy: ' + error.message);
     return;
   }
   
-  // Show loading message
-  const btn = event?.target;
-  const originalHTML = btn?.innerHTML;
-  if(btn) btn.innerHTML = '<span>⏳</span>Generating PDF...';
+  // Close editor and reload
+  closePolicyEditor();
+  await loadPolicies();
+}
+
+// Download All Final Policies as PDF
+async function downloadAllPolicies() {
+  // Get all FINAL policies
+  const finalPolicies = policies.filter(p => p.status === 'final');
+  
+  if (finalPolicies.length === 0) {
+    alert('No final policies to export. Please mark at least one policy as "Final" before downloading.');
+    return;
+  }
+  
+  // Show loading indicator
+  const loadingMsg = document.createElement('div');
+  loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:40px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.3);z-index:99999;text-align:center';
+  loadingMsg.innerHTML = `
+    <div style="font-size:48px;margin-bottom:16px">📄</div>
+    <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:8px">Generating PDF...</div>
+    <div style="font-size:13px;color:#888">This may take a moment</div>
+  `;
+  document.body.appendChild(loadingMsg);
   
   try {
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'pt', 'letter');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 60;
-    const maxWidth = pageWidth - (margin * 2);
+    const doc = new jsPDF('p', 'mm', 'letter'); // 8.5" x 11" US Letter
     
-    // Cover page
-    pdf.setFontSize(28);
-    pdf.setFont('helvetica', 'bold');
-    const coverTitle = 'Listing Specialist Hat Pack';
-    pdf.text(coverTitle, pageWidth / 2, 250, { align: 'center' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 25;
+    const contentWidth = pageWidth - (margin * 2);
     
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'normal');
-    const coverSubtitle = 'The BLK Group at LPT Realty';
-    pdf.text(coverSubtitle, pageWidth / 2, 290, { align: 'center' });
+    // ===== COVER PAGE =====
+    doc.setFillColor(26, 26, 26); // #1a1a1a
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
     
-    pdf.setFontSize(10);
-    pdf.setTextColor(120);
-    const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    pdf.text(date, pageWidth / 2, 320, { align: 'center' });
+    // Gold accent bar at top
+    doc.setFillColor(184, 150, 12); // #B8960C gold
+    doc.rect(0, 0, pageWidth, 8, 'F');
     
-    // Add policies
-    for(let i = 0; i < finalPolicies.length; i++){
-      pdf.addPage();
-      pdf.setTextColor(0);
-      
+    // Title
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(32);
+    doc.setFont(undefined, 'bold');
+    doc.text('LISTING SPECIALIST', pageWidth / 2, 80, { align: 'center' });
+    doc.text('HAT PACK', pageWidth / 2, 100, { align: 'center' });
+    
+    // Divider line
+    doc.setDrawColor(184, 150, 12);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 110, pageWidth - margin, 110);
+    
+    // Company name
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(184, 150, 12);
+    doc.text('The BLK Group at LPT Realty', pageWidth / 2, 130, { align: 'center' });
+    
+    // Date
+    doc.setFontSize(11);
+    doc.setTextColor(150, 150, 150);
+    const today = new Date().toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+    doc.text(today, pageWidth / 2, 145, { align: 'center' });
+    
+    // Policy count
+    doc.setFontSize(13);
+    doc.setTextColor(200, 200, 200);
+    doc.text(`${finalPolicies.length} Policy Letter${finalPolicies.length !== 1 ? 's' : ''}`, pageWidth / 2, 165, { align: 'center' });
+    
+    // Gold bottom accent
+    doc.setFillColor(184, 150, 12);
+    doc.rect(0, pageHeight - 8, pageWidth, 8, 'F');
+    
+    // ===== POLICY PAGES =====
+    for (let i = 0; i < finalPolicies.length; i++) {
       const policy = finalPolicies[i];
-      let y = margin;
       
-      // Title
-      pdf.setFontSize(20);
-      pdf.setFont('helvetica', 'bold');
-      const titleLines = pdf.splitTextToSize(policy.title, maxWidth);
-      pdf.text(titleLines, margin, y);
-      y += titleLines.length * 28;
-      y += 20;
+      // New page for each policy
+      doc.addPage();
       
-      // Content (strip HTML and format)
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'normal');
+      // Header with BLK Group branding
+      doc.setFillColor(26, 26, 26);
+      doc.rect(0, 0, pageWidth, 25, 'F');
+      
+      doc.setTextColor(184, 150, 12);
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text('THE BLK GROUP AT LPT REALTY', margin, 12);
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('LISTING SPECIALIST POLICY LETTER', margin, 18);
+      
+      // Policy title
+      doc.setTextColor(26, 26, 26);
+      doc.setFontSize(18);
+      doc.setFont(undefined, 'bold');
+      const titleLines = doc.splitTextToSize(policy.title || 'Untitled Policy', contentWidth);
+      doc.text(titleLines, margin, 40);
+      
+      // Divider
+      doc.setDrawColor(184, 150, 12);
+      doc.setLineWidth(0.3);
+      const titleHeight = titleLines.length * 7;
+      doc.line(margin, 40 + titleHeight + 3, pageWidth - margin, 40 + titleHeight + 3);
+      
+      // Policy content
+      let yPosition = 40 + titleHeight + 12;
+      
+      // Convert HTML to plain text (strip tags for PDF)
       const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = policy.content || '';
-      const textContent = tempDiv.textContent || tempDiv.innerText || '';
+      tempDiv.innerHTML = policy.content;
+      const plainText = tempDiv.textContent || tempDiv.innerText || '';
       
-      const contentLines = pdf.splitTextToSize(textContent, maxWidth);
-      const lineHeight = 16;
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(50, 50, 50);
       
-      for(let line of contentLines){
-        if(y + lineHeight > pageHeight - margin){
-          pdf.addPage();
-          y = margin;
+      const contentLines = doc.splitTextToSize(plainText, contentWidth);
+      
+      for (let j = 0; j < contentLines.length; j++) {
+        if (yPosition > pageHeight - margin - 15) {
+          // Add new page if content exceeds current page
+          doc.addPage();
+          yPosition = margin;
+          
+          // Repeat header on new pages
+          doc.setFillColor(26, 26, 26);
+          doc.rect(0, 0, pageWidth, 15, 'F');
+          doc.setTextColor(150, 150, 150);
+          doc.setFontSize(8);
+          doc.text(policy.title + ' (continued)', margin, 10);
+          
+          yPosition = 25;
+          doc.setTextColor(50, 50, 50);
+          doc.setFontSize(10);
         }
-        pdf.text(line, margin, y);
-        y += lineHeight;
+        
+        doc.text(contentLines[j], margin, yPosition);
+        yPosition += 5;
       }
+      
+      // Footer with page number
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Policy ${i + 1} of ${finalPolicies.length}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
     }
     
     // Save PDF
-    pdf.save('Listing-Specialist-Hat-Pack.pdf');
+    const filename = `BLK-Group-Policy-Letters-${new Date().toISOString().slice(0,10)}.pdf`;
+    doc.save(filename);
     
-    if(btn) btn.innerHTML = originalHTML;
-  } catch(error){
-    console.error('Error generating PDF:', error);
-    alert('Error generating PDF. Please try again.');
-    if(btn) btn.innerHTML = originalHTML;
+    // Remove loading indicator
+    document.body.removeChild(loadingMsg);
+    
+    // Success message
+    setTimeout(() => {
+      alert(`✓ PDF generated successfully!\n\n${finalPolicies.length} policy letter${finalPolicies.length !== 1 ? 's' : ''} exported.\n\nFile: ${filename}`);
+    }, 300);
+    
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    document.body.removeChild(loadingMsg);
+    alert('Error generating PDF: ' + error.message);
   }
 }
 </script>
