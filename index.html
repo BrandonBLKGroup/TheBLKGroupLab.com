@@ -2865,25 +2865,22 @@ async function renderStatsDashboard(){
   const targetMap={};
   if(targets)targets.forEach(t=>targetMap[t.stat_name]=t);
   
-  // Fetch actual data
-  const{data:scorecard}=await sb.from('lab_scorecard').select('*');
+  // Fetch actual data - use month_year field like Monthly Scorecard does
+  const{data:scorecard}=await sb.from('lab_scorecard').select('*').eq('month_year',monthStr);
   const{data:listings}=await sb.from('lab_listings').select('*');
   const{data:opens}=await sb.from('lab_opens').select('*');
   
-  // Calculate actuals for this month
-  const firstDay=new Date(year,month,1);
-  const lastDay=new Date(year,month+1,0);
-  
-  const monthScorecard=(scorecard||[]).filter(r=>{
-    if(!r.entry_date)return false;
-    const d=new Date(r.entry_date);
-    return d>=firstDay&&d<=lastDay;
-  });
+  // Calculate actuals for this month from scorecard (filtered by month_year)
+  const monthScorecard=scorecard||[];
   
   const teamGCI=monthScorecard.reduce((sum,r)=>sum+Number(r.gross_commission||0),0);
-  const brandonIncome=monthScorecard.filter(r=>r.agent==='Brandon Bruning').reduce((sum,r)=>sum+Number(r.my_commission||0),0);
+  const brandonIncome=monthScorecard.reduce((sum,r)=>sum+Number(r.my_commission||0),0); // Sum ALL my_commission, not just Brandon's
   const volume=monthScorecard.reduce((sum,r)=>sum+Number(r.volume||0),0);
   const transactions=monthScorecard.length;
+  
+  // Date range for listings and opens filtering
+  const firstDay=new Date(year,month,1);
+  const lastDay=new Date(year,month+1,0);
   
   const newListings=(listings||[]).filter(r=>{
     if(!r.starting_date)return false;
