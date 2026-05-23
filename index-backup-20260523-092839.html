@@ -187,9 +187,6 @@ body::before{display:none}
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
       <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
-      <div class="nav-item" data-page="org-board" onclick="showPage('org-board')"><span class="icon">🏢</span>Org Board</div>
-      <div class="nav-item" data-page="admin-scale" onclick="showPage('admin-scale')" id="navAdminScale" style="display:none"><span class="icon">📊</span>Admin Scale</div>
-      <div class="nav-item" data-page="stats-dashboard" onclick="showPage('stats-dashboard')"><span class="icon">📈</span>Stats Dashboard</div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -214,9 +211,6 @@ body::before{display:none}
       <div class="page" id="page-coaching"></div>
       <div class="page" id="page-battleplan"></div>
       <div class="page" id="page-thirty-day-push"></div>
-      <div class="page" id="page-org-board"></div>
-      <div class="page" id="page-admin-scale"></div>
-      <div class="page" id="page-stats-dashboard"></div>
       <div class="page" id="page-listing-specialist">
         <!-- Policy Library View -->
         <div id="policyLibraryView">
@@ -333,7 +327,7 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1','listing-specialist','admin-scale'];
+  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1','listing-specialist'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
@@ -390,7 +384,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORG BOARD','admin-scale':'ADMIN SCALE','stats-dashboard':'STATS DASHBOARD'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -400,7 +394,6 @@ function showPage(p){
   if(p==='opens')loadOpens();if(p==='leads')loadLeads();if(p==='scorecard')loadScorecard();
   if(p==='listings')loadListings();if(p==='buyers')loadBuyers();if(p==='performance')loadPerformance();if(p==='contracts')loadContracts();
   if(p==='jarvis')loadJarvis();if(p==='nuggets')loadNugget();if(p==='capabilities')loadCapabilities();if(p==='coaching')loadCoaching();if(p==='battleplan')loadBattlePlan();if(p==='thirty-day-push')loadThirtyDayPush();if(p==='listing-specialist')loadPolicies();
-  if(p==='org-board')showOrgBoard();if(p==='admin-scale')loadAdminScale();if(p==='stats-dashboard')loadStatsDashboard();
 }
 
 // ============ OPENS ============
@@ -742,32 +735,27 @@ async function loadListings(){
   renderListings(data||[]);
 }
 function renderListings(rows){
-  let totalPrice=0;let totalShowings=0;rows.forEach(r=>{totalPrice+=Number(r.price||0);totalShowings+=Number(r.showings||r.showings_count||0)});
+  let totalPrice=0;let totalShowings=0;rows.forEach(r=>{totalPrice+=Number(r.price||0);totalShowings+=Number(r.showings_count||0)});
   let html=`<div class="card"><div class="card-header"><h3>ACTIVE LISTINGS</h3><span class="month-label">${rows.length} LISTING${rows.length!==1?'S':''} | ${totalShowings} TOTAL SHOWINGS</span></div>
     <div class="card-body"><table class="lab-table"><thead><tr>
-      <th>#</th><th>Agent</th><th>Type</th><th>Address</th><th>Price</th><th>Starting Date</th><th>Week 1</th><th>Week 2</th><th>Week 3</th><th>Week 4</th><th style="text-align:center">Showings</th><th>Entry Instructions</th><th>Lockbox</th><th>Photos</th><th>Virtual Tour</th><th>Status</th><th>Move</th><th></th>
+      <th>#</th><th>Agent</th><th>Type</th><th>Address</th><th>Price</th><th style="text-align:center">Showings</th><th>Entry Instructions</th><th style="text-align:center">Showing Coord</th><th>Last Showing</th><th style="text-align:center">Pending FB</th><th>Move</th><th></th>
     </tr></thead><tbody>`;
   rows.forEach((r,i)=>{
     const coordActive=r.showing_coord_active;
-    const showCount=r.showings||r.showings_count||0;
+    const showCount=r.showings_count||0;
     const pendingFB=r.pending_feedback||0;
+    const lastShow=r.last_showing_at?new Date(r.last_showing_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'--';
     html+=`<tr>
       <td><span class="row-num">${i+1}</span></td>
       <td><select onchange="updateListing('${r.id}','agent',this.value)">${agentOpts(r.agent)}</select></td>
       <td><input value="${r.listing_type||''}" onchange="updateListing('${r.id}','listing_type',this.value)" placeholder="Type" style="min-width:80px"></td>
       <td><input value="${r.address||''}" onchange="updateListing('${r.id}','address',this.value)" placeholder="Address" style="min-width:180px"></td>
       <td><input type="number" value="${r.price||''}" onchange="updateListing('${r.id}','price',this.value)" placeholder="0" style="width:120px"></td>
-      <td><input type="date" value="${r.starting_date||''}" onchange="updateListing('${r.id}','starting_date',this.value)" style="min-width:110px"></td>
-      <td><input type="date" value="${r.week1_update||''}" onchange="updateListing('${r.id}','week1_update',this.value)" style="min-width:110px"></td>
-      <td><input type="date" value="${r.week2_update||''}" onchange="updateListing('${r.id}','week2_update',this.value)" style="min-width:110px"></td>
-      <td><input type="date" value="${r.week3_update||''}" onchange="updateListing('${r.id}','week3_update',this.value)" style="min-width:110px"></td>
-      <td><input type="date" value="${r.week4_update||''}" onchange="updateListing('${r.id}','week4_update',this.value)" style="min-width:110px"></td>
-      <td style="text-align:center"><input type="number" value="${showCount}" onchange="updateListing('${r.id}','showings',this.value)" style="width:60px;text-align:center;font-weight:700;background:${showCount>0?'var(--gold-light)':'var(--bg)'};color:${showCount>0?'var(--gold)':'var(--text-secondary)'}"></td>
+      <td style="text-align:center"><span style="background:${showCount>0?'var(--gold-light)':'var(--bg)'};color:${showCount>0?'var(--gold)':'var(--text-dim)'};font-weight:700;font-size:16px;padding:4px 12px;border-radius:8px;display:inline-block;min-width:36px">${showCount}</span></td>
       <td><input value="${r.entry_instructions||''}" onchange="updateListing('${r.id}','entry_instructions',this.value)" placeholder="Lockbox code, gate code, etc." style="min-width:180px"></td>
-      <td><input value="${r.lockbox||''}" onchange="updateListing('${r.id}','lockbox',this.value)" placeholder="Location" style="min-width:100px"></td>
-      <td style="text-align:center"><label style="cursor:pointer"><input type="checkbox" ${r.photos_done?'checked':''} onchange="updateListing('${r.id}','photos_done',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer"></label></td>
-      <td style="text-align:center"><label style="cursor:pointer"><input type="checkbox" ${r.virtual_tour_done?'checked':''} onchange="updateListing('${r.id}','virtual_tour_done',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer"></label></td>
-      <td><select onchange="updateListing('${r.id}','status',this.value)" style="min-width:90px"><option value="active" ${r.status==='active'?'selected':''}>Active</option><option value="pending" ${r.status==='pending'?'selected':''}>Pending</option><option value="sold" ${r.status==='sold'?'selected':''}>Sold</option></select></td>
+      <td style="text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center"><input type="checkbox" ${coordActive?'checked':''} onchange="updateListing('${r.id}','showing_coord_active',this.checked)" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer"></label></td>
+      <td style="font-size:11px;color:var(--text-dim);white-space:nowrap;min-width:100px">${lastShow}</td>
+      <td style="text-align:center">${pendingFB>0?`<span style="background:var(--danger-light);color:var(--danger);font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px">${pendingFB}</span>`:'<span style="color:var(--text-dim)">0</span>'}</td>
       <td><select class="color-select" style="width:auto!important;min-width:44px!important;font-size:11px!important;padding:4px 6px!important" onchange="moveListing('${r.id}',this.value);this.selectedIndex=0"><option value="">→</option><option value="contracts">Under Contract</option></select></td>
       <td><button class="del-btn" onclick="deleteListing('${r.id}')">x</button></td>
     </tr>`;
@@ -776,7 +764,7 @@ function renderListings(rows){
     <div class="totals-row">
       <div class="total-item"><div class="val">${money(totalPrice)}</div><div class="lbl">Total Listing Volume</div></div>
       <div class="total-item"><div class="val" style="color:var(--gold)">${totalShowings}</div><div class="lbl">Total Showings</div></div>
-      <div class="total-item"><div class="val" style="color:${rows.filter(r=>r.photos_done).length>0?'var(--sage)':'var(--text-dim)'}">${rows.filter(r=>r.photos_done).length}</div><div class="lbl">Photos Done</div></div>
+      <div class="total-item"><div class="val" style="color:${rows.filter(r=>r.showing_coord_active).length>0?'var(--sage)':'var(--text-dim)'}">${rows.filter(r=>r.showing_coord_active).length}</div><div class="lbl">Coord Active</div></div>
     </div>
     <button class="add-row-btn" onclick="addListing()">+ Add Listing</button></div>`;
   $('page-listings').innerHTML=html;
@@ -2468,493 +2456,6 @@ async function downloadAllPoliciesPDF(){
     if(btn) btn.innerHTML = originalHTML;
   }
 }
-
-// ============================================
-// ORG BOARD TAB (Component 1)
-// ============================================
-function showOrgBoard(){
-  const orgStructure=[
-    {div:7,name:'EXECUTIVE',roles:[
-      {title:'Executive Director',name:'Brandon Bruning'},
-      {title:'Dir of Planning',name:'Brandon Bruning',temp:true},
-      {title:'Dir of Programs',name:'Jarvis (AI)'},
-      {title:'Dir of Orders',name:'Brandon Bruning',temp:true}
-    ]},
-    {div:6,name:'PUBLIC',roles:[
-      {title:'Dir of Public',name:'Brandon Bruning',temp:true},
-      {title:'ISA',name:'Sofia (AI) + Brandon Bruning',temp:true}
-    ]},
-    {div:5,name:'QUALIFICATIONS',roles:[
-      {title:'Dir of Training',name:'Brandon Bruning'},
-      {title:'Listing Specialist Trainer',name:'Brandon Bruning'},
-      {title:'Buyer Specialist Trainer',name:'Brandon Bruning'}
-    ]},
-    {div:4,name:'PRODUCTION',roles:[
-      {title:'Dir of Production',name:'Brandon Bruning',temp:true},
-      {title:'Listing + Buyer Specialists',name:'Brandon Bruning'},
-      {title:'',name:'Kevin Cloud'},
-      {title:'',name:'Shelley Lisko'},
-      {title:'',name:'Brad Lisko'},
-      {title:'',name:'Amanda Mitchell'}
-    ]},
-    {div:3,name:'TREASURY',roles:[
-      {title:'Dir of Finance',name:'Brandon Bruning',temp:true}
-    ]},
-    {div:2,name:'DISSEMINATION',roles:[
-      {title:'Dir of Marketing',name:'Brandon Bruning',temp:true},
-      {title:'PR Director',name:'Harold (AI)'},
-      {title:'Listing Marketing Automation',name:'Spartan 1 (AI)'},
-      {title:'Market Site Management',name:'Spartan 4 (AI)'}
-    ]},
-    {div:1,name:'HCO',roles:[
-      {title:'Dir of HCO',name:'Brandon Bruning',temp:true},
-      {title:'Tech Support',name:'Jarvis (AI)'},
-      {title:'Lead Gen & Outreach',name:'Spartan 3 (AI)'},
-      {title:'Showing Coordination',name:'Spartan 5 - Alex (AI)'},
-      {title:'ISA Support',name:'Spartan 6 - Sofia (AI)'}
-    ]}
-  ];
-  let html='<div style="max-width:1200px;margin:0 auto;padding:20px">';
-  html+='<h2 style="font-size:24px;font-weight:700;letter-spacing:3px;text-align:center;margin-bottom:32px;color:var(--text-primary)">THE BLK GROUP ORG BOARD</h2>';
-  html+='<div style="font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:40px">7-Division LRH Structure | Filled Positions Only</div>';
-  
-  orgStructure.forEach(d=>{
-    html+=`<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">`;
-    html+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--gold)">`;
-    html+=`<div style="background:var(--gold);color:#fff;font-weight:700;font-size:14px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center">${d.div}</div>`;
-    html+=`<div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--text-primary)">${d.name}</div>`;
-    html+=`</div>`;
-    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">`;
-    d.roles.forEach(r=>{
-      const tempBadge=r.temp?'<span style="background:rgba(255,140,0,0.15);color:#ff8c00;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px">TEMP</span>':'';
-      html+=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px">`;
-      if(r.title)html+=`<div style="font-size:10px;font-weight:600;color:var(--text-dim);letter-spacing:0.5px;margin-bottom:4px">${r.title}${tempBadge}</div>`;
-      html+=`<div style="font-size:12px;font-weight:600;color:var(--text-primary)">${r.name}</div>`;
-      html+=`</div>`;
-    });
-    html+=`</div></div>`;
-  });
-  html+='</div>';
-  $('page-org-board').innerHTML=html;
-}
-
-// ============================================
-// ADMIN SCALE TAB (Component 2)
-// ============================================
-const ADMIN_SCALE_DATA={
-  GOALS:[
-    'The BLK Group is #1 producing firm in Arkansas',
-    '10+ offices covering every major market',
-    '100+ fully-hatted agents on admin tech',
-    'Most recognized real estate brand in Arkansas',
-    '$50M+ annual volume',
-    'Self-sustaining org (Brandon exits production)'
-  ],
-  PURPOSES:[
-    'Provide professional listing representation',
-    'Train elite listing specialists using admin tech',
-    'Create replicable system for consistent results',
-    'Build organization that outlives founder',
-    'Dominate Arkansas real estate'
-  ],
-  POLICY:[
-    'All agents complete hat pack before working clients',
-    'All listings follow Brandon\'s MOP',
-    'All client communication follows MAP',
-    'No solo agent work until proven competent',
-    'Social media follows approved scripts/templates',
-    'The Brain provides AI support to all agents',
-    'Expansion only after proving profitability',
-    'Staffing triggers based on agent count'
-  ],
-  PLANS:{
-    'PHASE 1: PROOF OF CONCEPT (Current → 6 months)':[
-      'Complete Listing Specialist Hat Pack',
-      'Train current agents (Kevin, Shelley, Brad, Amanda)',
-      'Achieve 25 listings/month target',
-      'Deploy Brain + MAP/MOP System'
-    ],
-    'PHASE 2: INITIAL EXPANSION (6-12 months)':[
-      'Recruit 5 new agents (reach 10 total)',
-      'Hire 2 Transaction Coordinators (Div 4)',
-      'Hire Social Media Manager (Div 2)',
-      'Hire Contact Specialist (Div 6)',
-      'Hire Graphic Designer (Div 2)',
-      'Launch social media recruiting campaigns'
-    ],
-    'PHASE 3: BROKERAGE LAUNCH (12-18 months)':[
-      'Recruit to 15-20 agents',
-      'Get Arkansas brokerage license (Div 3)',
-      'Open flagship Little Rock office (Div 3)',
-      'Build content studio in office',
-      'Launch grand opening + PR blitz',
-      'Deploy full MAP/MOP infrastructure'
-    ],
-    'PHASE 4: CENTRAL ARKANSAS SATURATION (18-30 months)':[
-      'Open Hot Springs office (5-7 agents)',
-      'Open Hot Springs Village office (3-5 agents)',
-      'Open Searcy or Conway office (5-7 agents)',
-      'Add 2 more TCs (now 4 total)',
-      'Add 1 more contact specialist',
-      'Expand graphic design to team of 2'
-    ],
-    'PHASE 5: NORTHWEST ARKANSAS EXPANSION (30-48 months)':[
-      'Open Bentonville flagship (10-15 agents)',
-      'Open Rogers office (5-7 agents)',
-      'Open Fayetteville office (5-7 agents)',
-      'Add 2 TCs for NWA (now 6 total)',
-      'Add NWA social media manager',
-      'Regional marketing campaigns'
-    ],
-    'PHASE 6: STATEWIDE DOMINANCE (48+ months)':[
-      'Expand to remaining markets (Jonesboro, Texarkana, Fort Smith)',
-      'Reach 10 offices, 100+ agents',
-      'Billboards in every major city',
-      'Statewide TV/radio campaigns',
-      'Brandon exits production entirely',
-      'Org runs without Brandon'
-    ]
-  },
-  PROGRAMS:[
-    'Listing Specialist Hat Pack Creation',
-    'Buyer Specialist Hat Pack Creation',
-    'MAP/MOP System Deployment',
-    'Social Media Recruiting Machine',
-    'Office Buildout Playbook'
-  ],
-  PROJECTS:[
-    'Finalize Listing Specialist Hat Pack',
-    'Train Kevin, Shelley, Brad, Amanda',
-    'Hit 25 listings/month target',
-    'Deploy stat dashboard with targets',
-    'Write first social media playbook',
-    'Create first recruiting ad campaign'
-  ],
-  ORDERS:[
-    'Build Admin Scale tab on Lab (YOU)',
-    'Add Starting Date + Weekly Updates to Active Listings (YOU)',
-    'Deploy 6 stat graphs with auto-escalating targets (Jarvis)',
-    'Finalize Listing Specialist training (Brandon)',
-    'Schedule agent hat training sessions (Brandon)'
-  ]
-};
-
-let adminScaleState={};
-
-async function loadAdminScale(){
-  const{data}=await sb.from('lab_admin_scale').select('*').order('category,sort_order');
-  if(data&&data.length>0){
-    data.forEach(item=>{
-      const key=item.phase?`${item.category}|${item.phase}|${item.item_text}`:`${item.category}|${item.item_text}`;
-      adminScaleState[key]={checked:item.checked,notes:item.notes||'',id:item.id};
-    });
-  }else{
-    // Initialize with defaults
-    await initializeAdminScale();
-  }
-  renderAdminScale();
-}
-
-async function initializeAdminScale(){
-  const inserts=[];
-  let sortOrder=0;
-  ['GOALS','PURPOSES','POLICY','PROGRAMS','PROJECTS','ORDERS'].forEach(cat=>{
-    ADMIN_SCALE_DATA[cat].forEach(item=>{
-      inserts.push({
-        user_id:'b5c2c7d8-cb11-4b00-a820-14f6c1e64b93',
-        category:cat,
-        phase:null,
-        item_text:item,
-        checked:false,
-        notes:'',
-        sort_order:sortOrder++
-      });
-    });
-  });
-  Object.keys(ADMIN_SCALE_DATA.PLANS).forEach(phaseName=>{
-    ADMIN_SCALE_DATA.PLANS[phaseName].forEach(item=>{
-      inserts.push({
-        user_id:'b5c2c7d8-cb11-4b00-a820-14f6c1e64b93',
-        category:'PLANS',
-        phase:phaseName,
-        item_text:item,
-        checked:false,
-        notes:'',
-        sort_order:sortOrder++
-      });
-    });
-  });
-  if(inserts.length>0)await sb.from('lab_admin_scale').insert(inserts);
-  await loadAdminScale();
-}
-
-function renderAdminScale(){
-  const categories=['GOALS','PURPOSES','POLICY','PLANS','PROGRAMS','PROJECTS','ORDERS'];
-  let totalItems=0,checkedItems=0;
-  
-  // Count totals
-  categories.forEach(cat=>{
-    if(cat==='PLANS'){
-      Object.keys(ADMIN_SCALE_DATA.PLANS).forEach(phase=>{
-        ADMIN_SCALE_DATA.PLANS[phase].forEach(item=>{
-          totalItems++;
-          const key=`PLANS|${phase}|${item}`;
-          if(adminScaleState[key]&&adminScaleState[key].checked)checkedItems++;
-        });
-      });
-    }else{
-      ADMIN_SCALE_DATA[cat].forEach(item=>{
-        totalItems++;
-        const key=`${cat}|${item}`;
-        if(adminScaleState[key]&&adminScaleState[key].checked)checkedItems++;
-      });
-    }
-  });
-  
-  const percentComplete=totalItems>0?Math.round((checkedItems/totalItems)*100):0;
-  const isComplete=percentComplete===100;
-  
-  let html='<div style="max-width:1000px;margin:0 auto;padding:20px">';
-  html+='<h2 style="font-size:24px;font-weight:700;letter-spacing:3px;text-align:center;margin-bottom:16px;color:var(--text-primary)">ADMIN SCALE</h2>';
-  html+='<div style="font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:32px">Roadmap to SHIFT | Brandon Only</div>';
-  
-  // Progress bar
-  html+=`<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">`;
-  html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">`;
-  html+=`<span style="font-size:14px;font-weight:600;color:var(--text-primary)">Progress</span>`;
-  html+=`<span style="font-size:16px;font-weight:700;color:${isComplete?'var(--sage)':'var(--gold)'}">${percentComplete}% Complete${isComplete?' → UNLOCK SHIFT 🚀':''}</span>`;
-  html+=`</div>`;
-  html+=`<div style="height:12px;background:var(--bg);border-radius:6px;overflow:hidden">`;
-  html+=`<div style="height:100%;background:${isComplete?'var(--sage)':'var(--gold)'};width:${percentComplete}%;transition:width 0.5s ease"></div>`;
-  html+=`</div>`;
-  html+=`<div style="margin-top:8px;font-size:11px;color:var(--text-dim);text-align:center">${checkedItems} of ${totalItems} items complete</div>`;
-  html+=`</div>`;
-  
-  // Categories
-  categories.forEach(cat=>{
-    html+=`<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">`;
-    html+=`<div style="font-size:14px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)">${cat}</div>`;
-    
-    if(cat==='PLANS'){
-      Object.keys(ADMIN_SCALE_DATA.PLANS).forEach(phase=>{
-        html+=`<div style="margin-bottom:20px;padding:16px;background:var(--bg);border-radius:8px">`;
-        html+=`<div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:12px">${phase}</div>`;
-        ADMIN_SCALE_DATA.PLANS[phase].forEach(item=>{
-          const key=`PLANS|${phase}|${item}`;
-          const state=adminScaleState[key]||{checked:false,notes:''};
-          html+=renderScaleItem(key,item,state);
-        });
-        html+=`</div>`;
-      });
-    }else{
-      ADMIN_SCALE_DATA[cat].forEach(item=>{
-        const key=`${cat}|${item}`;
-        const state=adminScaleState[key]||{checked:false,notes:''};
-        html+=renderScaleItem(key,item,state);
-      });
-    }
-    html+=`</div>`;
-  });
-  
-  html+='</div>';
-  $('page-admin-scale').innerHTML=html;
-}
-
-function renderScaleItem(key,text,state){
-  const checked=state.checked?'checked':'';
-  const notes=state.notes||'';
-  return`<div style="display:flex;gap:12px;margin-bottom:12px;padding:12px;background:#fff;border:1px solid var(--border);border-radius:8px">
-    <label style="display:flex;align-items:start;gap:8px;flex:1;cursor:pointer">
-      <input type="checkbox" ${checked} onchange="toggleScaleItem('${key.replace(/'/g,"\\'")}',this.checked)" style="width:18px;height:18px;margin-top:2px;accent-color:var(--gold);cursor:pointer;flex-shrink:0">
-      <span style="font-size:13px;color:var(--text-primary);line-height:1.5">${text}</span>
-    </label>
-    <button onclick="openScaleNotes('${key.replace(/'/g,"\\'")}','${text.replace(/'/g,"\\'")}')" style="padding:4px 10px;border:1px solid var(--border);background:var(--bg);color:var(--text-secondary);border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0;transition:all 0.2s" onmouseover="this.style.background='var(--gold-light)';this.style.borderColor='var(--gold)'" onmouseout="this.style.background='var(--bg)';this.style.borderColor='var(--border)'">📝 ${notes?'Edit':'Add'} Note</button>
-  </div>`;
-}
-
-async function toggleScaleItem(key,checked){
-  if(!adminScaleState[key])adminScaleState[key]={checked:false,notes:''};
-  adminScaleState[key].checked=checked;
-  
-  const parts=key.split('|');
-  const category=parts[0];
-  const isPlans=category==='PLANS';
-  const phase=isPlans?parts[1]:null;
-  const itemText=isPlans?parts[2]:parts[1];
-  
-  if(adminScaleState[key].id){
-    await sb.from('lab_admin_scale').update({checked,updated_at:new Date().toISOString()}).eq('id',adminScaleState[key].id);
-  }else{
-    const{data}=await sb.from('lab_admin_scale').insert({
-      user_id:'b5c2c7d8-cb11-4b00-a820-14f6c1e64b93',
-      category,phase,item_text:itemText,checked,notes:adminScaleState[key].notes||''
-    }).select().single();
-    if(data)adminScaleState[key].id=data.id;
-  }
-  renderAdminScale();
-}
-
-function openScaleNotes(key,text){
-  const state=adminScaleState[key]||{checked:false,notes:''};
-  const notes=prompt(`Add notes for:\n"${text}"\n\n(Optional context, division mapping, triggers, etc.)`,state.notes||'');
-  if(notes!==null){
-    adminScaleState[key].notes=notes;
-    saveScaleNotes(key,notes);
-  }
-}
-
-async function saveScaleNotes(key,notes){
-  const parts=key.split('|');
-  const category=parts[0];
-  const isPlans=category==='PLANS';
-  const phase=isPlans?parts[1]:null;
-  const itemText=isPlans?parts[2]:parts[1];
-  
-  if(adminScaleState[key].id){
-    await sb.from('lab_admin_scale').update({notes,updated_at:new Date().toISOString()}).eq('id',adminScaleState[key].id);
-  }else{
-    const{data}=await sb.from('lab_admin_scale').insert({
-      user_id:'b5c2c7d8-cb11-4b00-a820-14f6c1e64b93',
-      category,phase,item_text:itemText,checked:adminScaleState[key].checked||false,notes
-    }).select().single();
-    if(data)adminScaleState[key].id=data.id;
-  }
-  renderAdminScale();
-}
-
-// ============================================
-// STATS DASHBOARD (Component 3)
-// ============================================
-let statsCurrentMonth=new Date();
-
-async function loadStatsDashboard(){
-  renderStatsDashboard();
-}
-
-async function renderStatsDashboard(){
-  const year=statsCurrentMonth.getFullYear();
-  const month=statsCurrentMonth.getMonth();
-  const monthStr=`${year}-${String(month+1).padStart(2,'0')}`;
-  const monthName=MONTHS[month];
-  
-  // Fetch targets for this month
-  const{data:targets}=await sb.from('lab_stat_targets').select('*').eq('month',monthStr+'-01');
-  const targetMap={};
-  if(targets)targets.forEach(t=>targetMap[t.stat_name]=t);
-  
-  // Fetch actual data
-  const{data:scorecard}=await sb.from('lab_scorecard').select('*');
-  const{data:listings}=await sb.from('lab_listings').select('*');
-  const{data:opens}=await sb.from('lab_opens').select('*');
-  
-  // Calculate actuals for this month
-  const firstDay=new Date(year,month,1);
-  const lastDay=new Date(year,month+1,0);
-  
-  const monthScorecard=(scorecard||[]).filter(r=>{
-    if(!r.entry_date)return false;
-    const d=new Date(r.entry_date);
-    return d>=firstDay&&d<=lastDay;
-  });
-  
-  const teamGCI=monthScorecard.reduce((sum,r)=>sum+Number(r.gross_commission||0),0);
-  const brandonIncome=monthScorecard.filter(r=>r.agent==='Brandon Bruning').reduce((sum,r)=>sum+Number(r.my_commission||0),0);
-  const volume=monthScorecard.reduce((sum,r)=>sum+Number(r.volume||0),0);
-  const transactions=monthScorecard.length;
-  
-  const newListings=(listings||[]).filter(r=>{
-    if(!r.starting_date)return false;
-    const d=new Date(r.starting_date);
-    return d>=firstDay&&d<=lastDay;
-  }).length;
-  
-  const opensCount=(opens||[]).filter(r=>{
-    if(!r.open_date)return false;
-    const d=new Date(r.open_date);
-    return d>=firstDay&&d<=lastDay;
-  }).length;
-  
-  // Update actual values in database
-  const actualUpdates=[
-    {stat:'team_gci',val:teamGCI},
-    {stat:'brandon_income',val:brandonIncome},
-    {stat:'volume',val:volume},
-    {stat:'transactions',val:transactions},
-    {stat:'new_listings',val:newListings},
-    {stat:'opens',val:opensCount}
-  ];
-  for(const u of actualUpdates){
-    await sb.from('lab_stat_targets').update({actual_value:u.val,updated_at:new Date().toISOString()}).eq('month',monthStr+'-01').eq('stat_name',u.stat);
-  }
-  
-  // Build HTML
-  let html='<div style="max-width:1400px;margin:0 auto;padding:20px">';
-  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">';
-  html+=`<button onclick="changeStatsMonth(-1)" class="btn"><span>←</span> Previous</button>`;
-  html+=`<h2 style="font-size:24px;font-weight:700;letter-spacing:3px;color:var(--text-primary)">${monthName} ${year}</h2>`;
-  html+=`<button onclick="changeStatsMonth(1)" class="btn">Next <span>→</span></button>`;
-  html+='</div>';
-  
-  const stats=[
-    {key:'team_gci',name:'Team Gross Commission',icon:'💰',unit:'$'},
-    {key:'brandon_income',name:'Brandon\'s Income',icon:'👑',unit:'$',private:true},
-    {key:'volume',name:'Volume Under Contract',icon:'📊',unit:'$'},
-    {key:'transactions',name:'Transactions Closed',icon:'🏡',unit:''},
-    {key:'new_listings',name:'New Listings',icon:'📋',unit:''},
-    {key:'opens',name:'Opens',icon:'🏠',unit:''}
-  ];
-  
-  html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px">';
-  stats.forEach(s=>{
-    if(s.private&&!isAdmin)return; // Skip Brandon's income for non-admins
-    const target=targetMap[s.key];
-    const targetVal=target?Number(target.target_value):0;
-    const actualVal=target?Number(target.actual_value):0;
-    const cond=getStatCondition(actualVal,targetVal);
-    const pct=targetVal>0?Math.round((actualVal/targetVal)*100):0;
-    
-    html+=`<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">`;
-    html+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">`;
-    html+=`<span style="font-size:28px">${s.icon}</span>`;
-    html+=`<div style="flex:1">`;
-    html+=`<div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${s.name}</div>`;
-    html+=`<div style="font-size:20px;font-weight:700;color:var(--text-primary);margin-top:4px">${s.unit==='$'?money(actualVal):actualVal}</div>`;
-    html+=`</div>`;
-    html+=`<span class="condition-badge ${cond.cls}" style="font-size:11px;padding:6px 10px">${cond.name}</span>`;
-    html+=`</div>`;
-    html+=`<div style="margin-bottom:12px">`;
-    html+=`<div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">`;
-    html+=`<div style="height:100%;background:${cond.color};width:${Math.min(pct,100)}%;transition:width 0.5s ease"></div>`;
-    html+=`</div>`;
-    html+=`<div style="font-size:11px;color:var(--text-secondary);margin-top:6px">Target: ${s.unit==='$'?money(targetVal):targetVal} | ${pct}% of target</div>`;
-    html+=`</div>`;
-    html+=`<div style="font-size:10px;color:var(--text-dim);padding:8px;background:var(--bg);border-radius:6px">`;
-    html+=`<strong>Formula:</strong> ${cond.formula}`;
-    html+=`</div>`;
-    html+=`</div>`;
-  });
-  html+='</div>';
-  html+='</div>';
-  
-  $('page-stats-dashboard').innerHTML=html;
-}
-
-function getStatCondition(actual,target){
-  if(target===0)return{name:'N/A',cls:'normal',color:'#aaa',formula:'No target set'};
-  const pct=(actual/target)*100;
-  if(pct>=115)return{name:'Power',cls:'power',color:'var(--sage)',formula:'≥115% of target'};
-  if(pct>=100)return{name:'Affluence',cls:'affluence',color:'#ffd700',formula:'≥100% of target'};
-  if(pct>=90)return{name:'Normal',cls:'normal',color:'#4682ff',formula:'≥90% of target'};
-  if(pct>=75)return{name:'Emergency',cls:'emergency',color:'#ff8c00',formula:'≥75% of target'};
-  if(pct>=50)return{name:'Danger',cls:'danger',color:'#ff3c3c',formula:'≥50% of target'};
-  return{name:'Non-E',cls:'non-existence',color:'#888',formula:'<50% of target'};
-}
-
-function changeStatsMonth(delta){
-  statsCurrentMonth=new Date(statsCurrentMonth.getFullYear(),statsCurrentMonth.getMonth()+delta,1);
-  renderStatsDashboard();
-}
-
 </script>
 </body>
 </html>
