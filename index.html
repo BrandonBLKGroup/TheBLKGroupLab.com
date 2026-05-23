@@ -913,6 +913,7 @@ async function updateContract(id,f,v){const u={};u[f]=v||null;u.updated_at=new D
 async function toggleStep(id,step,val){
   const u={};u[step]=val;u.updated_at=new Date().toISOString();
   await sb.from('lab_contracts').update(u).eq('id',id);
+  loadContracts(); // Reload to show the updated progress
 }
 async function contractDateChange(id,dateStr){
   const u={contract_date:dateStr,updated_at:new Date().toISOString()};
@@ -927,6 +928,7 @@ async function contractDateChange(id,dateStr){
     u.irsa_due=irsa.toISOString().split('T')[0];
   }
   await sb.from('lab_contracts').update(u).eq('id',id);
+  loadContracts(); // Reload to show updated deadline dates
 }
 async function deleteContract(id){if(!confirm('Remove this transaction?'))return;await sb.from('lab_contracts').delete().eq('id',id);loadContracts();}
 
