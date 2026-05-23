@@ -189,7 +189,7 @@ body::before{display:none}
       <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
       <div class="nav-item" data-page="org-board" onclick="showPage('org-board')"><span class="icon">🏢</span>Org Board</div>
       <div class="nav-item" data-page="admin-scale" onclick="showPage('admin-scale')" id="navAdminScale" style="display:none"><span class="icon">📊</span>Admin Scale</div>
-      <div class="nav-item" data-page="stats-dashboard" onclick="showPage('stats-dashboard')"><span class="icon">📈</span>Stats Summary</div>
+      <div class="nav-item" data-page="stats-dashboard" onclick="showPage('stats-dashboard')"><span class="icon">📈</span>Stats Dashboard</div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
     </div>
@@ -300,7 +300,7 @@ const STEPS=[
   {k:'title_setup',l:'Title Setup'},{k:'appraisal_done',l:'Appraisal'},{k:'termite_done',l:'Termite'},
   {k:'closing_scheduled',l:'Closing Set'},{k:'closed',l:'Closed'},{k:'loop_submitted',l:'Loop Done'}
 ];
-let OPENS_TARGET=75,LISTINGS_TARGET=70,MY_COMM_TARGET=67000,GROSS_COMM_TARGET=1000000,VOL_TARGET=65000000;
+let OPENS_TARGET=75,LISTINGS_TARGET=70,MY_COMM_TARGET=67000,GROSS_COMM_TARGET=1600000,VOL_TARGET=65000000;
 let currentUser=null,userProfile=null,isAdmin=false;
 function $(id){return document.getElementById(id)}
 function money(n){return'$'+Number(n||0).toLocaleString()}
@@ -390,7 +390,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORG BOARD','admin-scale':'ADMIN SCALE','stats-dashboard':'STATS SUMMARY DASHBOARD'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORG BOARD','admin-scale':'ADMIN SCALE','stats-dashboard':'STATS DASHBOARD'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -2474,22 +2474,22 @@ async function downloadAllPoliciesPDF(){
 // ============================================
 function showOrgBoard(){
   const orgStructure=[
-    {div:7,name:'EXECUTIVE',color:'#4A90E2',roles:[
+    {div:7,name:'EXECUTIVE',roles:[
       {title:'Executive Director',name:'Brandon Bruning'},
       {title:'Dir of Planning',name:'Brandon Bruning',temp:true},
       {title:'Dir of Programs',name:'Jarvis (AI)'},
       {title:'Dir of Orders',name:'Brandon Bruning',temp:true}
     ]},
-    {div:6,name:'PUBLIC',color:'#F5A623',roles:[
+    {div:6,name:'PUBLIC',roles:[
       {title:'Dir of Public',name:'Brandon Bruning',temp:true},
       {title:'ISA',name:'Sofia (AI) + Brandon Bruning',temp:true}
     ]},
-    {div:5,name:'QUALIFICATIONS',color:'#7B68EE',roles:[
+    {div:5,name:'QUALIFICATIONS',roles:[
       {title:'Dir of Training',name:'Brandon Bruning'},
       {title:'Listing Specialist Trainer',name:'Brandon Bruning'},
       {title:'Buyer Specialist Trainer',name:'Brandon Bruning'}
     ]},
-    {div:4,name:'PRODUCTION',color:'#50C878',roles:[
+    {div:4,name:'PRODUCTION',roles:[
       {title:'Dir of Production',name:'Brandon Bruning',temp:true},
       {title:'Transaction Coordinator',name:'Shelley Lisko'},
       {title:'Listing + Buyer Specialists',name:'Brandon Bruning'},
@@ -2497,16 +2497,16 @@ function showOrgBoard(){
       {title:'',name:'Brad Lisko'},
       {title:'',name:'Amanda Mitchell'}
     ]},
-    {div:3,name:'TREASURY',color:'#E74C3C',roles:[
+    {div:3,name:'TREASURY',roles:[
       {title:'Dir of Finance',name:'Brandon Bruning',temp:true}
     ]},
-    {div:2,name:'DISSEMINATION',color:'#9B59B6',roles:[
+    {div:2,name:'DISSEMINATION',roles:[
       {title:'Dir of Marketing',name:'Brandon Bruning',temp:true},
       {title:'PR Director',name:'Harold (AI)'},
       {title:'Listing Marketing Automation',name:'Spartan 1 (AI)'},
       {title:'Market Site Management',name:'Spartan 4 (AI)'}
     ]},
-    {div:1,name:'HCO',color:'#34495E',roles:[
+    {div:1,name:'HCO',roles:[
       {title:'Dir of HCO',name:'Brandon Bruning',temp:true},
       {title:'Tech Support',name:'Jarvis (AI)'},
       {title:'Lead Gen & Outreach',name:'Spartan 3 (AI)'},
@@ -2514,49 +2514,26 @@ function showOrgBoard(){
       {title:'ISA Support',name:'Spartan 6 - Sofia (AI)'}
     ]}
   ];
+  let html='<div style="max-width:1200px;margin:0 auto;padding:20px">';
+  html+='<h2 style="font-size:24px;font-weight:700;letter-spacing:3px;text-align:center;margin-bottom:32px;color:var(--text-primary)">THE BLK GROUP ORG BOARD</h2>';
+  html+='<div style="font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:40px">7-Division LRH Structure | Filled Positions Only</div>';
   
-  let html='<div style="max-width:1000px;margin:0 auto;padding:40px 20px">';
-  html+='<h2 style="font-size:28px;font-weight:700;letter-spacing:4px;text-align:center;margin-bottom:12px;color:var(--text-primary)">THE BLK GROUP</h2>';
-  html+='<div style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:48px;letter-spacing:2px">ORGANIZING BOARD</div>';
-  
-  // Render divisions top to bottom (7→1)
-  orgStructure.forEach((d,idx)=>{
-    const isLast=idx===orgStructure.length-1;
-    
-    html+=`<div style="position:relative;margin-bottom:${isLast?'0':'32px'}">`;
-    
-    // Connecting line to next division (except for last)
-    if(!isLast){
-      html+=`<div style="position:absolute;left:50%;bottom:-32px;width:2px;height:32px;background:#ddd;transform:translateX(-50%)"></div>`;
-    }
-    
-    // Division box
-    html+=`<div style="background:#fff;border:3px solid ${d.color};border-radius:8px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1)">`;
-    
-    // Division header
-    html+=`<div style="background:${d.color};color:#fff;padding:16px 24px;text-align:center">`;
-    html+=`<div style="font-size:18px;font-weight:700;letter-spacing:3px;margin-bottom:4px">DIVISION ${d.div}</div>`;
-    html+=`<div style="font-size:14px;font-weight:600;letter-spacing:2px;opacity:0.95">${d.name}</div>`;
+  orgStructure.forEach(d=>{
+    html+=`<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">`;
+    html+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--gold)">`;
+    html+=`<div style="background:var(--gold);color:#fff;font-weight:700;font-size:14px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center">${d.div}</div>`;
+    html+=`<div style="font-size:13px;font-weight:700;letter-spacing:2px;color:var(--text-primary)">${d.name}</div>`;
     html+=`</div>`;
-    
-    // Division body with roles
-    html+=`<div style="padding:20px 24px;background:#fafafa">`;
-    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">`;
-    
+    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">`;
     d.roles.forEach(r=>{
-      const tempBadge=r.temp?' <span style="background:rgba(255,140,0,0.2);color:#d97706;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:4px">TEMP</span>':'';
-      html+=`<div style="background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:12px">`;
-      if(r.title){
-        html+=`<div style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">${r.title}${tempBadge}</div>`;
-      }
-      html+=`<div style="font-size:13px;font-weight:600;color:#1a1a1a;line-height:1.3">${r.name}</div>`;
+      const tempBadge=r.temp?'<span style="background:rgba(255,140,0,0.15);color:#ff8c00;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px">TEMP</span>':'';
+      html+=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px">`;
+      if(r.title)html+=`<div style="font-size:10px;font-weight:600;color:var(--text-dim);letter-spacing:0.5px;margin-bottom:4px">${r.title}${tempBadge}</div>`;
+      html+=`<div style="font-size:12px;font-weight:600;color:var(--text-primary)">${r.name}</div>`;
       html+=`</div>`;
     });
-    
-    html+=`</div></div>`;
     html+=`</div></div>`;
   });
-  
   html+='</div>';
   $('page-org-board').innerHTML=html;
 }
@@ -2865,22 +2842,25 @@ async function renderStatsDashboard(){
   const targetMap={};
   if(targets)targets.forEach(t=>targetMap[t.stat_name]=t);
   
-  // Fetch actual data - use month_year field like Monthly Scorecard does
-  const{data:scorecard}=await sb.from('lab_scorecard').select('*').eq('month_year',monthStr);
+  // Fetch actual data
+  const{data:scorecard}=await sb.from('lab_scorecard').select('*');
   const{data:listings}=await sb.from('lab_listings').select('*');
   const{data:opens}=await sb.from('lab_opens').select('*');
   
-  // Calculate actuals for this month from scorecard (filtered by month_year)
-  const monthScorecard=scorecard||[];
-  
-  const teamGCI=monthScorecard.reduce((sum,r)=>sum+Number(r.gross_commission||0),0);
-  const brandonIncome=monthScorecard.reduce((sum,r)=>sum+Number(r.my_commission||0),0); // Sum ALL my_commission, not just Brandon's
-  const volume=monthScorecard.reduce((sum,r)=>sum+Number(r.volume||0),0);
-  const transactions=monthScorecard.length;
-  
-  // Date range for listings and opens filtering
+  // Calculate actuals for this month
   const firstDay=new Date(year,month,1);
   const lastDay=new Date(year,month+1,0);
+  
+  const monthScorecard=(scorecard||[]).filter(r=>{
+    if(!r.entry_date)return false;
+    const d=new Date(r.entry_date);
+    return d>=firstDay&&d<=lastDay;
+  });
+  
+  const teamGCI=monthScorecard.reduce((sum,r)=>sum+Number(r.gross_commission||0),0);
+  const brandonIncome=monthScorecard.filter(r=>r.agent==='Brandon Bruning').reduce((sum,r)=>sum+Number(r.my_commission||0),0);
+  const volume=monthScorecard.reduce((sum,r)=>sum+Number(r.volume||0),0);
+  const transactions=monthScorecard.length;
   
   const newListings=(listings||[]).filter(r=>{
     if(!r.starting_date)return false;
