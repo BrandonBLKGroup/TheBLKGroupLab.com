@@ -185,7 +185,7 @@ body::before{display:none}
       <div class="nav-item" data-page="battleplan" onclick="showPage('battleplan')"><span class="icon">⚔️</span>Battle Plan</div>
       <div class="nav-item" data-page="thirty-day-push" onclick="showPage('thirty-day-push')"><span class="icon">🚀</span>30 Day Push</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
-      <div class="nav-item" data-page="spartan1" onclick="window.open('spartan1.html', '_blank')" style="display:none"><span class="icon">📋</span>Spartan 1 Dashboard</div>
+      <div class="nav-item" data-page="spartan1" onclick="showPage('spartan1')"><span class="icon">📋</span>Spartan 1 Dashboard</div>
       <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
       <div class="nav-item" data-page="org-board" onclick="showPage('org-board')"><span class="icon">🏢</span>Org Board</div>
       <div class="nav-item" data-page="admin-scale" onclick="showPage('admin-scale')" id="navAdminScale" style="display:none"><span class="icon">📊</span>Admin Scale</div>
@@ -217,6 +217,647 @@ body::before{display:none}
       <div class="page" id="page-org-board"></div>
       <div class="page" id="page-admin-scale"></div>
       <div class="page" id="page-stats-dashboard"></div>
+      <div class="page" id="page-spartan1">
+        <!-- SPARTAN 1 DASHBOARD - FULL INTEGRATION -->
+<!-- SPARTAN 1 DASHBOARD - Embedded in Lab -->
+<style>
+/* Scope all Spartan 1 styles to #page-spartan1 */
+#page-spartan1 {
+  background: #0a0a0a;
+  margin: -20px -24px;
+  min-height: calc(100vh - 60px);
+  font-family: 'Outfit', sans-serif;
+}
+#page-spartan1 * { box-sizing: border-box; }
+#page-spartan1 .s1-header { background:linear-gradient(135deg,#111,#1a1a1a); border-bottom:1px solid #222; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; }
+#page-spartan1 .s1-header-brand { display:flex; align-items:center; gap:12px; }
+#page-spartan1 .s1-header-logo { width:36px; height:36px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#000; font-size:14px; }
+#page-spartan1 .s1-header h1 { font-size:18px; font-weight:600; color:#fff; letter-spacing:-0.02em; }
+#page-spartan1 .s1-header p { font-size:11px; color:#666; text-transform:uppercase; letter-spacing:0.1em; }
+#page-spartan1 .s1-status-msg { font-size:11px; color:#10B981; text-transform:uppercase; letter-spacing:0.05em; transition:opacity 0.3s; }
+#page-spartan1 .s1-tabs { display:flex; background:#111; border-bottom:1px solid #222; overflow-x:auto; }
+#page-spartan1 .s1-tab { padding:12px 20px; font-size:12px; font-weight:500; color:#555; text-transform:uppercase; letter-spacing:0.08em; border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:all 0.15s; font-family:'Outfit',sans-serif; }
+#page-spartan1 .s1-tab:hover { color:#888; }
+#page-spartan1 .s1-tab.active { color:#fff; border-bottom-color:#fff; }
+#page-spartan1 .s1-content { padding:24px; max-width:1400px; margin:0 auto; }
+#page-spartan1 .s1-panel { background:#111; border:1px solid #1a1a1a; border-radius:10px; padding:20px; margin-bottom:20px; }
+#page-spartan1 .s1-panel-title { font-size:12px; color:#555; text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:14px; }
+#page-spartan1 .s1-form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:16px; }
+#page-spartan1 .s1-form-group label { display:block; font-size:10px; color:#555; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.08em; }
+#page-spartan1 .s1-form-group input, #page-spartan1 .s1-form-group select, #page-spartan1 .s1-form-group textarea { width:100%; background:#1a1a1a; border:1px solid #222; border-radius:6px; padding:8px 10px; color:#fff; font-size:13px; outline:none; font-family:'Outfit',sans-serif; }
+#page-spartan1 .s1-form-group textarea { min-height:60px; resize:vertical; }
+#page-spartan1 .s1-btn { border:none; border-radius:8px; padding:10px 20px; font-size:13px; font-weight:600; transition:all 0.15s; font-family:'Outfit',sans-serif; cursor:pointer; }
+#page-spartan1 .s1-btn-primary { background:#fff; color:#000; }
+#page-spartan1 .s1-btn-primary:hover { background:#ddd; }
+#page-spartan1 .s1-btn-sm { padding:6px 12px; font-size:11px; border-radius:6px; }
+#page-spartan1 .s1-btn-green { background:#10B981; color:#fff; }
+#page-spartan1 .s1-btn-blue { background:#3B82F6; color:#fff; }
+#page-spartan1 .s1-btn-outline { background:none; border:1px solid #222; color:#888; }
+#page-spartan1 .s1-btn-outline:hover { border-color:#888; color:#fff; }
+#page-spartan1 .s1-tbl-wrap { overflow-x:auto; background:#111; border:1px solid #1a1a1a; border-radius:10px; }
+#page-spartan1 table { width:100%; border-collapse:collapse; font-size:12px; color:#e5e5e5; }
+#page-spartan1 th { text-align:left; padding:10px 12px; color:#555; font-weight:500; border-bottom:1px solid #1a1a1a; text-transform:uppercase; letter-spacing:0.08em; font-size:10px; }
+#page-spartan1 td { padding:8px 12px; border-bottom:1px solid #141414; color:#e5e5e5; }
+#page-spartan1 tr:hover td { background:#0d0d0d; }
+#page-spartan1 .s1-stat-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:24px; }
+#page-spartan1 .s1-stat-card { background:#111; border:1px solid #1a1a1a; border-radius:10px; padding:14px; }
+#page-spartan1 .s1-stat-card label { font-size:10px; color:#555; text-transform:uppercase; letter-spacing:0.1em; }
+#page-spartan1 .s1-stat-card .val { font-size:24px; font-weight:600; margin-top:6px; }
+#page-spartan1 .s1-listing-select { display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+#page-spartan1 .s1-listing-select select { background:#1a1a1a; border:1px solid #222; border-radius:8px; padding:10px 16px; color:#fff; font-size:14px; min-width:300px; font-family:'Outfit',sans-serif; }
+#page-spartan1 .s1-grade { display:inline-block; padding:2px 8px; border-radius:4px; font-weight:700; font-size:12px; }
+#page-spartan1 .s1-grade-S { background:#052E16; color:#10B981; }
+#page-spartan1 .s1-grade-B { background:#172554; color:#3B82F6; }
+#page-spartan1 .s1-grade-C { background:#422006; color:#F59E0B; }
+#page-spartan1 .s1-grade-F { background:#450A0A; color:#EF4444; }
+#page-spartan1 .s1-status-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+#page-spartan1 .s1-status-active { background:#052E16; color:#10B981; }
+#page-spartan1 .s1-status-uc { background:#172554; color:#3B82F6; }
+#page-spartan1 .s1-status-sold { background:#450A0A; color:#EF4444; }
+#page-spartan1 .s1-toast { position:fixed; bottom:24px; right:24px; background:#10B981; color:#fff; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:500; z-index:999; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+#page-spartan1 .s1-toast.show { opacity:1; }
+#page-spartan1 .s1-copy-box { background:#1a1a1a; border:1px solid #222; border-radius:8px; padding:14px; font-size:13px; color:#F59E0B; font-family:monospace; word-break:break-all; cursor:pointer; transition:border-color 0.2s; }
+#page-spartan1 .s1-copy-box:hover { border-color:#F59E0B; }
+#page-spartan1 .s1-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+#page-spartan1 .s1-chart-box { background:#111; border:1px solid #1a1a1a; border-radius:10px; padding:16px; }
+#page-spartan1 .s1-chart-box .chart-label { font-size:11px; color:#555; text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:8px; }
+#page-spartan1 canvas { width:100%!important; height:160px!important; }
+#page-spartan1 .s1-tab-content { display:none; }
+#page-spartan1 .s1-tab-content.active { display:block; }
+@media(max-width:768px) {
+  #page-spartan1 .s1-chart-grid { grid-template-columns:1fr; }
+  #page-spartan1 .s1-form-grid { grid-template-columns:1fr 1fr; }
+  #page-spartan1 .s1-listing-select select { min-width:200px; }
+}
+</style>
+
+<div class="s1-header">
+  <div class="s1-header-brand">
+    <div class="s1-header-logo">S1</div>
+    <div><h1>SPARTAN 1</h1><p>Listing Command Center</p></div>
+  </div>
+  <span class="s1-status-msg" id="s1StatusMsg"></span>
+</div>
+
+<div class="s1-tabs">
+  <button class="s1-tab active" data-tab="listings">Listings</button>
+  <button class="s1-tab" data-tab="stats">Stats Entry</button>
+  <button class="s1-tab" data-tab="narrative">Narrative Log</button>
+  <button class="s1-tab" data-tab="sent">Sent Log</button>
+  <button class="s1-tab" data-tab="analytics">Analytics</button>
+  <button class="s1-tab" data-tab="copy">Copy Station</button>
+</div>
+
+<div class="s1-toast" id="s1Toast"></div>
+
+<!-- TAB: LISTINGS -->
+<div class="s1-content s1-tab-content active" id="s1-tab-listings">
+  <div class="s1-panel">
+    <div class="s1-panel-title">Add New Listing</div>
+    <div class="s1-form-grid">
+      <div class="s1-form-group"><label>Address</label><input id="s1-l-address" placeholder="123 Main St"></div>
+      <div class="s1-form-group"><label>City</label><input id="s1-l-city" placeholder="Little Rock"></div>
+      <div class="s1-form-group"><label>State</label><input id="s1-l-state" value="AR"></div>
+      <div class="s1-form-group"><label>ZIP</label><input id="s1-l-zip" placeholder="72201"></div>
+      <div class="s1-form-group"><label>Beds</label><input id="s1-l-beds" type="number" placeholder="3"></div>
+      <div class="s1-form-group"><label>Baths</label><input id="s1-l-baths" type="number" placeholder="2"></div>
+      <div class="s1-form-group"><label>SqFt</label><input id="s1-l-sqft" type="number" placeholder="1800"></div>
+      <div class="s1-form-group"><label>Price</label><input id="s1-l-price" type="number" placeholder="299000"></div>
+      <div class="s1-form-group"><label>List Date</label><input id="s1-l-date" type="date"></div>
+      <div class="s1-form-group"><label>Status</label>
+        <select id="s1-l-status"><option>Active</option><option>Under Contract</option><option>Sold</option><option>Withdrawn</option></select>
+      </div>
+    </div>
+    <button class="s1-btn s1-btn-primary" onclick="s1AddListing()">Add Listing</button>
+  </div>
+  <div class="s1-panel">
+    <div class="s1-panel-title">Active Listings</div>
+    <div class="s1-tbl-wrap"><table><thead><tr>
+      <th>Address</th><th>City</th><th>Beds</th><th>Baths</th><th>SqFt</th><th>Price</th><th>$/ft</th><th>Status</th><th>DOM</th><th></th>
+    </tr></thead><tbody id="s1-listings-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- TAB: STATS ENTRY -->
+<div class="s1-content s1-tab-content" id="s1-tab-stats">
+  <div class="s1-listing-select">
+    <select id="s1-stats-listing-select"><option value="">Select Listing...</option></select>
+    <button class="s1-btn s1-btn-outline s1-btn-sm" onclick="s1LoadStats()">Refresh</button>
+  </div>
+  <div class="s1-panel">
+    <div class="s1-panel-title">Add Weekly Stats</div>
+    <div class="s1-form-grid">
+      <div class="s1-form-group"><label>Week Label</label><input id="s1-s-week" placeholder="Week 1, Day 15, etc."></div>
+      <div class="s1-form-group"><label>Date</label><input id="s1-s-date" type="date"></div>
+      <div class="s1-form-group"><label>Zillow Views</label><input id="s1-s-zviews" type="number" placeholder="0"></div>
+      <div class="s1-form-group"><label>Zillow Saves</label><input id="s1-s-zsaves" type="number" placeholder="0"></div>
+      <div class="s1-form-group"><label>Homes.com Views</label><input id="s1-s-hviews" type="number" placeholder="0"></div>
+      <div class="s1-form-group"><label>MLS Matched</label><input id="s1-s-mlsm" type="number" placeholder="0"></div>
+      <div class="s1-form-group"><label>MLS Emailed</label><input id="s1-s-mlse" type="number" placeholder="0"></div>
+      <div class="s1-form-group"><label>Showings</label><input id="s1-s-show" type="number" placeholder="0"></div>
+      <div class="s1-form-group"><label>Days on Market</label><input id="s1-s-dom" type="number" placeholder="0"></div>
+      <div class="s1-form-group"><label>Diagnosis</label><input id="s1-s-diag" placeholder="Optional notes"></div>
+    </div>
+    <button class="s1-btn s1-btn-primary" onclick="s1AddStat()">Add Stats Entry</button>
+  </div>
+  <div id="s1-stats-cards" class="s1-stat-cards"></div>
+  <div class="s1-panel">
+    <div class="s1-panel-title">Stats History</div>
+    <div class="s1-tbl-wrap"><table><thead><tr>
+      <th>Week</th><th>Date</th><th>Z Views</th><th>Z Saves</th><th>Proj/Mo</th><th>Grade</th><th>Homes</th><th>MLS</th><th>Shows</th><th>DOM</th><th></th>
+    </tr></thead><tbody id="s1-stats-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- TAB: NARRATIVE LOG -->
+<div class="s1-content s1-tab-content" id="s1-tab-narrative">
+  <div class="s1-listing-select">
+    <select id="s1-narr-listing-select"><option value="">Select Listing...</option></select>
+  </div>
+  <div class="s1-panel">
+    <div class="s1-panel-title">Add Narrative Entry</div>
+    <div class="s1-form-grid">
+      <div class="s1-form-group"><label>Date</label><input id="s1-n-date" type="date"></div>
+      <div class="s1-form-group"><label>Week</label><input id="s1-n-week" placeholder="Week 2, Day 15"></div>
+      <div class="s1-form-group"><label>Stats Snapshot</label><input id="s1-n-stats" placeholder="Zillow 704v/38s..."></div>
+      <div class="s1-form-group"><label>Tone</label><input id="s1-n-tone" placeholder="Encouraging, Swepco, etc."></div>
+    </div>
+    <div class="s1-form-grid" style="grid-template-columns:1fr 1fr">
+      <div class="s1-form-group"><label>Diagnosis</label><textarea id="s1-n-diag" placeholder="What's happening..."></textarea></div>
+      <div class="s1-form-group"><label>Recommendation</label><textarea id="s1-n-rec" placeholder="What I suggested..."></textarea></div>
+    </div>
+    <div class="s1-form-group" style="margin-bottom:16px"><label>Summary</label><textarea id="s1-n-summary" placeholder="One-line summary..."></textarea></div>
+    <button class="s1-btn s1-btn-green" onclick="s1AddNarrative()">Log Narrative</button>
+  </div>
+  <div class="s1-panel">
+    <div class="s1-panel-title">Narrative History</div>
+    <div class="s1-tbl-wrap"><table><thead><tr>
+      <th>Date</th><th>Week</th><th>Stats</th><th>Diagnosis</th><th>Rec</th><th>Tone</th><th>Logged</th><th></th>
+    </tr></thead><tbody id="s1-narr-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- TAB: SENT LOG -->
+<div class="s1-content s1-tab-content" id="s1-tab-sent">
+  <div class="s1-listing-select">
+    <select id="s1-sent-listing-select"><option value="">Select Listing...</option></select>
+  </div>
+  <div class="s1-panel">
+    <div class="s1-panel-title">Mark Update as Sent</div>
+    <div class="s1-form-grid" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="s1-form-group"><label>Week</label><input id="s1-e-week" placeholder="Week 2, Day 30"></div>
+      <div class="s1-form-group"><label>Sent Date</label><input id="s1-e-date" type="date"></div>
+      <div class="s1-form-group" style="display:flex;align-items:flex-end"><button class="s1-btn s1-btn-blue" onclick="s1MarkSent()">Mark as Sent</button></div>
+    </div>
+  </div>
+  <div class="s1-panel">
+    <div class="s1-panel-title">Sent History</div>
+    <div class="s1-tbl-wrap"><table><thead><tr>
+      <th>Address</th><th>Week</th><th>Sent Date</th><th></th>
+    </tr></thead><tbody id="s1-sent-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- TAB: ANALYTICS -->
+<div class="s1-content s1-tab-content" id="s1-tab-analytics">
+  <div class="s1-listing-select">
+    <select id="s1-chart-listing-select"><option value="">Select Listing...</option></select>
+    <button class="s1-btn s1-btn-outline s1-btn-sm" onclick="s1LoadCharts()">Load Charts</button>
+  </div>
+  <div id="s1-chart-cards" class="s1-stat-cards"></div>
+  <div class="s1-chart-grid" id="s1-chart-grid"></div>
+</div>
+
+<!-- TAB: COPY STATION -->
+<div class="s1-content s1-tab-content" id="s1-tab-copy">
+  <div class="s1-listing-select">
+    <select id="s1-copy-listing-select"><option value="">Select Listing...</option></select>
+    <button class="s1-btn s1-btn-outline s1-btn-sm" onclick="s1GenerateCopy()">Generate</button>
+  </div>
+  <div class="s1-panel" id="s1-copy-output" style="display:none">
+    <div class="s1-panel-title">Copy for Claude</div>
+    <div class="s1-copy-box" id="s1-copy-text" onclick="s1CopyToClipboard()"></div>
+    <p style="margin-top:8px;font-size:11px;color:#555">Click to copy</p>
+  </div>
+  <div class="s1-panel" id="s1-copy-all-output" style="display:none">
+    <div class="s1-panel-title">Full Narrative History (for context)</div>
+    <div id="s1-copy-narratives"></div>
+  </div>
+</div>
+
+<script>
+// SPARTAN 1 JavaScript
+(function() {
+  'use strict';
+  
+  // Supabase Config
+  const SB_URL = 'https://fzlwkbhpsklsgkinwljt.supabase.co/rest/v1';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTE0MzEsImV4cCI6MjA4NzYyNzQzMX0.lc6A8RCUySU0Hn9MjPcR9rH1c8DjSj_A7MV8JuLvwik';
+  const HEADERS = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+  
+  // Helpers
+  async function sbGet(table, query = '') {
+    const r = await fetch(`${SB_URL}/${table}?${query}`, { headers: HEADERS });
+    return r.json();
+  }
+  async function sbPost(table, data) {
+    const r = await fetch(`${SB_URL}/${table}`, { method: 'POST', headers: HEADERS, body: JSON.stringify(data) });
+    return r.json();
+  }
+  async function sbDelete(table, id) {
+    await fetch(`${SB_URL}/${table}?id=eq.${id}`, { method: 'DELETE', headers: HEADERS });
+  }
+  async function sbPatch(table, id, data) {
+    const r = await fetch(`${SB_URL}/${table}?id=eq.${id}`, { method: 'PATCH', headers: HEADERS, body: JSON.stringify(data) });
+    return r.json();
+  }
+  
+  function toast(msg) {
+    const t = document.getElementById('s1Toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+  function status(msg) {
+    const s = document.getElementById('s1StatusMsg');
+    s.textContent = msg; s.style.opacity = 1;
+    setTimeout(() => { s.style.opacity = 0; }, 2000);
+  }
+  function $(id) { return document.getElementById(id); }
+  function val(id) { return $(id).value.trim(); }
+  function numval(id) { return parseInt($(id).value) || 0; }
+  
+  function calcGrade(saves, dom) {
+    if (!dom || dom === 0) return { grade: '-', cls: '' };
+    const proj = Math.round((saves / dom) * 30);
+    if (proj >= 90) return { grade: 'S', cls: 's1-grade-S', proj };
+    if (proj >= 60) return { grade: 'B+', cls: 's1-grade-B', proj };
+    if (proj >= 30) return { grade: 'C-', cls: 's1-grade-C', proj };
+    return { grade: 'F', cls: 's1-grade-F', proj };
+  }
+  
+  function daysBetween(d1, d2) {
+    return Math.floor((new Date(d2) - new Date(d1)) / 86400000);
+  }
+  
+  // Tab Switching
+  document.querySelectorAll('#page-spartan1 .s1-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#page-spartan1 .s1-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#page-spartan1 .s1-tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      $(`s1-tab-${tab.dataset.tab}`).classList.add('active');
+      if (tab.dataset.tab === 'stats') s1LoadStats();
+      if (tab.dataset.tab === 'narrative') s1LoadNarratives();
+      if (tab.dataset.tab === 'sent') s1LoadSentLog();
+      if (tab.dataset.tab === 'analytics') s1LoadCharts();
+    });
+  });
+  
+  // Listings
+  let allListings = [];
+  
+  async function s1LoadListings() {
+    allListings = await sbGet('listings', 'order=created_at.desc');
+    s1RenderListings();
+    s1PopulateSelects();
+  }
+  
+  function s1RenderListings() {
+    const tb = $('s1-listings-body');
+    tb.innerHTML = allListings.map(l => {
+      const ppf = l.sqft && l.price ? `$${Math.round(l.price / l.sqft)}` : '-';
+      const dom = l.list_date ? daysBetween(l.list_date, new Date().toISOString().split('T')[0]) : '-';
+      const sc = l.status === 'Active' ? 's1-status-active' : l.status === 'Under Contract' ? 's1-status-uc' : 's1-status-sold';
+      return `<tr>
+        <td style="color:#fff;font-weight:500">${l.address}</td>
+        <td>${l.city || ''}, ${l.state || ''}</td>
+        <td>${l.beds || '-'}</td><td>${l.baths || '-'}</td><td>${l.sqft ? l.sqft.toLocaleString() : '-'}</td>
+        <td style="color:#10B981">$${l.price ? l.price.toLocaleString() : '-'}</td>
+        <td style="color:#F59E0B">${ppf}</td>
+        <td><span class="s1-status-badge ${sc}">${l.status}</span></td>
+        <td>${dom}</td>
+        <td><button class="s1-btn s1-btn-sm s1-btn-outline" onclick="s1DeleteListing(${l.id})" style="color:#EF4444;border-color:#EF4444">×</button></td>
+      </tr>`;
+    }).join('');
+  }
+  
+  async function s1AddListing() {
+    const address = val('s1-l-address');
+    if (!address) return toast('Address required');
+    const data = {
+      address, city: val('s1-l-city'), state: val('s1-l-state'), zip: val('s1-l-zip'),
+      beds: numval('s1-l-beds'), baths: numval('s1-l-baths'), sqft: numval('s1-l-sqft'),
+      price: numval('s1-l-price'), list_date: val('s1-l-date') || null, status: val('s1-l-status')
+    };
+    await sbPost('listings', data);
+    toast('Listing added!');
+    ['s1-l-address','s1-l-city','s1-l-zip','s1-l-beds','s1-l-baths','s1-l-sqft','s1-l-price','s1-l-date'].forEach(id => $(id).value = '');
+    s1LoadListings();
+  }
+  
+  async function s1DeleteListing(id) {
+    if (!confirm('Remove this listing?')) return;
+    await sbDelete('listings', id);
+    toast('Listing removed');
+    s1LoadListings();
+  }
+  
+  function s1PopulateSelects() {
+    const opts = allListings.map(l => `<option value="${l.address}">${l.address}, ${l.city || ''}</option>`).join('');
+    const def = '<option value="">Select Listing...</option>';
+    ['s1-stats-listing-select','s1-narr-listing-select','s1-sent-listing-select','s1-chart-listing-select','s1-copy-listing-select'].forEach(id => {
+      if ($(id)) $(id).innerHTML = def + opts;
+    });
+  }
+  
+  // Stats
+  async function s1LoadStats() {
+    const addr = val('s1-stats-listing-select');
+    if (!addr) { $('s1-stats-body').innerHTML = '<tr><td colspan="11" style="text-align:center;color:#555">Select a listing</td></tr>'; $('s1-stats-cards').innerHTML = ''; return; }
+    const stats = await sbGet('listing_stats', `address=eq.${encodeURIComponent(addr)}&order=stat_date.asc,created_at.asc`);
+    s1RenderStatsCards(stats);
+    s1RenderStatsTable(stats);
+  }
+  
+  function s1RenderStatsCards(stats) {
+    if (stats.length === 0) { $('s1-stats-cards').innerHTML = ''; return; }
+    const latest = stats[stats.length - 1];
+    const g = calcGrade(latest.z_saves, latest.dom);
+    $('s1-stats-cards').innerHTML = `
+      <div class="s1-stat-card"><label>Zillow Views</label><div class="val" style="color:#3B82F6">${(latest.z_views||0).toLocaleString()}</div></div>
+      <div class="s1-stat-card"><label>Zillow Saves</label><div class="val" style="color:#10B981">${latest.z_saves||0}</div></div>
+      <div class="s1-stat-card"><label>Homes.com</label><div class="val" style="color:#F59E0B">${(latest.h_views||0).toLocaleString()}</div></div>
+      <div class="s1-stat-card"><label>MLS Buyers</label><div class="val" style="color:#8B5CF6">${(latest.mls_matched||0)+(latest.mls_emailed||0)}</div></div>
+      <div class="s1-stat-card"><label>Showings</label><div class="val" style="color:#EF4444">${latest.showings||0}</div></div>
+      <div class="s1-stat-card"><label>Grade</label><div class="val"><span class="s1-grade ${g.cls}">${g.grade}</span></div><div style="font-size:10px;color:#555;margin-top:4px">${g.proj||0}/mo</div></div>
+    `;
+  }
+  
+  function s1RenderStatsTable(stats) {
+    $('s1-stats-body').innerHTML = stats.map(s => {
+      const g = calcGrade(s.z_saves, s.dom);
+      const mls = (s.mls_matched||0) + (s.mls_emailed||0);
+      return `<tr>
+        <td style="color:#fff">${s.week_label||'-'}</td>
+        <td>${s.stat_date||'-'}</td>
+        <td style="color:#3B82F6">${(s.z_views||0).toLocaleString()}</td>
+        <td style="color:#10B981">${s.z_saves||0}</td>
+        <td>${g.proj||0}</td>
+        <td><span class="s1-grade ${g.cls}">${g.grade}</span></td>
+        <td style="color:#F59E0B">${(s.h_views||0).toLocaleString()}</td>
+        <td style="color:#8B5CF6">${mls}</td>
+        <td style="color:#EF4444">${s.showings||0}</td>
+        <td>${s.dom||0}</td>
+        <td><button class="s1-btn s1-btn-sm s1-btn-outline" onclick="s1DeleteStat(${s.id})" style="color:#EF4444;border-color:#EF4444;font-size:10px">×</button></td>
+      </tr>`;
+    }).join('');
+  }
+  
+  async function s1AddStat() {
+    const addr = val('s1-stats-listing-select');
+    if (!addr) return toast('Select a listing first');
+    if (!val('s1-s-week')) return toast('Week label required');
+    const saves = numval('s1-s-zsaves'), dom = numval('s1-s-dom');
+    const g = calcGrade(saves, dom);
+    const mls_m = numval('s1-s-mlsm'), mls_e = numval('s1-s-mlse');
+    const copyStr = `${addr} | Z:${numval('s1-s-zviews')} | S:${saves} | H:${numval('s1-s-hviews')} | MLS:${mls_m}/${mls_e} | Show:${numval('s1-s-show')} | DOM:${dom}`;
+    await sbPost('listing_stats', {
+      address: addr, stat_date: val('s1-s-date') || new Date().toISOString().split('T')[0],
+      week_label: val('s1-s-week'), z_views: numval('s1-s-zviews'), z_saves: saves,
+      h_views: numval('s1-s-hviews'), mls_matched: mls_m, mls_emailed: mls_e,
+      showings: numval('s1-s-show'), dom, projected_monthly_saves: g.proj || 0,
+      grade: g.grade, diagnosis: val('s1-s-diag'), copy_for_claude: copyStr
+    });
+    toast('Stats logged!');
+    ['s1-s-week','s1-s-date','s1-s-zviews','s1-s-zsaves','s1-s-hviews','s1-s-mlsm','s1-s-mlse','s1-s-show','s1-s-dom','s1-s-diag'].forEach(id => $(id).value = '');
+    s1LoadStats();
+  }
+  
+  async function s1DeleteStat(id) {
+    if (!confirm('Delete this entry?')) return;
+    await sbDelete('listing_stats', id);
+    toast('Entry removed');
+    s1LoadStats();
+  }
+  
+  // Narrative Log
+  async function s1LoadNarratives() {
+    const addr = val('s1-narr-listing-select');
+    if (!addr) { $('s1-narr-body').innerHTML = '<tr><td colspan="8" style="text-align:center;color:#555">Select a listing</td></tr>'; return; }
+    const narrs = await sbGet('narrative_log', `address=eq.${encodeURIComponent(addr)}&order=created_at.desc`);
+    $('s1-narr-body').innerHTML = narrs.map(n => `<tr>
+      <td>${n.log_date||'-'}</td>
+      <td style="color:#fff">${n.week||'-'}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(n.stats_snapshot||'').replace(/"/g,'&quot;')}">${n.stats_snapshot||'-'}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(n.diagnosis||'').replace(/"/g,'&quot;')}">${n.diagnosis||'-'}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(n.recommendation||'').replace(/"/g,'&quot;')}">${n.recommendation||'-'}</td>
+      <td>${n.tone||'-'}</td>
+      <td>${n.logged ? '<span style="color:#10B981">YES</span>' : `<button class="s1-btn s1-btn-sm s1-btn-green" onclick="s1MarkLogged(${n.id})">Log</button>`}</td>
+      <td><button class="s1-btn s1-btn-sm s1-btn-outline" onclick="s1DeleteNarrative(${n.id})" style="color:#EF4444;border-color:#EF4444;font-size:10px">×</button></td>
+    </tr>`).join('');
+  }
+  
+  async function s1AddNarrative() {
+    const addr = val('s1-narr-listing-select');
+    if (!addr) return toast('Select a listing first');
+    await sbPost('narrative_log', {
+      address: addr, log_date: val('s1-n-date') || new Date().toISOString().split('T')[0],
+      week: val('s1-n-week'), stats_snapshot: val('s1-n-stats'), diagnosis: val('s1-n-diag'),
+      recommendation: val('s1-n-rec'), tone: val('s1-n-tone'), summary: val('s1-n-summary'), logged: false
+    });
+    toast('Narrative logged!');
+    ['s1-n-date','s1-n-week','s1-n-stats','s1-n-diag','s1-n-rec','s1-n-tone','s1-n-summary'].forEach(id => $(id).value = '');
+    s1LoadNarratives();
+  }
+  
+  async function s1MarkLogged(id) {
+    await sbPatch('narrative_log', id, { logged: true });
+    toast('Marked as logged!');
+    s1LoadNarratives();
+  }
+  
+  async function s1DeleteNarrative(id) {
+    if (!confirm('Delete this narrative?')) return;
+    await sbDelete('narrative_log', id);
+    toast('Narrative removed');
+    s1LoadNarratives();
+  }
+  
+  // Sent Log
+  async function s1LoadSentLog() {
+    const addr = val('s1-sent-listing-select');
+    let query = 'order=sent_date.desc';
+    if (addr) query = `address=eq.${encodeURIComponent(addr)}&${query}`;
+    const sent = await sbGet('email_log', query);
+    $('s1-sent-body').innerHTML = sent.map(s => `<tr>
+      <td style="color:#fff">${s.address}</td>
+      <td>${s.week||'-'}</td>
+      <td>${s.sent_date ? new Date(s.sent_date).toLocaleDateString() : '-'}</td>
+      <td><button class="s1-btn s1-btn-sm s1-btn-outline" onclick="s1DeleteSent(${s.id})" style="color:#EF4444;border-color:#EF4444;font-size:10px">×</button></td>
+    </tr>`).join('');
+  }
+  
+  async function s1MarkSent() {
+    const addr = val('s1-sent-listing-select');
+    if (!addr) return toast('Select a listing first');
+    await sbPost('email_log', {
+      address: addr, week: val('s1-e-week'),
+      sent_date: val('s1-e-date') ? new Date(val('s1-e-date')).toISOString() : new Date().toISOString()
+    });
+    toast('Marked as sent!');
+    $('s1-e-week').value = ''; $('s1-e-date').value = '';
+    s1LoadSentLog();
+  }
+  
+  async function s1DeleteSent(id) {
+    if (!confirm('Delete?')) return;
+    await sbDelete('email_log', id);
+    s1LoadSentLog();
+  }
+  
+  // Analytics
+  let s1Charts = {};
+  
+  async function s1LoadCharts() {
+    const addr = val('s1-chart-listing-select');
+    if (!addr) return;
+    const stats = await sbGet('listing_stats', `address=eq.${encodeURIComponent(addr)}&order=stat_date.asc,created_at.asc`);
+    if (stats.length === 0) { $('s1-chart-grid').innerHTML = '<div class="s1-panel" style="text-align:center;grid-column:1/-1"><p style="color:#555">No stats entries yet for this listing.</p></div>'; $('s1-chart-cards').innerHTML = ''; return; }
+    
+    const latest = stats[stats.length - 1];
+    const g = calcGrade(latest.z_saves, latest.dom);
+    $('s1-chart-cards').innerHTML = `
+      <div class="s1-stat-card"><label>Zillow Views</label><div class="val" style="color:#3B82F6">${(latest.z_views||0).toLocaleString()}</div></div>
+      <div class="s1-stat-card"><label>Zillow Saves</label><div class="val" style="color:#10B981">${latest.z_saves||0}</div></div>
+      <div class="s1-stat-card"><label>Homes.com</label><div class="val" style="color:#F59E0B">${(latest.h_views||0).toLocaleString()}</div></div>
+      <div class="s1-stat-card"><label>MLS Buyers</label><div class="val" style="color:#8B5CF6">${(latest.mls_matched||0)+(latest.mls_emailed||0)}</div></div>
+      <div class="s1-stat-card"><label>Showings</label><div class="val" style="color:#EF4444">${latest.showings||0}</div></div>
+      <div class="s1-stat-card"><label>Grade</label><div class="val"><span class="s1-grade ${g.cls}">${g.grade}</span></div></div>
+    `;
+   
+    const labels = stats.map(s => s.week_label || s.stat_date || '');
+    const metrics = [
+      { key: 'z_views', label: 'Zillow Views', color: '#3B82F6', bg: 'rgba(59,130,246,0.15)' },
+      { key: 'z_saves', label: 'Zillow Saves', color: '#10B981', bg: 'rgba(16,185,129,0.15)' },
+      { key: 'h_views', label: 'Homes.com Views', color: '#F59E0B', bg: 'rgba(245,158,11,0.15)' },
+      { key: 'mls_total', label: 'MLS Buyers', color: '#8B5CF6', bg: 'rgba(139,92,246,0.15)' },
+      { key: 'showings', label: 'Showings', color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
+    ];
+   
+    Object.values(s1Charts).forEach(c => c.destroy());
+    s1Charts = {};
+   
+    $('s1-chart-grid').innerHTML = metrics.map(m => `<div class="s1-chart-box"><div class="chart-label">${m.label}</div><canvas id="s1-chart-${m.key}"></canvas></div>`).join('');
+   
+    metrics.forEach(m => {
+      const data = m.key === 'mls_total' ? stats.map(s => (s.mls_matched||0)+(s.mls_emailed||0)) : stats.map(s => s[m.key] || 0);
+      const ctx = document.getElementById(`s1-chart-${m.key}`).getContext('2d');
+      s1Charts[m.key] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            data, borderColor: m.color, backgroundColor: m.bg, borderWidth: 2,
+            fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: m.color
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#444', font: { size: 10 } }, grid: { color: '#1a1a1a' } },
+            y: { ticks: { color: '#444', font: { size: 10 } }, grid: { color: '#1a1a1a' } }
+          }
+        }
+      });
+    });
+  }
+  
+  // Copy Station
+  async function s1GenerateCopy() {
+    const addr = val('s1-copy-listing-select');
+    if (!addr) return toast('Select a listing first');
+    
+    const stats = await sbGet('listing_stats', `address=eq.${encodeURIComponent(addr)}&order=stat_date.desc,created_at.desc&limit=1`);
+    const narrs = await sbGet('narrative_log', `address=eq.${encodeURIComponent(addr)}&order=created_at.desc`);
+    
+    if (stats.length > 0) {
+      const s = stats[0];
+      const copyStr = s.copy_for_claude || `${addr} | Z:${s.z_views} | S:${s.z_saves} | H:${s.h_views} | MLS:${s.mls_matched}/${s.mls_emailed} | Show:${s.showings} | DOM:${s.dom}`;
+      $('s1-copy-text').textContent = copyStr;
+      $('s1-copy-output').style.display = 'block';
+    } else {
+      $('s1-copy-text').textContent = 'No stats entries found for this listing.';
+      $('s1-copy-output').style.display = 'block';
+    }
+   
+    if (narrs.length > 0) {
+      $('s1-copy-all-output').style.display = 'block';
+      $('s1-copy-narratives').innerHTML = narrs.map(n => `
+        <div style="border-bottom:1px solid #222;padding:12px 0">
+          <div style="display:flex;gap:12px;margin-bottom:6px">
+            <span style="color:#fff;font-weight:500">${n.week||'-'}</span>
+            <span style="color:#555">${n.log_date||'-'}</span>
+            <span style="color:#555">${n.tone||''}</span>
+          </div>
+          <p style="font-size:12px;color:#888;margin-bottom:4px"><strong style="color:#555">Stats:</strong> ${n.stats_snapshot||'-'}</p>
+          <p style="font-size:12px;color:#888;margin-bottom:4px"><strong style="color:#555">Diagnosis:</strong> ${n.diagnosis||'-'}</p>
+          <p style="font-size:12px;color:#888;margin-bottom:4px"><strong style="color:#555">Rec:</strong> ${n.recommendation||'-'}</p>
+          <p style="font-size:12px;color:#888"><strong style="color:#555">Summary:</strong> ${n.summary||'-'}</p>
+        </div>
+      `).join('');
+    } else {
+      $('s1-copy-all-output').style.display = 'none';
+    }
+  }
+  
+  function s1CopyToClipboard() {
+    const text = $('s1-copy-text').textContent;
+    navigator.clipboard.writeText(text).then(() => toast('Copied!')).catch(() => {
+      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('Copied!');
+    });
+  }
+  
+  // Select Change Listeners
+  $('s1-stats-listing-select').addEventListener('change', s1LoadStats);
+  $('s1-narr-listing-select').addEventListener('change', s1LoadNarratives);
+  $('s1-sent-listing-select').addEventListener('change', s1LoadSentLog);
+  $('s1-chart-listing-select').addEventListener('change', s1LoadCharts);
+  
+  // Expose functions globally
+  window.s1AddListing = s1AddListing;
+  window.s1DeleteListing = s1DeleteListing;
+  window.s1LoadStats = s1LoadStats;
+  window.s1AddStat = s1AddStat;
+  window.s1DeleteStat = s1DeleteStat;
+  window.s1LoadNarratives = s1LoadNarratives;
+  window.s1AddNarrative = s1AddNarrative;
+  window.s1MarkLogged = s1MarkLogged;
+  window.s1DeleteNarrative = s1DeleteNarrative;
+  window.s1LoadSentLog = s1LoadSentLog;
+  window.s1MarkSent = s1MarkSent;
+  window.s1DeleteSent = s1DeleteSent;
+  window.s1LoadCharts = s1LoadCharts;
+  window.s1GenerateCopy = s1GenerateCopy;
+  window.s1CopyToClipboard = s1CopyToClipboard;
+  
+  // Init when page loads
+  if (document.getElementById('page-spartan1').classList.contains('active')) {
+    s1LoadListings();
+  }
+  
+  // Listen for page show
+  const origShowPage = window.showPage;
+  window.showPage = function(p) {
+    if (origShowPage) origShowPage(p);
+    if (p === 'spartan1') {
+      s1LoadListings();
+    }
+  };
+  
+})();
+</script>
+      </div>
       <div class="page" id="page-listing-specialist">
         <!-- Policy Library View -->
         <div id="policyLibraryView">
@@ -390,7 +1031,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORG BOARD','admin-scale':'ADMIN SCALE','stats-dashboard':'STATS SUMMARY DASHBOARD'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH',spartan1:'SPARTAN 1 LISTING COMMAND CENTER','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORG BOARD','admin-scale':'ADMIN SCALE','stats-dashboard':'STATS SUMMARY DASHBOARD'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
