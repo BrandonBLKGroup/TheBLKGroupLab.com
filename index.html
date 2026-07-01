@@ -187,7 +187,7 @@ body::before{display:none}
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" data-page="spartan1" onclick="showPage('spartan1')"><span class="icon">📋</span>Spartan 1 Dashboard</div>
       <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
-      <div class="nav-item" data-page="org-board" onclick="showPage('org-board')"><span class="icon">🏢</span>Org Board</div>
+      <div class="nav-item" data-page="org-board" onclick="showPage('org-board')"><span class="icon">🏢</span>Organizational Chart</div>
       <div class="nav-item" data-page="admin-scale" onclick="showPage('admin-scale')" id="navAdminScale" style="display:none"><span class="icon">📊</span>Operations Documentation</div>
       <div class="nav-item" data-page="stats-dashboard" onclick="showPage('stats-dashboard')"><span class="icon">📈</span>Stats Summary</div>
       <div style="flex:1"></div>
@@ -1031,7 +1031,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH',spartan1:'SPARTAN 1 LISTING COMMAND CENTER','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORG BOARD','admin-scale':'OPERATIONS DOCUMENTATION','stats-dashboard':'STATS SUMMARY DASHBOARD'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH',spartan1:'SPARTAN 1 LISTING COMMAND CENTER','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORGANIZATIONAL CHART','admin-scale':'OPERATIONS DOCUMENTATION','stats-dashboard':'STATS SUMMARY DASHBOARD'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
