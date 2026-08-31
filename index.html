@@ -192,6 +192,7 @@ body::before{display:none}
       <div class="nav-item" data-page="stats-dashboard" onclick="showPage('stats-dashboard')"><span class="icon">📈</span>Stats Summary</div>
       <div style="flex:1"></div>
       <div class="nav-item" data-page="nuggets" onclick="showPage('nuggets')" style="border-top:1px solid var(--border);margin-top:8px;padding-top:14px"><span class="icon">💎</span>Nuggets</div>
+      <div class="nav-item" data-page="optempo" onclick="showPage('optempo')"><span class="icon">⚔️</span>OPTEMPO</div>
     </div>
     <div class="sidebar-footer">
       <div class="status"><span class="dot"></span>JARVIS ONLINE</div>
@@ -210,6 +211,7 @@ body::before{display:none}
       <div class="page" id="page-contracts"></div>
       <div class="page" id="page-jarvis"></div>
       <div class="page" id="page-nuggets"></div>
+      <div class="page" id="page-optempo"><iframe src="optempo.html" style="width:100%;height:calc(100vh - 100px);border:none;display:block"></iframe></div>
       <div class="page" id="page-capabilities"></div>
       <div class="page" id="page-coaching"></div>
       <div class="page" id="page-battleplan"></div>
@@ -974,7 +976,7 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['leads','scorecard','nuggets','jarvis','spartan1','listing-specialist','admin-scale'];
+  const adminOnly=['leads','scorecard','nuggets','optempo','jarvis','spartan1','listing-specialist','admin-scale'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
@@ -1031,7 +1033,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH',spartan1:'SPARTAN 1 LISTING COMMAND CENTER','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORGANIZATIONAL CHART','admin-scale':'OPERATIONS DOCUMENTATION','stats-dashboard':'STATS SUMMARY DASHBOARD'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',optempo:'OPTEMPO — OPERATIONS BOARD',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH',spartan1:'SPARTAN 1 LISTING COMMAND CENTER','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORGANIZATIONAL CHART','admin-scale':'OPERATIONS DOCUMENTATION','stats-dashboard':'STATS SUMMARY DASHBOARD'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
