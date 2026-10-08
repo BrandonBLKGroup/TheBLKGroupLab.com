@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Agent Tasks | The BLK Group Lab</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -24,12 +25,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .container{max-width:1400px;margin:0 auto}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
 .header h1{font-size:24px;font-weight:700;letter-spacing:-0.5px}
-.header .subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px}
 
 /* Scoreboard */
 .scoreboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
 .agent-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;transition:all 0.2s}
-.agent-card:hover{border-color:var(--gold);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
 .agent-card .agent-name{font-size:14px;font-weight:600;margin-bottom:12px}
 .agent-card .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .agent-card .stat-item{text-align:center;padding:8px;background:var(--bg);border-radius:8px}
@@ -37,40 +36,28 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .agent-card .stat-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
 .agent-card .overdue{color:var(--danger)}
 .agent-card .due-today{color:var(--gold)}
-.agent-card .completion-rate{font-size:11px;color:var(--text-secondary);text-align:center;margin-top:8px}
 
-/* Create Task Form */
+/* Create Form */
 .create-form{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px}
 .create-form h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
 .form-grid{display:grid;grid-template-columns:200px 1fr 200px auto;gap:12px;align-items:end}
 .form-group label{display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.form-group select,.form-group input,.form-group textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
-.form-group textarea{min-height:44px;resize:vertical}
-.btn-assign{background:var(--gold);color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.btn-assign:hover{background:#967e0a}
+.form-group select,.form-group input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit}
+.btn-assign{background:var(--gold);color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
 
 /* Tasks Table */
-.tasks-section h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
-.tasks-table{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead{background:var(--bg)}
-thead th{text-align:left;padding:12px 16px;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
-tbody tr{border-bottom:1px solid var(--border)}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:rgba(0,0,0,0.02)}
-tbody tr.overdue{background:var(--danger-light)}
-tbody td{padding:14px 16px;vertical-align:middle}
-tbody td.agent-col{font-weight:600}
-tbody td.desc-col{color:var(--text-secondary);line-height:1.4}
-tbody td.due-col{font-size:12px;white-space:nowrap}
-tbody td.status-col{font-size:11px}
-.status-badge{display:inline-block;padding:4px 10px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.tasks-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.tasks-card h2{padding:20px 24px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px 24px;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;background:var(--bg);border-bottom:1px solid var(--border)}
+td{padding:16px 24px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr.overdue{background:var(--danger-light)}
+.btn-takeover{background:var(--gold);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;margin-right:8px}
+.btn-cancel{background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer}
+.status-badge{padding:4px 12px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase}
+.status-overdue{background:var(--danger-light);color:var(--danger)}
 .status-pending{background:var(--gold-light);color:var(--gold)}
-.status-done{background:var(--sage);color:#fff;opacity:0.6}
-.status-overdue{background:var(--danger);color:#fff}
-.btn-takeover{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.btn-takeover:hover{background:var(--gold);color:#fff}
-.btn-cancel{background:transparent;border:1px solid var(--danger);color:var(--danger);padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;margin-left:8px}
 </style>
 </head>
 <body>
@@ -78,60 +65,64 @@ tbody td.status-col{font-size:11px}
 <div class="container">
   <div class="header">
     <div>
-      <h1>🎯 Agent Tasks</h1>
-      <div class="subtitle">Team task board with auto-reminders</div>
+      <h1>✅ Agent Tasks</h1>
     </div>
   </div>
 
   <!-- Scoreboard -->
-  <div class="scoreboard" id="scoreboard"></div>
+  <div class="scoreboard" id="scoreboard">
+    <!-- Loaded by JS -->
+  </div>
 
   <!-- Create Task Form -->
   <div class="create-form">
-    <h2>➕ Assign New Task</h2>
-    <form class="form-grid" id="createForm" onsubmit="assignTask(event)">
-      <div class="form-group">
-        <label>Agent</label>
-        <select id="agentSelect" required></select>
+    <h2>Assign New Task</h2>
+    <form id="createForm" onsubmit="assignTask(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Agent</label>
+          <select id="agentSelect" required>
+            <option value="">Loading...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Task Description</label>
+          <input type="text" id="taskDesc" placeholder="Call the lender about Smith closing" required>
+        </div>
+        <div class="form-group">
+          <label>Due Date & Time</label>
+          <input type="datetime-local" id="taskDue" required>
+        </div>
+        <button type="submit" class="btn-assign">Assign & Text</button>
       </div>
-      <div class="form-group">
-        <label>Task Description</label>
-        <textarea id="taskDesc" placeholder="Call the lender about..." required></textarea>
-      </div>
-      <div class="form-group">
-        <label>Due Date/Time</label>
-        <input type="datetime-local" id="taskDue" required>
-      </div>
-      <button type="submit" class="btn-assign">Assign & Text</button>
     </form>
   </div>
 
-  <!-- Tasks Table -->
-  <div class="tasks-section">
-    <h2>📋 Active Tasks</h2>
-    <div class="tasks-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Agent</th>
-            <th style="width:40%">Description</th>
-            <th>Due</th>
-            <th>Status</th>
-            <th style="width:150px">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tasksBody"></tbody>
-      </table>
-    </div>
+  <!-- Active Tasks -->
+  <div class="tasks-card">
+    <h2>Active Tasks</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Agent</th>
+          <th>Description</th>
+          <th>Due</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tasksBody">
+        <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim)">Loading...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
 <script>
-const API_URL = 'http://localhost:3000'; // Change to production URL
-const API_KEY = 'blk_situation_room_2026';
-
-let agents = [];
-let tasks = [];
+// Supabase client (same config as Opens dashboard)
+const SUPA_URL = 'https://fzlwkbhpsklsgkinwljt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1NzU0MTEsImV4cCI6MjA1NjE1MTQxMX0.k3DC8UvCZ6U7Q5tujzH5YB55vfMC7sT2E4bJKlz-qM4';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 // Load on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -158,18 +149,16 @@ function setDefaultDueTime() {
 // Load agents
 async function loadAgents() {
   try {
-    const res = await fetch(`${API_URL}/api/agents`, {
-      headers: { 'X-BLK-Key': API_KEY }
-    });
-    agents = await res.json();
+    const { data, error } = await sb
+      .from('agents')
+      .select('*')
+      .in('name', ['Kevin Cloud', 'Amanda Mitchell', 'Shelley Lisko'])
+      .order('name');
     
-    // Filter to only show these 3 agents in dropdown
-    const allowedAgents = agents.filter(a => 
-      ['Kevin Cloud', 'Amanda Mitchell', 'Shelley Lisko'].includes(a.name)
-    );
+    if (error) throw error;
     
     const select = document.getElementById('agentSelect');
-    select.innerHTML = allowedAgents.map(a => 
+    select.innerHTML = data.map(a => 
       `<option value="${a.id}">${a.name}</option>`
     ).join('');
   } catch (err) {
@@ -180,15 +169,44 @@ async function loadAgents() {
 // Load scoreboard
 async function loadScoreboard() {
   try {
-    const res = await fetch(`${API_URL}/api/agent-tasks/scoreboard`, {
-      headers: { 'X-BLK-Key': API_KEY }
-    });
-    let scoreboard = await res.json();
+    const { data: agentsList, error } = await sb
+      .from('agents')
+      .select('*')
+      .in('name', ['Kevin Cloud', 'Amanda Mitchell', 'Shelley Lisko']);
     
-    // Filter to only show these 3 agents
-    scoreboard = scoreboard.filter(s => 
-      ['Kevin Cloud', 'Amanda Mitchell', 'Shelley Lisko'].includes(s.name)
-    );
+    if (error) throw error;
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Get tasks for each agent
+    const scoreboard = await Promise.all(agentsList.map(async agent => {
+      const { data: agentTasks } = await sb
+        .from('agent_tasks')
+        .select('*')
+        .eq('agent_id', agent.id)
+        .eq('status', 'pending');
+      
+      const tasks = agentTasks || [];
+      const overdue = tasks.filter(t => new Date(t.due_at) < now).length;
+      const dueToday = tasks.filter(t => {
+        const due = new Date(t.due_at);
+        return due >= today && due < tomorrow;
+      }).length;
+      
+      return {
+        name: agent.name,
+        open: tasks.length,
+        due_today: dueToday,
+        overdue: overdue,
+        takeover_count: agent.takeover_count || 0,
+        completion_rate: agent.tasks_assigned > 0 
+          ? Math.round((agent.tasks_completed / agent.tasks_assigned) * 100) 
+          : 0
+      };
+    }));
     
     document.getElementById('scoreboard').innerHTML = scoreboard.map(s => `
       <div class="agent-card">
@@ -211,9 +229,6 @@ async function loadScoreboard() {
             <div class="stat-label">Takeovers</div>
           </div>
         </div>
-        <div class="completion-rate">
-          ${s.completion_rate}% completion rate
-        </div>
       </div>
     `).join('');
   } catch (err) {
@@ -224,22 +239,31 @@ async function loadScoreboard() {
 // Load tasks
 async function loadTasks() {
   try {
-    const res = await fetch(`${API_URL}/api/agent-tasks?status=pending`, {
-      headers: { 'X-BLK-Key': API_KEY }
-    });
-    tasks = await res.json();
+    const { data, error } = await sb
+      .from('agent_tasks')
+      .select('*, agent:agents(name)')
+      .eq('status', 'pending')
+      .order('due_at');
+    
+    if (error) throw error;
+    
+    const tasks = data || [];
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     
     document.getElementById('tasksBody').innerHTML = tasks.length === 0 
       ? '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim)">No active tasks</td></tr>'
       : tasks.map(t => {
         const dueDate = new Date(t.due_at);
-        const now = new Date();
         const isOverdue = dueDate < now;
+        const isDueToday = dueDate >= today && dueDate < tomorrow;
         
         let statusBadge = '';
         if (isOverdue) {
           statusBadge = '<span class="status-badge status-overdue">Overdue</span>';
-        } else if (t.is_due_today) {
+        } else if (isDueToday) {
           statusBadge = '<span class="status-badge status-pending">Due Today</span>';
         } else {
           statusBadge = '<span class="status-badge status-pending">Pending</span>';
@@ -247,14 +271,12 @@ async function loadTasks() {
         
         return `
           <tr class="${isOverdue ? 'overdue' : ''}">
-            <td class="agent-col">${t.agent.name}</td>
-            <td class="desc-col">${t.description}</td>
-            <td class="due-col">${formatDueDate(dueDate)}</td>
-            <td class="status-col">${statusBadge}</td>
+            <td>${t.agent.name}</td>
+            <td>${t.description}</td>
+            <td>${formatDueDate(dueDate)}</td>
+            <td>${statusBadge}</td>
             <td>
-              <button class="btn-takeover" onclick="takeOver('${t.id}', '${t.description}')">
-                Take Over
-              </button>
+              <button class="btn-takeover" onclick="takeOver('${t.id}')">Take Over</button>
               <button class="btn-cancel" onclick="cancelTask('${t.id}')">✕</button>
             </td>
           </tr>
@@ -274,59 +296,48 @@ async function assignTask(e) {
   const due_at = new Date(document.getElementById('taskDue').value).toISOString();
   
   try {
-    const res = await fetch(`${API_URL}/api/agent-tasks`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-BLK-Key': API_KEY
-      },
-      body: JSON.stringify({
+    const { error } = await sb
+      .from('agent_tasks')
+      .insert([{
         agent_id,
         description,
         due_at,
-        confirm_to_brandon: false // Can add checkbox for this
-      })
-    });
+        status: 'pending'
+      }]);
     
-    if (res.ok) {
-      alert('✅ Task assigned and agent texted!');
-      document.getElementById('createForm').reset();
-      setDefaultDueTime();
-      loadScoreboard();
-      loadTasks();
-    } else {
-      alert('Error assigning task');
-    }
+    if (error) throw error;
+    
+    document.getElementById('taskDesc').value = '';
+    setDefaultDueTime();
+    alert('✅ Task assigned! (SMS will be sent when Spartan 3 integration is complete)');
+    loadScoreboard();
+    loadTasks();
   } catch (err) {
     console.error('Assign task error:', err);
     alert('Error: ' + err.message);
   }
 }
 
-// Take over (Kevin Rule)
-async function takeOver(taskId, description) {
-  if (!confirm(`Take over this task?\n\n"${description}"\n\nThe agent will be notified.`)) {
-    return;
-  }
-  
-  const note = prompt('What did you do? (will be texted to agent)', description);
+// Take over task
+async function takeOver(taskId) {
+  const note = prompt('What did you do?');
   if (!note) return;
   
   try {
-    const res = await fetch(`${API_URL}/api/agent-tasks/${taskId}/takeover`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-BLK-Key': API_KEY
-      },
-      body: JSON.stringify({ note })
-    });
+    const { error } = await sb
+      .from('agent_tasks')
+      .update({
+        status: 'taken_over',
+        takeover_note: note,
+        taken_over_at: new Date().toISOString()
+      })
+      .eq('id', taskId);
     
-    if (res.ok) {
-      alert('✅ Task taken over. Agent notified.');
-      loadScoreboard();
-      loadTasks();
-    }
+    if (error) throw error;
+    
+    alert('✅ Task taken over');
+    loadScoreboard();
+    loadTasks();
   } catch (err) {
     alert('Error: ' + err.message);
   }
@@ -337,17 +348,15 @@ async function cancelTask(taskId) {
   if (!confirm('Cancel this task?')) return;
   
   try {
-    const res = await fetch(`${API_URL}/api/agent-tasks/${taskId}/cancel`, {
-      method: 'POST',
-      headers: {
-        'X-BLK-Key': API_KEY
-      }
-    });
+    const { error } = await sb
+      .from('agent_tasks')
+      .update({ status: 'cancelled' })
+      .eq('id', taskId);
     
-    if (res.ok) {
-      loadScoreboard();
-      loadTasks();
-    }
+    if (error) throw error;
+    
+    loadScoreboard();
+    loadTasks();
   } catch (err) {
     alert('Error: ' + err.message);
   }
@@ -359,13 +368,24 @@ function formatDueDate(date) {
   const diff = date - now;
   const hours = Math.floor(diff / (1000 * 60 * 60));
   
-  if (hours < 0) {
-    return `${Math.abs(hours)}h ago`;
+  if (hours < -24) {
+    const days = Math.abs(Math.floor(hours / 24));
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  } else if (hours < 0) {
+    return `${Math.abs(hours)} hour${Math.abs(hours) > 1 ? 's' : ''} ago`;
   } else if (hours < 24) {
-    return `in ${hours}h`;
+    return date.toLocaleString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit' 
+    });
   } else {
-    const days = Math.floor(hours / 24);
-    return `in ${days}d`;
+    return date.toLocaleString('en-US', { 
+      weekday: 'short',
+      month: 'short', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
   }
 }
 </script>
