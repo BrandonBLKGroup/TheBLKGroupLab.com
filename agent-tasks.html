@@ -124,6 +124,14 @@ const SUPA_URL = 'https://fzlwkbhpsklsgkinwljt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6bHdrYmhwc2tsc2draW53bGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1NzU0MTEsImV4cCI6MjA1NjE1MTQxMX0.k3DC8UvCZ6U7Q5tujzH5YB55vfMC7sT2E4bJKlz-qM4';
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+// Agents list (hardcoded like Opens dashboard)
+const AGENTS = ['Amanda Mitchell', 'Kevin Cloud', 'Shelley Lisko'];
+const AGENT_PHONES = {
+  'Amanda Mitchell': '5012310732',
+  'Kevin Cloud': '5012761332',
+  'Shelley Lisko': '5012496036'
+};
+
 // Load on page load
 document.addEventListener('DOMContentLoaded', () => {
   loadAgents();
@@ -146,40 +154,27 @@ function setDefaultDueTime() {
   document.getElementById('taskDue').value = tomorrow.toISOString().slice(0, 16);
 }
 
-// Load agents
-async function loadAgents() {
-  try {
-    const { data, error } = await sb
-      .from('agents')
-      .select('*')
-      .in('name', ['Kevin Cloud', 'Amanda Mitchell', 'Shelley Lisko'])
-      .order('name');
-    
-    if (error) throw error;
-    
-    const select = document.getElementById('agentSelect');
-    select.innerHTML = data.map(a => 
-      `<option value="${a.id}">${a.name}</option>`
-    ).join('');
-  } catch (err) {
-    console.error('Load agents error:', err);
-  }
+// Load agents (populate dropdown from hardcoded list)
+function loadAgents() {
+  const select = document.getElementById('agentSelect');
+  select.innerHTML = AGENTS.map(a => `<option value="${a}">${a}</option>`).join('');
 }
 
 // Load scoreboard
 async function loadScoreboard() {
   try {
-    const { data: agentsList, error } = await sb
-      .from('agents')
-      .select('*')
-      .in('name', ['Kevin Cloud', 'Amanda Mitchell', 'Shelley Lisko']);
-    
-    if (error) throw error;
-    
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Get agents from database (to get their IDs and stats)
+    const { data: agentsList, error } = await sb
+      .from('agents')
+      .select('*')
+      .in('name', AGENTS);
+    
+    if (error) throw error;
     
     // Get tasks for each agent
     const scoreboard = await Promise.all(agentsList.map(async agent => {
@@ -291,15 +286,24 @@ async function loadTasks() {
 async function assignTask(e) {
   e.preventDefault();
   
-  const agent_id = document.getElementById('agentSelect').value;
+  const agent_name = document.getElementById('agentSelect').value;
   const description = document.getElementById('taskDesc').value;
   const due_at = new Date(document.getElementById('taskDue').value).toISOString();
   
   try {
+    // Get agent ID from name
+    const { data: agent, error: agentError } = await sb
+      .from('agents')
+      .select('id')
+      .eq('name', agent_name)
+      .single();
+    
+    if (agentError) throw agentError;
+    
     const { error } = await sb
       .from('agent_tasks')
       .insert([{
-        agent_id,
+        agent_id: agent.id,
         description,
         due_at,
         status: 'pending'
