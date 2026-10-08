@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Tasks | The BLK Group</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fafafa;color:#1a1a1a;padding:20px;min-height:100vh}
+.container{max-width:600px;margin:0 auto}
+.header{background:#fff;border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,0.08);text-align:center}
+.header h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.header .agent-name{font-size:14px;color:#666;margin-bottom:16px}
+.header .summary{display:flex;gap:16px;justify-content:center;font-size:13px}
+.summary-item{text-align:center}
+.summary-num{font-size:20px;font-weight:700;line-height:1}
+.summary-label{color:#999;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+.overdue .summary-num{color:#e54545}
+.due-today .summary-num{color:#B8960C}
+
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#999;margin:24px 0 12px;padding-left:4px}
+
+.task-card{background:#fff;border-radius:12px;padding:20px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative}
+.task-card.overdue{border-left:4px solid #e54545}
+.task-card.due-today{border-left:4px solid #B8960C}
+.task-desc{font-size:15px;line-height:1.5;margin-bottom:12px;color:#1a1a1a}
+.task-due{font-size:12px;color:#666;margin-bottom:16px}
+.task-due .label{color:#999;text-transform:uppercase;letter-spacing:0.5px;font-size:10px;margin-right:6px}
+.task-due .time{font-weight:600}
+.task-due.overdue-text{color:#e54545;font-weight:600}
+.btn-done{width:100%;padding:14px;background:#5B8A5A;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.3s}
+.btn-done:hover{background:#4a7349;transform:translateY(-1px)}
+.btn-done:active{transform:translateY(0)}
+.btn-done.loading{background:#999;cursor:not-allowed}
+
+.empty{text-align:center;padding:60px 20px;color:#999}
+.empty .icon{font-size:48px;margin-bottom:16px}
+.success-msg{display:none;background:#5B8A5A;color:#fff;padding:12px 20px;border-radius:10px;text-align:center;font-weight:600;margin-bottom:20px;animation:slideDown 0.3s}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+.loading-screen{text-align:center;padding:80px 20px}
+.spinner{border:3px solid #f3f3f3;border-top:3px solid #B8960C;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="loading-screen" id="loading">
+    <div class="spinner"></div>
+    <div>Loading your tasks...</div>
+  </div>
+
+  <div id="content" style="display:none">
+    <div class="header">
+      <h1>📋 My Tasks</h1>
+      <div class="agent-name" id="agentName"></div>
+      <div class="summary">
+        <div class="summary-item">
+          <div class="summary-num" id="totalCount">0</div>
+          <div class="summary-label">Total</div>
+        </div>
+        <div class="summary-item due-today">
+          <div class="summary-num" id="dueTodayCount">0</div>
+          <div class="summary-label">Due Today</div>
+        </div>
+        <div class="summary-item overdue">
+          <div class="summary-num" id="overdueCount">0</div>
+          <div class="summary-label">Overdue</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="success-msg" id="successMsg">✓ Task marked complete!</div>
+
+    <!-- Overdue Tasks -->
+    <div id="overdueSection" style="display:none">
+      <div class="section-title">⚠️ Overdue</div>
+      <div id="overdueTasks"></div>
+    </div>
+
+    <!-- Due Today -->
+    <div id="dueTodaySection" style="display:none">
+      <div class="section-title">📌 Due Today</div>
+      <div id="dueTodayTasks"></div>
+    </div>
+
+    <!-- Upcoming -->
+    <div id="upcomingSection" style="display:none">
+      <div class="section-title">📅 Upcoming</div>
+      <div id="upcomingTasks"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty" id="emptyState" style="display:none">
+      <div class="icon">✓</div>
+      <div>All caught up! No pending tasks.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'http://localhost:3000';
+let agentToken = null;
+let agentData = null;
+let tasks = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Get token from URL
+  const path = window.location.pathname;
+  const match = path.match(/\/agent-dashboard\/([a-zA-Z0-9]+)/);
+  
+  if (match) {
+    agentToken = match[1];
+    loadTasks();
+    
+    // Refresh every 30 seconds
+    setInterval(loadTasks, 30000);
+  } else {
+    alert('Invalid link');
+  }
+});
+
+async function loadTasks() {
+  try {
+    // Get tasks for this agent via token
+    const res = await fetch(`${API_URL}/agent-dashboard/${agentToken}`);
+    
+    if (!res.ok) {
+      alert('Invalid or expired link');
+      return;
+    }
+    
+    const data = await res.json();
+    agentData = data.agent;
+    tasks = data.tasks;
+    
+    document.getElementById('agentName').textContent = agentData.name;
+    
+    // Categorize tasks
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const overdue = tasks.filter(t => new Date(t.due_at) < now);
+    const dueToday = tasks.filter(t => {
+      const due = new Date(t.due_at);
+      return due >= today && due < tomorrow;
+    });
+    const upcoming = tasks.filter(t => new Date(t.due_at) >= tomorrow);
+    
+    // Update summary
+    document.getElementById('totalCount').textContent = tasks.length;
+    document.getElementById('dueTodayCount').textContent = dueToday.length;
+    document.getElementById('overdueCount').textContent = overdue.length;
+    
+    // Render sections
+    renderSection('overdue', overdue, 'overdueSection', 'overdueTasks');
+    renderSection('due-today', dueToday, 'dueTodaySection', 'dueTodayTasks');
+    renderSection('upcoming', upcoming, 'upcomingSection', 'upcomingTasks');
+    
+    // Show empty state if no tasks
+    if (tasks.length === 0) {
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('overdueSection').style.display = 'none';
+      document.getElementById('dueTodaySection').style.display = 'none';
+      document.getElementById('upcomingSection').style.display = 'none';
+    } else {
+      document.getElementById('emptyState').style.display = 'none';
+    }
+    
+    // Show content
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    
+  } catch (err) {
+    console.error('Load tasks error:', err);
+    alert('Error loading tasks: ' + err.message);
+  }
+}
+
+function renderSection(className, tasks, sectionId, containerId) {
+  const section = document.getElementById(sectionId);
+  const container = document.getElementById(containerId);
+  
+  if (tasks.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  container.innerHTML = tasks.map(task => {
+    const dueDate = new Date(task.due_at);
+    const isOverdue = dueDate < new Date();
+    
+    return `
+      <div class="task-card ${className}" data-task-id="${task.id}">
+        <div class="task-desc">${task.description}</div>
+        <div class="task-due ${isOverdue ? 'overdue-text' : ''}">
+          <span class="label">Due:</span>
+          <span class="time">${formatDate(dueDate)}</span>
+          ${isOverdue ? '<span style="margin-left:8px;color:#e54545">⚠️ OVERDUE</span>' : ''}
+        </div>
+        <button class="btn-done" onclick="markDone('${task.id}')">
+          ✓ Mark Complete
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function markDone(taskId) {
+  const btn = event.target;
+  const card = btn.closest('.task-card');
+  
+  btn.classList.add('loading');
+  btn.textContent = 'Completing...';
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch(`${API_URL}/agent-task-complete/${taskId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_token: agentToken })
+    });
+    
+    if (res.ok) {
+      // Show success message
+      const msg = document.getElementById('successMsg');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 3000);
+      
+      // Remove card with animation
+      card.style.transition = 'all 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(20px)';
+      
+      setTimeout(() => {
+        loadTasks(); // Reload all tasks
+      }, 300);
+    } else {
+      alert('Error completing task');
+      btn.classList.remove('loading');
+      btn.textContent = '✓ Mark Complete';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+    btn.classList.remove('loading');
+    btn.textContent = '✓ Mark Complete';
+    btn.disabled = false;
+  }
+}
+
+function formatDate(date) {
+  const now = new Date();
+  const diff = date - now;
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  
+  if (hours < -24) {
+    const days = Math.abs(Math.floor(hours / 24));
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  } else if (hours < 0) {
+    return `${Math.abs(hours)} hour${Math.abs(hours) > 1 ? 's' : ''} ago`;
+  } else if (hours < 24) {
+    return date.toLocaleString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit' 
+    });
+  } else {
+    return date.toLocaleString('en-US', { 
+      weekday: 'short',
+      month: 'short', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+}
+</script>
+
+</body>
+</html>

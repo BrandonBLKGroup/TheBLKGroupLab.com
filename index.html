@@ -188,6 +188,7 @@ body::before{display:none}
       <div class="nav-item" data-page="spartan1" onclick="showPage('spartan1')"><span class="icon">📋</span>Spartan 1 Dashboard</div>
       <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
       <div class="nav-item" data-page="org-board" onclick="showPage('org-board')"><span class="icon">🏢</span>Organizational Chart</div>
+      <div class="nav-item" data-page="agent-tasks" onclick="showPage('agent-tasks')"><span class="icon">✅</span>Agent Tasks</div>
       <div class="nav-item" data-page="admin-scale" onclick="showPage('admin-scale')" id="navAdminScale" style="display:none"><span class="icon">📊</span>Operations Documentation</div>
       <div class="nav-item" data-page="stats-dashboard" onclick="showPage('stats-dashboard')"><span class="icon">📈</span>Stats Summary</div>
       <div style="flex:1"></div>
@@ -218,6 +219,7 @@ body::before{display:none}
       <div class="page" id="page-battleplan"></div>
       <div class="page" id="page-thirty-day-push"></div>
       <div class="page" id="page-org-board"></div>
+      <div class="page" id="page-agent-tasks"><iframe src="agent-tasks.html" style="width:100%;height:calc(100vh - 100px);border:none;display:block"></iframe></div>
       <div class="page" id="page-admin-scale"></div>
       <div class="page" id="page-stats-dashboard"></div>
       <div class="page" id="page-spartan1">
@@ -1034,7 +1036,7 @@ async function doLogout(){
 }
 
 // NAV
-const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',optempo:'OPTEMPO — OPERATIONS BOARD',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH',spartan1:'SPARTAN 1 LISTING COMMAND CENTER','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORGANIZATIONAL CHART','admin-scale':'OPERATIONS DOCUMENTATION','stats-dashboard':'STATS SUMMARY DASHBOARD'};
+const TITLES={opens:'OPENS DASHBOARD',leads:'ACTIVE LEADS',scorecard:'MONTHLY SCORECARD',listings:'ACTIVE LISTINGS',buyers:'ACTIVE BUYERS',performance:'MONTHLY PERFORMANCE',contracts:'UNDER CONTRACT',jarvis:'JARVIS STATS',nuggets:'NUGGETS',optempo:'OPTEMPO — OPERATIONS BOARD',capabilities:'JARVIS CAPABILITIES',coaching:'JARVIS COACHING',battleplan:'BATTLE PLAN','thirty-day-push':'30 DAY PUSH',spartan1:'SPARTAN 1 LISTING COMMAND CENTER','listing-specialist':'LISTING SPECIALIST POLICY LIBRARY','org-board':'ORGANIZATIONAL CHART','agent-tasks':'AGENT TASKS','admin-scale':'OPERATIONS DOCUMENTATION','stats-dashboard':'STATS SUMMARY DASHBOARD'};
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));

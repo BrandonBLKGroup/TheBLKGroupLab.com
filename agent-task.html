@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Task from Brandon | The BLK Group</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fafafa;color:#1a1a1a;padding:20px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.container{max-width:500px;width:100%;background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.12);overflow:hidden}
+.header{background:#B8960C;color:#fff;padding:28px;text-align:center}
+.header h1{font-size:20px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px}
+.header .from{font-size:13px;opacity:0.9;font-weight:500}
+.body{padding:32px}
+.task-desc{font-size:16px;line-height:1.6;color:#1a1a1a;margin-bottom:24px;padding:20px;background:#fafafa;border-radius:12px;border-left:4px solid #B8960C}
+.due-time{font-size:13px;color:#666;margin-bottom:32px;padding:12px;background:#fff9f0;border-radius:8px;text-align:center;font-weight:600}
+.due-time .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:4px}
+.due-time .time{font-size:18px;color:#B8960C}
+.btn-done{width:100%;padding:18px;background:#B8960C;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;transition:all 0.3s;letter-spacing:-0.3px}
+.btn-done:hover{background:#967e0a;transform:translateY(-2px);box-shadow:0 8px 20px rgba(184,150,12,0.3)}
+.btn-done:active{transform:translateY(0)}
+.success{display:none;text-align:center;padding:40px;color:#5B8A5A}
+.success .check{font-size:64px;margin-bottom:16px}
+.success h2{font-size:20px;font-weight:700;margin-bottom:8px}
+.success p{font-size:14px;color:#666}
+.error{color:#e54545;text-align:center;padding:40px}
+.loading{text-align:center;padding:60px;color:#666}
+.spinner{border:3px solid #f3f3f3;border-top:3px solid #B8960C;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div>Loading task...</div>
+  </div>
+  
+  <div id="taskView" style="display:none">
+    <div class="header">
+      <h1>Task from Brandon</h1>
+      <div class="from">The BLK Group</div>
+    </div>
+    <div class="body">
+      <div class="task-desc" id="taskDesc"></div>
+      
+      <div class="due-time">
+        <div class="label">Due</div>
+        <div class="time" id="dueTime"></div>
+      </div>
+      
+      <button class="btn-done" onclick="markDone()">
+        ✓ DONE
+      </button>
+    </div>
+  </div>
+  
+  <div class="success" id="successView">
+    <div class="check">✓</div>
+    <h2>Task Complete!</h2>
+    <p>Brandon has been notified.</p>
+  </div>
+  
+  <div class="error" id="errorView" style="display:none">
+    <h2>Task Not Found</h2>
+    <p>This link may have expired or the task was already completed.</p>
+  </div>
+</div>
+
+<script>
+const API_URL = 'http://localhost:3000'; // Change to production
+
+let taskToken = null;
+let taskData = null;
+
+// Get token from URL
+document.addEventListener('DOMContentLoaded', () => {
+  const path = window.location.pathname;
+  const match = path.match(/\/agent-task\/([a-f0-9]+)/);
+  
+  if (match) {
+    taskToken = match[1];
+    loadTask();
+  } else {
+    showError();
+  }
+});
+
+// Load task
+async function loadTask() {
+  try {
+    const res = await fetch(`${API_URL}/agent-task/${taskToken}`);
+    
+    if (!res.ok) {
+      showError();
+      return;
+    }
+    
+    taskData = await res.json();
+    
+    if (taskData.status !== 'pending') {
+      showSuccess(); // Already completed
+      return;
+    }
+    
+    document.getElementById('taskDesc').textContent = taskData.description;
+    
+    const dueDate = new Date(taskData.due_at);
+    document.getElementById('dueTime').textContent = dueDate.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+    
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('taskView').style.display = 'block';
+    
+  } catch (err) {
+    console.error('Load task error:', err);
+    showError();
+  }
+}
+
+// Mark task as done
+async function markDone() {
+  if (!confirm('Mark this task as complete?')) return;
+  
+  const btn = document.querySelector('.btn-done');
+  btn.disabled = true;
+  btn.textContent = 'Completing...';
+  
+  try {
+    const res = await fetch(`${API_URL}/agent-task/${taskToken}/complete`, {
+      method: 'POST'
+    });
+    
+    if (res.ok) {
+      showSuccess();
+    } else {
+      alert('Error completing task. Please try again.');
+      btn.disabled = false;
+      btn.textContent = '✓ DONE';
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '✓ DONE';
+  }
+}
+
+// Show success
+function showSuccess() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('taskView').style.display = 'none';
+  document.getElementById('errorView').style.display = 'none';
+  document.getElementById('successView').style.display = 'block';
+}
+
+// Show error
+function showError() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('taskView').style.display = 'none';
+  document.getElementById('successView').style.display = 'none';
+  document.getElementById('errorView').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
