@@ -300,20 +300,53 @@ async function assignTask(e) {
     
     if (agentError) throw agentError;
     
-    const { error } = await sb
-      .from('agent_tasks')
-      .insert([{
-        agent_id: agent.id,
-        description,
-        due_at,
-        status: 'pending'
-      }]);
+    // Try API first (for iMessage), fall back to direct insert
+    const isLocal = window.location.hostname === 'localhost' || window.location.protocol === 'file:';
+    let taskCreated = false;
     
-    if (error) throw error;
+    if (isLocal) {
+      // Try to call API (sends iMessage)
+      try {
+        const res = await fetch('http://localhost:3000/api/agent-tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-BLK-Key': 'blk_situation_room_2026'
+          },
+          body: JSON.stringify({
+            agent_id: agent.id,
+            description,
+            due_at
+          })
+        });
+        
+        if (res.ok) {
+          taskCreated = true;
+          alert('✅ Task assigned! Agent will be texted via iMessage.');
+        }
+      } catch (apiErr) {
+        console.log('API not available, creating task without SMS');
+      }
+    }
+    
+    // If API didn't work, create task directly
+    if (!taskCreated) {
+      const { error } = await sb
+        .from('agent_tasks')
+        .insert([{
+          agent_id: agent.id,
+          description,
+          due_at,
+          status: 'pending'
+        }]);
+      
+      if (error) throw error;
+      
+      alert('✅ Task assigned! (Note: iMessage requires local API to be running)');
+    }
     
     document.getElementById('taskDesc').value = '';
     setDefaultDueTime();
-    alert('✅ Task assigned! (SMS will be sent when Spartan 3 integration is complete)');
     loadScoreboard();
     loadTasks();
   } catch (err) {
