@@ -51,7 +51,11 @@
 .uc-drawer .steps time{font-size:12px;color:#8A8F95;white-space:nowrap}
 .uc-drawer .steps li.late time{color:#C2382E;font-weight:600}.uc-drawer .steps li.today time{color:#80600F;font-weight:600}
 .uc-drawer .steps li.done span{color:#8A8F95;text-decoration:line-through}
-.uc-drawer footer{padding:14px 20px;border-top:1px solid #E9E7E3;display:flex;justify-content:flex-end}
+.uc-drawer footer{padding:14px 20px;border-top:1px solid #E9E7E3;display:flex;justify-content:space-between;gap:10px}
+.uc-drawer .ghost.danger{color:#C2382E;border-color:#F0C9C4}
+.uc-x{position:absolute;top:6px;right:8px;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:16px;color:#A2A6AB;opacity:0;transition:opacity .15s}
+.uc-card:hover .uc-x{opacity:1}.uc-x:hover{background:#FBECEA;color:#C2382E}
+@media (hover:none){.uc-x{opacity:1}}
 .uc-drawer .ghost{border:1px solid #E3E1DC;background:#fff;border-radius:8px;padding:8px 14px;font:500 12.5px Inter,sans-serif;color:#5E6266;cursor:pointer}
 .uc-today{background:#fff;border:1px solid #E3E1DC;border-radius:12px;padding:16px 18px;margin:0 0 18px}
 .uc-today h3{margin:0 0 12px;font:900 18px Archivo,sans-serif;text-transform:uppercase}
@@ -69,6 +73,6 @@
 </head>
 <body>
 <script src="hq.js?v=2"></script>
-<script src="contract.js?v=3"></script>
+<script src="contract.js?v=4"></script>
 </body>
 </html>

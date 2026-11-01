@@ -134,6 +134,13 @@
         ${cols[i].map((r) => card(r, t)).join('') || '<div class="uc-empty">No deals here</div>'}</section>`).join('')}</div>
       ${isTC() ? '' : '<button class="uc-add" id="ucAdd">+ New deal</button>'}`;
     $('ucBody').querySelectorAll('.uc-card,.uc-today li').forEach((el) => el.onclick = () => drawer(el.dataset.id));
+    $('ucBody').querySelectorAll('.uc-x').forEach((x) => x.onclick = async (e) => {
+      e.stopPropagation(); const id = x.dataset.del; const r = st.rows.find((d) => d.id === id);
+      if (!confirm(`Delete "${(r && r.transaction_name) || 'this deal'}" for good? This cannot be undone.`)) return;
+      const { error } = await sb.from('lab_contracts').delete().eq('id', id);
+      if (error) { alert('Could not delete: ' + error.message); return; }
+      st.rows = st.rows.filter((d) => d.id !== id); render();
+    });
     const add = $('ucAdd'); if (add) add.onclick = async () => {
       const ins = { transaction_name: 'New deal', status: 'active', offer_accepted: true, contract_date: today() };
       try { if (!isAdmin && currentUser) ins.agent_id = currentUser.id; } catch (e) {}
@@ -148,7 +155,7 @@
     const dayN = r.contract_date ? Math.max(0, bizBetween(r.contract_date, t)) : null;
     const done = STEPS.filter((s) => r[s.k]).length;
     const dueTxt = !n ? 'All done' : nd ? (nd < t ? `${esc(n.l)} · ${bizBetween(nd, t)} bus. days late` : nd === t ? `${esc(n.l)} · due today` : `${esc(n.l)} · due ${short(nd)}`) : esc(n.l);
-    return `<button class="uc-card ${late.length ? 'late' : ''}" data-id="${r.id}">
+    return `<button class="uc-card ${late.length ? 'late' : ''}" data-id="${r.id}">${isTC() ? '' : `<span class="uc-x" data-del="${r.id}" title="Delete this deal" role="button" aria-label="Delete deal">×</span>`}
       <div class="top">${av(r.agent, 24)}<b>${esc(r.transaction_name || 'Untitled deal')}</b></div>
       <div class="meta">${r.contract_date ? `Contract ${short(r.contract_date)} · business day ${dayN}` : '<span style="color:#C2382E">Set the contract date</span>'}</div>
       <div class="next ${late.length ? 'late' : nd === t ? 'today' : ''}">${dueTxt}</div>
@@ -187,7 +194,7 @@
       </div>
       <ol class="steps">${STEPS.map((s) => { const d = due(r, s), ss = stepState(r, s); return `<li class="${ss}"><label><input type="checkbox" data-k="${s.k}" ${r[s.k] ? 'checked' : ''}><span>${esc(s.l)}${s.who ? ` <em>${s.who}</em>` : ''}</span></label>
         <time>${r[s.k] ? 'Done' : d ? (ss === 'late' ? `Late · was due ${short(d)}` : ss === 'today' ? 'Due today' : `Due ${short(d)}`) : s.bd == null ? 'When it happens' : 'Set contract date'}</time></li>`; }).join('')}</ol>
-      ${isTC() ? '' : `<footer><button class="ghost" data-act="archive">Archive deal</button></footer>`}
+      ${isTC() ? '' : `<footer><button class="ghost danger" data-act="delete">Delete deal</button><button class="ghost" data-act="archive">Archive deal</button></footer>`}
     </aside>`;
     document.body.appendChild(v);
     const close = () => { v.remove(); document.removeEventListener('keydown', onKey); render(); };
@@ -209,6 +216,12 @@
       if (cb.dataset.k === 'closed' && cb.checked) alert('Closed. The Sold chain starts here: Just Sold mailer, graphics, posts and the trophy case. (The agents pick this up as they come online.)');
       drawer(id);
     }));
+    const del = v.querySelector('[data-act="delete"]'); if (del) del.onclick = async () => {
+      if (!confirm(`Delete "${r.transaction_name || 'this deal'}" for good? This cannot be undone. (Archive keeps it out of sight instead.)`)) return;
+      const { error } = await sb.from('lab_contracts').delete().eq('id', id);
+      if (error) { alert('Could not delete: ' + error.message); return; }
+      st.rows = st.rows.filter((x) => x.id !== id); close();
+    };
     const ar = v.querySelector('[data-act="archive"]'); if (ar) ar.onclick = async () => {
       if (!confirm('Archive this deal? It leaves the board but stays in the database.')) return;
       await save(id, { status: 'archived' }); st.rows = st.rows.filter((x) => x.id !== id); close();
