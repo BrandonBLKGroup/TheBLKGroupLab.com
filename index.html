@@ -186,6 +186,7 @@ body::before{display:none}
       <div class="nav-item" data-page="thirty-day-push" onclick="showPage('thirty-day-push')"><span class="icon">🚀</span>30 Day Push</div>
       <div class="nav-item" data-page="jarvis" onclick="showPage('jarvis')"><span class="icon">🤖</span>Jarvis Stats</div>
       <div class="nav-item" onclick="window.open('https://claude.ai/artifact/9vTrwyERGKzhFmktp22AMk','_blank')"><span class="icon">📋</span>Spartan 1</div>
+      <div class="nav-item" data-page="algorithm" onclick="window.open('http://localhost:4747','_blank')" title="Opens the Algorithm running on Brandon's Mac mini"><span class="icon">🌐</span>The Algorithm</div>
       <div class="nav-item" data-page="listing-specialist" onclick="showPage('listing-specialist')"><span class="icon">📚</span>Listing Specialist</div>
       <div class="nav-item" data-page="org-board" onclick="showPage('org-board')"><span class="icon">🏢</span>Organizational Chart</div>
       <div class="nav-item" data-page="agent-tasks" onclick="showPage('agent-tasks')"><span class="icon">✅</span>Agent Tasks</div>
@@ -981,7 +982,7 @@ async function loadUserProfile(){
 }
 function applyRoleUI(){
   // Hide tabs agents shouldn't see
-  const adminOnly=['leads','scorecard','nuggets','optempo','jarvis','spartan1','listing-specialist','admin-scale'];
+  const adminOnly=['leads','scorecard','nuggets','optempo','jarvis','spartan1','listing-specialist','admin-scale','algorithm'];
   adminOnly.forEach(page=>{
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
     if(nav) nav.style.display=isAdmin?'':'none';
