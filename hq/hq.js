@@ -15,6 +15,7 @@
     { k: 'opens', label: 'Opens', href: 'opens.html' },
     { k: 'contract', label: 'Under Contract', href: 'contract.html' },
     { k: 'floor', label: 'The Floor', href: 'room.html?r=Floor' },
+    { k: 'live', label: 'Live View', href: 'https://blk-leads-production.up.railway.app/hq', ext: true }, // the board's live floor (agents on video, talk to them)
     { k: 'ceo', label: 'CEO Office', href: 'room.html?r=CEO', admin: true },
     { k: 'battle', label: 'Battle Board', href: 'room.html?r=Flags' },
     { k: 'graphics', label: 'Graphics', href: 'https://theblk.group/graphics.html', ext: true },
