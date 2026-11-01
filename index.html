@@ -923,7 +923,7 @@ body::before{display:none}
 const SUPA_URL='https://fzlwkbhpsklsgkinwljt.supabase.co';
 const SUPA_KEY='sb_publishable_CFtMUXYsGLfSb7QT1GEbQg_G_Buhvfx';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
-const AGENTS=['Brandon Bruning','Shelley Lisko','Brad Lisko','Amanda Mitchell','Kevin Cloud'];
+const AGENTS=['Brandon Bruning','Shelley Lisko','Amanda Mitchell','Kevin Cloud'];
 const LEAD_SOURCES=['Buyer-Brain','Buyer','Expired Listing Backup','FSBO Backup','Circle Prospect Buyer','Circle Prospect Seller','Off-Market Brain','30 Day Seller'];
 const SOURCE_CARDS=[
   {key:'old_expireds',name:'Old Expireds',icon:'📋'},
@@ -953,7 +953,7 @@ let OPENS_TARGET=75,LISTINGS_TARGET=70,MY_COMM_TARGET=67000,GROSS_COMM_TARGET=10
 let currentUser=null,userProfile=null,isAdmin=false;
 function $(id){return document.getElementById(id)}
 function money(n){return'$'+Number(n||0).toLocaleString()}
-function agentOpts(s){return'<option value="">--</option>'+AGENTS.map(a=>`<option${a===s?' selected':''}>${a}</option>`).join('')}
+function agentOpts(s){const list=(s&&!AGENTS.includes(s))?AGENTS.concat([s]):AGENTS;return'<option value="">--</option>'+list.map(a=>`<option${a===s?' selected':''}>${a}</option>`).join('')}
 function srcOpts(s){return'<option value="">--</option>'+LEAD_SOURCES.map(a=>`<option${a===s?' selected':''}>${a}</option>`).join('')}
 
 // AUTH
