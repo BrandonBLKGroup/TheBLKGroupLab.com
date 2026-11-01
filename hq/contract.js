@@ -96,16 +96,44 @@
     return Number(c[currentUser.id] || 0);
   }
 
+  /* ---------- the daily TC list (same groups as Shelley's morning email) ---------- */
+  function groups() {
+    const t = today(); const g = { late: [], today: [], title: [], spd: [], irsa: [], resp: [], appr: [], closing: [], loop: [] };
+    st.rows.forEach((r) => {
+      const late = lateSteps(r); if (late.length) g.late.push({ r, txt: late.map((s) => `${s.l} (due ${short(due(r, s))})`).join(', ') });
+      STEPS.filter((s) => stepState(r, s) === 'today').forEach((s) => g.today.push({ r, txt: s.l }));
+      if (!r.title_setup) g.title.push({ r, txt: due(r, STEPS[2]) ? 'due ' + short(due(r, STEPS[2])) : '' });
+      else if (!r.spd_completed) g.spd.push({ r, txt: due(r, STEPS[3]) ? 'due ' + short(due(r, STEPS[3])) : '' });
+      else if (!r.inspection_scheduled || !r.irsa_done) g.irsa.push({ r, txt: due(r, STEPS[5]) ? 'due ' + short(due(r, STEPS[5])) : '' });
+      else if (!r.irsa_responded) g.resp.push({ r, txt: due(r, STEPS[6]) ? 'due ' + short(due(r, STEPS[6])) : '' });
+      else if (!r.appraisal_done || !r.termite_done) g.appr.push({ r, txt: [!r.appraisal_done ? 'appraisal' : '', !r.termite_done ? 'termite' : ''].filter(Boolean).join(' + ') });
+      else if (!r.closing_scheduled || !r.closed) g.closing.push({ r, txt: !r.closing_scheduled ? 'set closing' : 'closing set' });
+      else if (!r.loop_submitted) g.loop.push({ r, txt: 'submit to Loop' });
+    });
+    return [
+      { k: 'late', t: 'Late', items: g.late, red: true }, { k: 'today', t: 'Due today', items: g.today },
+      { k: 'title', t: 'Needing title setup', items: g.title }, { k: 'spd', t: 'Needing SPD', items: g.spd },
+      { k: 'irsa', t: 'Pending inspection + IRSA', items: g.irsa }, { k: 'resp', t: 'Pending IRSA response', items: g.resp },
+      { k: 'appr', t: 'Waiting on appraisal / termite', items: g.appr }, { k: 'closing', t: 'Closing', items: g.closing }, { k: 'loop', t: 'Needs Loop', items: g.loop },
+    ].filter((x) => x.items.length);
+  }
+  function todayList() {
+    const gs = groups(); if (!gs.length) return '';
+    return `<section class="uc-today"><h3>Today's TC list</h3><div class="grid">${gs.map((x) => `<div class="grp ${x.red ? 'red' : ''}"><b>${esc(x.t)}<span>${x.items.length}</span></b>
+      <ul>${x.items.map((it) => `<li data-id="${it.r.id}">${esc((it.r.transaction_name || 'Untitled').split(',')[0])}${it.txt ? `<em>${esc(it.txt)}</em>` : ''}</li>`).join('')}</ul></div>`).join('')}</div></section>`;
+  }
+
   /* ---------- render ---------- */
   function render() {
     top();
     const t = today();
     const cols = COLS.map(() => []); st.rows.forEach((r) => cols[colOf(r)].push(r));
     $('ucBody').innerHTML = `<div class="uc-note">${isTC() ? 'Your files. Check each step as you finish it; the due dates count business days from the contract date.' : 'Every live deal, in the column of its next step. Red means a deadline passed. Click a deal for its full checklist.'}</div>
+      ${todayList()}
       <div class="uc-board">${COLS.map((c, i) => `<section class="uc-col"><header><b>${esc(c.t)}</b><span>${cols[i].length}</span></header>
         ${cols[i].map((r) => card(r, t)).join('') || '<div class="uc-empty">No deals here</div>'}</section>`).join('')}</div>
       ${isTC() ? '' : '<button class="uc-add" id="ucAdd">+ New deal</button>'}`;
-    $('ucBody').querySelectorAll('.uc-card').forEach((el) => el.onclick = () => drawer(el.dataset.id));
+    $('ucBody').querySelectorAll('.uc-card,.uc-today li').forEach((el) => el.onclick = () => drawer(el.dataset.id));
     const add = $('ucAdd'); if (add) add.onclick = async () => {
       const ins = { transaction_name: 'New deal', status: 'active', offer_accepted: true, contract_date: today() };
       try { if (!isAdmin && currentUser) ins.agent_id = currentUser.id; } catch (e) {}
