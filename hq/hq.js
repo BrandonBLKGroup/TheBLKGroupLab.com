@@ -13,12 +13,12 @@
   const NAV = [
     { k: 'opens', label: 'Opens', href: 'opens.html' },
     { k: 'contract', label: 'Under Contract', href: 'contract.html' },
-    { k: 'floor', label: 'The Floor', soon: true },
-    { k: 'ceo', label: 'CEO Office', soon: true },
+    { k: 'floor', label: 'The Floor', href: 'https://claude.ai/artifact/Q2sYXv3w5726dbsY3qGhcH', ext: true, admin: true },
+    
     { k: 'graphics', label: 'Graphics', href: 'https://theblk.group/graphics.html', ext: true },
     { k: 'algorithm', label: 'The Algorithm', href: 'http://localhost:4747', ext: true, admin: true },
     { k: 'optempo', label: 'OPTEMPO', href: '../optempo.html', ext: true, admin: true },
-    { k: 'lab', label: 'Current Lab', href: '../index.html', admin: true },
+    { k: 'lab', label: 'Classic Lab', href: '../classic/', admin: true },
   ];
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
