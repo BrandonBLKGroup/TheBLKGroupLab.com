@@ -1,0 +1,38 @@
+/* BLK HQ: shared brand. Black #131313, chrome display type, Montserrat tracked labels, Inter body. */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600&family=Montserrat:wght@300;500;600&display=swap');
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#131313;color:#ECEDEE;font:400 14px/1.45 Inter,-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#D9DBDD;text-decoration:none}a:hover{color:#fff}
+.chrome{background:linear-gradient(180deg,#F7F8F9 0%,#DEE1E3 30%,#949AA0 52%,#EEF0F1 60%,#B6BABE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hq-mast{position:relative;overflow:hidden}
+.hq-mast .wm{position:absolute;top:-40px;right:-30px;font:900 420px/1 Archivo,sans-serif;letter-spacing:-20px;color:transparent;-webkit-text-stroke:2px #262628;pointer-events:none;user-select:none}
+.hq-in{position:relative;max-width:1520px;margin:0 auto;padding:24px 40px 0}
+@media (max-width:700px){.hq-in{padding:18px 16px 0}.hq-mast .wm{font-size:240px}}
+.hq-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid #2C2C2A}
+.hq-brand{display:flex;align-items:center;gap:12px}
+.hq-brand img{width:38px;height:38px;display:block}
+.hq-brand span{font:300 13px Montserrat,sans-serif;letter-spacing:6px;text-transform:uppercase;color:#ECEDEE}
+.hq-nav{margin-left:auto;display:flex;gap:22px;flex-wrap:wrap;font:500 11px Montserrat,sans-serif;letter-spacing:3px;text-transform:uppercase}
+.hq-nav a.on{color:#fff;border-bottom:1px solid #D9DBDD;padding-bottom:4px}
+.hq-nav a.soon{color:#5E6266;cursor:default}
+.hq-nav .who{color:#9FA4A8;cursor:pointer}
+.hq-kicker{font:500 12px Montserrat,sans-serif;letter-spacing:6px;color:#9FA4A8;text-transform:uppercase}
+.hq-title{font:900 110px/.92 Archivo,sans-serif;letter-spacing:-3px;text-transform:uppercase;margin-top:10px}
+@media (max-width:700px){.hq-title{font-size:64px;letter-spacing:-2px}}
+.hq-panel{display:flex;border:1px solid #2C2C2A;background:#0E0E0E;flex-wrap:wrap}
+.hq-panel>div{padding:16px 22px}
+.hq-panel>div+div{border-left:1px solid #2C2C2A}
+.hq-lab{font:500 9.5px Montserrat,sans-serif;letter-spacing:2.5px;color:#9FA4A8;text-transform:uppercase}
+.hq-big{font:900 52px/1 Archivo,sans-serif}
+.hq-cond{font:900 26px Archivo,sans-serif;text-transform:uppercase;margin-top:8px}
+.hq-sub{font-size:11.5px;color:#9FA4A8;margin-top:4px;max-width:290px}
+/* sign in */
+.hq-login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.hq-login form{width:min(380px,100%);background:#0E0E0E;border:1px solid #2C2C2A;padding:28px}
+.hq-login h1{font:900 34px/1 Archivo,sans-serif;text-transform:uppercase;margin:14px 0 18px}
+.hq-login label{display:block;font:500 9.5px Montserrat,sans-serif;letter-spacing:2.5px;color:#9FA4A8;text-transform:uppercase;margin:12px 0 6px}
+.hq-login input{width:100%;height:44px;background:#131313;border:1px solid #2C2C2A;color:#fff;padding:0 12px;font:500 15px Inter,sans-serif}
+.hq-login button{margin-top:18px;width:100%;height:46px;border:0;background:#ECEDEE;color:#131313;font:600 11px Montserrat,sans-serif;letter-spacing:3px;text-transform:uppercase;cursor:pointer}
+.hq-login .err{color:#E9A49D;font-size:12.5px;min-height:18px;margin-top:10px}
+.hq-loading{min-height:60vh;display:grid;place-items:center;color:#9FA4A8;font:500 11px Montserrat,sans-serif;letter-spacing:3px;text-transform:uppercase}
