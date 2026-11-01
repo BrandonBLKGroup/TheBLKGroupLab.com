@@ -306,9 +306,9 @@
   }
   function nameFor(firstName) { const all = Object.keys(HEADS); return all.find((n) => first(n) === firstName) || firstName; }
 
-  /* ---------- take over the Opens tab (preview first: add ?o2=1 to the Lab address to turn it on) ---------- */
-  let on = false;
-  try { if (/[?&]o2=1/.test(location.search)) localStorage.setItem('o2', '1'); if (/[?&]o2=0/.test(location.search)) localStorage.removeItem('o2'); on = localStorage.getItem('o2') === '1'; } catch (e) {}
+  /* ---------- take over the Opens tab (on by default; add ?o2=0 to the Lab address for the old Opens, ?o2=1 to come back) ---------- */
+  let on = true;
+  try { if (/[?&]o2=1/.test(location.search)) localStorage.removeItem('o2_off'); if (/[?&]o2=0/.test(location.search)) localStorage.setItem('o2_off', '1'); on = localStorage.getItem('o2_off') !== '1'; } catch (e) {}
   if (!on) return;
   window.loadOpens = load;
   window.renderOpens = render;
