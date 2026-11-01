@@ -11,14 +11,15 @@
   window.currentUser = null; window.userProfile = null; window.isAdmin = false;
 
   const NAV = [
+    { k: 'lobby', label: 'Lobby', href: 'room.html?r=Main' },
     { k: 'opens', label: 'Opens', href: 'opens.html' },
     { k: 'contract', label: 'Under Contract', href: 'contract.html' },
-    { k: 'floor', label: 'The Floor', href: 'https://claude.ai/artifact/Q2sYXv3w5726dbsY3qGhcH', ext: true, admin: true },
-    
+    { k: 'floor', label: 'The Floor', href: 'room.html?r=Floor' },
+    { k: 'ceo', label: 'CEO Office', href: 'room.html?r=CEO', admin: true },
+    { k: 'battle', label: 'Battle Board', href: 'room.html?r=Flags' },
     { k: 'graphics', label: 'Graphics', href: 'https://theblk.group/graphics.html', ext: true },
     { k: 'algorithm', label: 'The Algorithm', href: 'http://localhost:4747', ext: true, admin: true },
-    { k: 'optempo', label: 'OPTEMPO', href: '../optempo.html', ext: true, admin: true },
-    { k: 'lab', label: 'Classic Lab', href: '../classic/', admin: true },
+    { k: 'lab', label: 'Classic', href: '../classic/', admin: true },
   ];
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -29,7 +30,7 @@
         ? `<a class="soon" title="Coming next">${esc(n.label)}</a>`
         : `<a href="${n.href}"${n.ext ? ' target="_blank" rel="noopener"' : ''} class="${n.k === active ? 'on' : ''}">${esc(n.label)}${n.ext ? ' ↗' : ''}</a>`).join('');
       const who = window.userProfile && (window.userProfile.full_name || window.userProfile.name) || (window.currentUser && window.currentUser.email) || '';
-      return `<div class="hq-bar"><a class="hq-brand" href="${HQ.isTC() ? 'contract.html' : 'opens.html'}"><img src="img/blk-disc.png" alt="The BLK Group"><span>The BLK Group</span></a>
+      return `<div class="hq-bar"><a class="hq-brand" href="${HQ.isTC() ? 'contract.html' : 'room.html?r=Main'}"><img src="img/blk-disc.png" alt="The BLK Group"><span>The BLK Group</span></a>
         <nav class="hq-nav" aria-label="HQ">${items}<a class="who" id="hqSignOut" title="Sign out">${esc(who.split('@')[0])} · Sign out</a></nav></div>`;
     },
     wireBar() { const so = $('hqSignOut'); if (so) so.onclick = async () => { await sb.auth.signOut(); location.reload(); }; },

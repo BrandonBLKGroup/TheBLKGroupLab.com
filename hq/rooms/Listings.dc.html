@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>All listings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&amp;family=Inter:wght@400;500;600&amp;family=Montserrat:wght@300;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#131313}
+.chrome{background:linear-gradient(180deg,#F7F8F9 0%,#DEE1E3 30%,#949AA0 52%,#EEF0F1 60%,#B6BABE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.steel{background:linear-gradient(180deg,#8A8F94 0%,#3B3F43 48%,#5E6368 62%,#2A2D30 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+a{color:#D9DBDD;text-decoration:none}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 2400px; background: #131313; color: #ECEDEE; font-family: Inter, sans-serif">
+  <div style="position: relative; overflow: hidden">
+    <div aria-hidden="true" style="position: absolute; top: -40px; right: -30px; font-family: Archivo; font-weight: 900; font-size: 400px; line-height: 1; letter-spacing: -18px; color: transparent; -webkit-text-stroke: 2px #262628">#1</div>
+    <div style="position: relative; max-width: 1440px; margin: 0 auto; padding: 28px 64px 0; box-sizing: border-box">
+      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid #2C2C2A">
+        <a href="Main.dc.html" style="display: flex; align-items: center; gap: 14px">
+          <img src="/_blob/b94d6c591c5b8a501b19bb0a6db77829" alt="The BLK Group" width="40" height="40" style="display: block; width: 40px; height: 40px">
+          <span style="font-family: Montserrat; font-weight: 300; font-size: 13px; letter-spacing: 6px; text-transform: uppercase; color: #ECEDEE">The BLK Group</span>
+        </a>
+        <nav aria-label="HQ rooms" style="margin-left: auto; display: flex; gap: 24px; flex-wrap: wrap; font-family: Montserrat; font-weight: 500; font-size: 10.5px; letter-spacing: 3px; text-transform: uppercase">
+          <a href="Floor.dc.html">The Floor</a>
+          <a href="CEO.dc.html">CEO Office</a>
+          <a href="Trophy.dc.html">Trophy Case</a>
+          <a href="Flags.dc.html">Battle Board</a>
+        </nav>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; padding: 44px 0 26px">
+        <div>
+          <div style="font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 6px; color: #9FA4A8; text-transform: uppercase">Operations · every listing, every bucket</div>
+          <div style="font-family: Archivo; font-weight: 900; font-size: 88px; line-height: .92; letter-spacing: -2px; text-transform: uppercase; margin-top: 10px">All <span class="chrome">Listings.</span></div>
+        </div>
+        <div role="group" aria-label="View" style="display: flex; gap: 0; border: 1px solid #3A3A38">
+          <a href="Floor.dc.html" style="padding: 14px 18px; font-family: Montserrat; font-weight: 500; font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #D9DBDD">Floor view</a>
+          <span style="padding: 14px 18px; font-family: Montserrat; font-weight: 500; font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; background: #D9DBDD; color: #131313">All listings</span>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); border-top: 1px solid #2C2C2A; border-bottom: 1px solid #2C2C2A">
+        <sc-for list="{{strip}}" as="s" hint-placeholder-count="8">
+          <a href="#{{s.id}}" style="padding: 16px 14px; border-right: 1px solid #2C2C2A; display: block">
+            <div style="font-family: Archivo; font-weight: 900; font-size: 30px; line-height: 1; color: {{s.color}}">{{s.n}}</div>
+            <div style="font-family: Montserrat; font-weight: 500; font-size: 8.5px; letter-spacing: 2px; color: #9FA4A8; text-transform: uppercase; margin-top: 7px">{{s.l}}</div>
+          </a>
+        </sc-for>
+      </div>
+      <div style="display: flex; gap: 22px; flex-wrap: wrap; align-items: center; padding: 18px 0 26px">
+        <div role="group" aria-label="Agent" style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center">
+          <span style="font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 2.5px; color: #9FA4A8; text-transform: uppercase; margin-right: 4px">Agent</span>
+          <sc-for list="{{agentChips}}" as="c" hint-placeholder-count="5">
+            <button onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+          </sc-for>
+        </div>
+        <div role="group" aria-label="Status" style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center">
+          <span style="font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 2.5px; color: #9FA4A8; text-transform: uppercase; margin-right: 4px">Status</span>
+          <sc-for list="{{statusChips}}" as="c" hint-placeholder-count="4">
+            <button onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+          </sc-for>
+        </div>
+        <div style="margin-left: auto; font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2.5px; color: #9FA4A8; text-transform: uppercase">Showing {{shown}} of {{total}} · live from the Lab</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #FAFAF8; color: #1D1D1F">
+    <div style="max-width: 1440px; margin: 0 auto; padding: 36px 64px 72px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+     <div style="flex: 999 1 760px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="7">
+        <section id="{{g.id}}" style="background: #FFFFFF; border: 1px solid #E3E1DC">
+          <div style="background: #131313; color: #FFFFFF; padding: 14px 22px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap">
+            <span style="font-family: Archivo; font-weight: 900; font-size: 22px; text-transform: uppercase">{{g.name}}</span>
+            <span style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2.5px; color: #9FA4A8; text-transform: uppercase">{{g.rule}}</span>
+            <span style="margin-left: auto; display: flex; gap: 14px; font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase">
+              <span style="color: #FFFFFF">{{g.n}} listings</span><span style="color: #C9A39A">{{g.over}} overdue</span><span style="color: #D9DBDD">{{g.due}} due today</span>
+            </span>
+          </div>
+          <sc-for list="{{g.buckets}}" as="b" hint-placeholder-count="2">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 22px; background: #F5F4F1; border-bottom: 1px solid #E3E1DC; border-top: 1px solid #E3E1DC">
+                <span style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: {{b.color}}">{{b.name}}</span>
+                <span style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2px; color: #5E6266; text-transform: uppercase">{{b.n}}</span>
+              </div>
+              <sc-if value="{{b.empty}}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 12px 22px; font-size: 13px; color: #9AA0A6">Nothing in this bucket.</div>
+              </sc-if>
+              <div style="overflow-x: auto">
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 980px; font-size: 13.5px">
+                  <colgroup><col style="width: 22%"><col style="width: 13%"><col style="width: 9%"><col style="width: 10%"><col style="width: 9%"><col style="width: 19%"><col style="width: 9%"><col style="width: 9%"></colgroup>
+                  <tbody>
+                    <sc-for list="{{b.rows}}" as="r" hint-placeholder-count="2">
+                      <tr>
+                        <td style="padding: 11px 22px; border-bottom: 1px solid #F0EEE9; font-weight: 600; border-left: 3px solid {{r.edge}}">{{r.addr}}</td>
+                        <td style="padding: 11px 8px; border-bottom: 1px solid #F0EEE9; color: #4A4D50">{{r.city}}</td>
+                        <td style="padding: 11px 8px; border-bottom: 1px solid #F0EEE9; color: #4A4D50">{{r.agent}}</td>
+                        <td style="padding: 11px 8px; border-bottom: 1px solid #F0EEE9; font-variant-numeric: tabular-nums">{{r.price}}</td>
+                        <td style="padding: 11px 8px; border-bottom: 1px solid #F0EEE9; font-weight: 600">{{r.age}}</td>
+                        <td style="padding: 11px 8px; border-bottom: 1px solid #F0EEE9">{{r.next}}<sc-if value="{{r.updDue}}" hint-placeholder-val="{{ false }}"><span style="display: inline-block; margin-left: 8px; font-family: Montserrat; font-weight: 500; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; background: #131313; color: #FFFFFF; padding: 3px 5px">{{r.updTag}}</span></sc-if></td>
+                        <td style="padding: 11px 8px; border-bottom: 1px solid #F0EEE9"><span style="font-family: Montserrat; font-weight: 500; font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 6px; white-space: nowrap; {{r.pill}}">{{r.when}}</span></td>
+                        <td style="padding: 11px 22px 11px 8px; border-bottom: 1px solid #F0EEE9; color: #5E6266; font-size: 12.5px">{{r.upd}}</td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </sc-for>
+        </section>
+      </sc-for>
+     </div>
+
+     <aside aria-label="Updates due" style="flex: 1 1 340px; min-width: 0; position: sticky; top: 16px; background: #131313; color: #ECEDEE">
+       <div style="padding: 20px 22px 16px; border-bottom: 1px solid #2C2C2A; position: relative; overflow: hidden">
+         <div aria-hidden="true" style="position: absolute; top: -26px; right: -4px; font-family: Archivo; font-weight: 900; font-size: 130px; line-height: 1; color: transparent; -webkit-text-stroke: 1.5px #262628">{{dueCountPad}}</div>
+         <div style="position: relative">
+           <div style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 3px; color: #9FA4A8; text-transform: uppercase">To-do · ANCHOR</div>
+           <div style="font-family: Archivo; font-weight: 900; font-size: 30px; text-transform: uppercase; margin-top: 6px">Updates <span class="chrome">due.</span></div>
+           <div style="font-size: 12.5px; color: #9FA4A8; margin-top: 6px">{{dueLeft}} left today · they stay in their buckets too</div>
+         </div>
+       </div>
+       <div style="display: flex; flex-direction: column">
+         <sc-for list="{{dueList}}" as="u" hint-placeholder-count="6">
+           <div style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 22px; border-bottom: 1px solid #222222; {{u.rowStyle}}">
+             <button onClick="{{u.toggle}}" aria-label="{{u.checkLabel}}" aria-pressed="{{u.pressed}}" style="flex: 0 0 auto; width: 22px; height: 22px; margin-top: 2px; border: 1.5px solid {{u.box}}; background: {{u.fill}}; color: #131313; cursor: pointer; padding: 0; font-family: Archivo; font-weight: 900; font-size: 13px; line-height: 1">{{u.tick}}</button>
+             <a href="https://claude.ai/artifact/9vTrwyERGKzhFmktp22AMk" style="flex: 1; min-width: 0; display: block; color: inherit">
+               <span style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+                 <span style="font-weight: 600; font-size: 14px; {{u.strike}}">{{u.addr}}</span>
+                 <span style="font-family: Montserrat; font-weight: 500; font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; color: {{u.whenColor}}">{{u.when}}</span>
+               </span>
+               <span style="display: block; font-family: Archivo; font-weight: 800; font-size: 13px; letter-spacing: .5px; text-transform: uppercase; color: #D9DBDD; margin-top: 4px">{{u.week}}</span>
+               <span style="display: block; font-size: 12px; color: #9FA4A8; margin-top: 2px">{{u.where}} · {{u.agent}}</span>
+               <span style="display: inline-block; margin-top: 8px; font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #FFFFFF; border-bottom: 1px solid #D9DBDD; padding-bottom: 2px">Run it in Spartan 1 →</span>
+             </a>
+           </div>
+         </sc-for>
+       </div>
+       <a href="https://claude.ai/artifact/9vTrwyERGKzhFmktp22AMk" style="display: flex; justify-content: space-between; align-items: center; margin: 16px 22px 20px; background: #D9DBDD; color: #131313; padding: 14px 16px; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase"><span>Open the full Spartan 1 dashboard</span><span>→</span></a>
+     </aside>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3800}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { agent: 'All', status: 'All', done: {} }; }
+  renderVals() {
+    // Real listings from the Lab (36 active, synced from MLS 2026-10-31). [address, city, agent, price, listed, MLS status, MLS#]
+    const REAL = [["6920 Holtdale Lane","North Little Rock","Shelley",200000,"2026-02-22","ACT","26006745"],["11 Acala Place","Hot Springs Village","Brandon",396000,"2026-04-15","ACT","26014809"],["507 Southhaven","Cabot","Brandon",285000,"2026-07-21","ACT","26029517"],["402 Demuth","Benton","Shelley",482500,"2026-07-30","ACT","26030736"],["144 La Vista Lane","Hot Springs Village","Brandon",107000,"2026-07-30","ACT","26030740"],["511 N Ross Maddox","Pearcy","Brandon",259999,"2026-08-19","ACT","26033885"],["117 W Lea Circle","Bryant","Brandon",295000,"2026-08-22","ESC","26034321"],["202 N Griffin Street","Morrilton","Brandon",114999,"2026-09-08","TBU","26036533"],["12007 Swepco Lake Road","Gentry","Brandon",720000,"2026-09-08","ACT","26036534"],["3 Gailosa Lane","Hot Springs Village","Brandon",128900,"2026-09-14","ACT","26037358"],["11 Alicante Lane","Hot Springs Village","Brandon",259500,"2026-09-18","TBU","26038016"],["301 Zachary Cove","Bryant","Brandon",210000,"2026-09-23","TBU","26038665"],["10 Parkridge Drive","North Little Rock","Brandon",159900,"2026-09-26","ACT","26039060"],["4 Ligadura Lane","Hot Springs Village","Brandon",639900,"2026-09-26","TBU","26039119"],["5906 Karen Drive","North Little Rock","Shelley",264900,"2026-09-30","ACT","26039523"],["3519 Village Walk Drive","Bryant","Brandon",245000,"2026-10-01","ACT","26039712"],["8 Reata Way","Hot Springs Village","Brandon",244900,"2026-10-01","ACT","26039724"],["224 Longview Point","Hot Springs","Brandon",360000,"2026-10-03","ACT","26040104"],["2145 Dillard Drive","Conway","Brandon",247500,"2026-10-03","ACT","26040132"],["237 Longview Point","Hot Springs","Brandon",364000,"2026-10-07","ACT","26040575"],["198 Shelly Lane","Hot Springs","Brandon",495000,"2026-10-14","ACT","26041635"],["5121 Madison Avenue","Jacksonville","Brandon",344000,"2026-10-15","TBU","26041757"],["117 Cifuentes Way","Hot Springs Village","Brandon",394900,"2026-10-17","ACT","26042031"],["5057 Whitney Lane","Benton","Brandon",510000,"2026-10-17","ACT","26042032"],["149 Sheep Shank Bend","Damascus","Brandon",475000,"2026-10-19","ACT","26042178"],["3013 Overbrook Circle","North Little Rock","Amanda",549500,"2026-10-20","ACT","26042268"],["12 Huesca Lane","Hot Springs Village","Brandon",265000,"2026-10-20","ACT","26042269"],["284 Northlake Cove","Hot Springs","Brandon",644999,"2026-10-20","ACT","26042270"],["9 Torre del Mar Way","Hot Springs Village","Brandon",279999,"2026-10-20","ACT","26042272"],["227 Bayshore Cove","Hot Springs","Brandon",314900,"2026-10-22","ACT","26042595"],["415 Jackson Road S","Damascus","Brandon",899000,"2026-10-22","ACT","26042596"],["13013 Lemoncrest Lane","Little Rock","Brandon",342450,"2026-10-30","NEW","26043681"],["5512 Crescent Drive","North Little Rock","Brandon",249900,"2026-10-30","NEW","26043682"],["2 Conquista Lane","Hot Springs Village","Brandon",22300,"2025-11-13","ACT","25045249"],["000 Eagle Valley Road","Conway","Amanda",145500,"2026-04-03","ACT","26012877"],["5906 Karen Drive (lease)","North Little Rock","Brandon",2400,"2026-09-29","ACT","26039381"]];
+    const AG = ['Brandon', 'Amanda', 'Shelley', 'Kevin'];
+    const STAGES = [
+      { id: 'onb', name: 'Listing Onboarding', rule: 'until you move it', label: (a) => `${a}d in bay`, buckets: [['0-3 days', 0, 3], ['4-7 days', 4, 7], ['8+ days · stalled', 8, 999]] },
+      { id: 'cs', name: 'Coming Soon', rule: '24-hour limit', label: (a) => `${a}h on clock`, buckets: [['Under 12 hours', 0, 11], ['12-24 hours', 12, 24], ['Past 24 hours · over the limit', 25, 999]] },
+      { id: 'jl', name: 'Just Listed', rule: 'days 1-7 · auto', next: 'Just Listed posts · Marketplace', label: (a) => `Day ${a}`, buckets: [['Days 1-3', 1, 3], ['Days 4-7 · week 1 update due day 7', 4, 7]] },
+      { id: 'wh', name: 'Welcome Home', rule: 'days 8-15 · auto', next: 'Welcome Home posts · feedback chase', label: (a) => `Day ${a}`, buckets: [['Days 8-11', 8, 11], ['Days 12-15 · week 2 update due day 14', 12, 15]] },
+      { id: 'wh2', name: 'Welcome Home v2', rule: 'days 16-23 · auto', next: 'v2 posts · price review', label: (a) => `Day ${a}`, buckets: [['Days 16-19', 16, 19], ['Days 20-23 · week 3 update due day 21', 20, 23]] },
+      { id: 'fp', name: 'Final Push', rule: 'days 24-30 · refresh at 30', next: 'Final push posts · refresh prep', label: (a) => `Day ${a}`, buckets: [['Days 24-27', 24, 27], ['Days 28-30 · week 4 update + refresh', 28, 30]] },
+      { id: 'aged', name: 'Past 30 · Refresh cycle', rule: 'relaunch, reprice, or reposition', next: 'Refresh / relaunch decision', label: (a) => `Day ${a}`, buckets: [['Days 31-60', 31, 60], ['Days 61-120', 61, 120], ['Day 121+ · stale, needs a new plan', 121, 99999]] },
+      { id: 'uc', name: 'Under Contract', rule: 'taking backups · TC takes over', next: 'With TC · scorecard row', label: (a) => `Day ${a} on market`, buckets: [['Taking backups', 0, 99999]] },
+    ];
+    const now = new Date(); const dayN = (iso) => Math.max(1, Math.floor((now - new Date(iso + 'T12:00:00')) / 86400000));
+    const stageOf = (st, a) => st === 'TBU' ? 7 : a <= 7 ? 2 : a <= 15 ? 3 : a <= 23 ? 4 : a <= 30 ? 5 : 6;
+    const all = REAL.map(([addr, city, agent, price, listed, st, mls], k) => {
+      const a = dayN(listed); const si = stageOf(st, a);
+      const updDay = si >= 2 && si <= 5 && a >= 7 && (a % 7 === 0 || a % 7 === 1);
+      const status = si === 6 ? 'over' : updDay ? 'due' : 'ok';
+      return { si, k, age: a, status, addr, city, agent, mls, price: '$' + price.toLocaleString('en-US') + (price < 10000 ? '/mo' : ''),
+        next: st === 'ESC' ? 'Escape clause · watch the 48 hours' : STAGES[si].next, upd: si === 7 ? 'With TC' : si === 6 ? 'Refresh due' : '-' };
+    });
+    const fa = this.state.agent, fs = this.state.status;
+    const SMAP = { Overdue: 'over', 'Due today': 'due', 'On track': 'ok' };
+    const keep = (x) => (fa === 'All' || x.agent === fa) && (fs === 'All' || x.status === SMAP[fs]);
+    const vis = all.filter(keep);
+    // A live listing needs its weekly update on day 7, 14, 21, 28 (and stays flagged until marked done)
+    const updWeek = (x) => (x.si >= 2 && x.si <= 5 ? Math.max(1, Math.floor(x.age / 7)) : 0);
+    const isDue = (x) => x.si >= 2 && x.si <= 5 && x.age >= 7 && (x.age % 7 === 0 || x.age % 7 === 1);
+    const row = (x) => ({ ...x, age: STAGES[x.si].label(x.age), updDue: isDue(x) && !this.state.done[x.k], updTag: `Week ${updWeek(x)} update due`,
+      edge: x.status === 'over' ? '#8C5A50' : x.status === 'due' ? '#9AA0A6' : '#131313',
+      when: x.status === 'over' ? 'Overdue' : x.status === 'due' ? 'Due today' : 'On track',
+      pill: x.status === 'over' ? 'background: #F3E9E6; color: #8C5A50;' : x.status === 'due' ? 'border: 1px solid #9AA0A6; color: #3B3F43;' : 'background: #131313; color: #FFFFFF;' });
+    const groups = STAGES.map((s, si) => {
+      const mine = vis.filter((x) => x.si === si);
+      return { id: s.id, name: s.name, rule: s.rule, n: mine.length,
+        over: mine.filter((x) => x.status === 'over').length, due: mine.filter((x) => x.status === 'due').length,
+        buckets: s.buckets.map(([name, lo, hi], bi) => { const rows = mine.filter((x) => x.age >= lo && x.age <= hi).sort((a, b) => b.age - a.age).map(row);
+          return { name, n: rows.length + (rows.length === 1 ? ' listing' : ' listings'), rows, empty: rows.length === 0, color: bi === s.buckets.length - 1 && /stalled|over|overdue|watch/.test(name) ? '#8C5A50' : '#1D1D1F' }; }) };
+    });
+    const strip = STAGES.map((s, si) => ({ id: s.id, n: vis.filter((x) => x.si === si).length, l: s.name, color: '#FFFFFF' }))
+      .concat([{ id: 'onb', n: vis.filter((x) => x.status === 'over').length, l: 'Overdue', color: '#C9A39A' }]);
+    const chip = (label, on, pick) => ({ label, pick, style: `min-height: 36px; padding: 0 12px; cursor: pointer; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; border: 1px solid ${on ? '#D9DBDD' : '#3A3A38'}; background: ${on ? '#D9DBDD' : 'transparent'}; color: ${on ? '#131313' : '#D9DBDD'}` });
+    const done = this.state.done;
+    const dueRaw = all.filter((x) => isDue(x) && (fa === 'All' || x.agent === fa)).sort((a, b) => (b.status === 'over') - (a.status === 'over') || b.age - a.age);
+    const dueList = dueRaw.map((x) => { const d = !!done[x.k]; const late = x.age % 7 > 1 || x.status === 'over'; return {
+      addr: x.addr, agent: x.agent, week: `Week ${updWeek(x)} update`, where: `${STAGES[x.si].name} · Day ${x.age}`,
+      when: d ? 'Done' : late ? 'Overdue' : 'Today', whenColor: d ? '#7BC47F' : late ? '#C9A39A' : '#D9DBDD',
+      tick: d ? '✓' : '', fill: d ? '#D9DBDD' : 'transparent', box: d ? '#D9DBDD' : '#5E6368', pressed: d ? 'true' : 'false',
+      checkLabel: d ? `Mark ${x.addr} update not done` : `Mark ${x.addr} update done`,
+      strike: d ? 'text-decoration: line-through; color: #7D8184;' : '', rowStyle: d ? 'opacity: .6;' : '',
+      toggle: () => this.setState({ done: { ...done, [x.k]: !done[x.k] } }) }; });
+    const left = dueRaw.filter((x) => !done[x.k]).length;
+    return {
+      dueList, dueLeft: left, dueCountPad: String(left).padStart(2, '0'),
+      groups, strip, shown: vis.length, total: all.length,
+      agentChips: ['All', ...AG].map((a) => chip(a, fa === a, () => this.setState({ agent: a }))),
+      statusChips: ['All', 'Overdue', 'Due today', 'On track'].map((a) => chip(a, fs === a, () => this.setState({ status: a }))),
+    };
+  }
+}
+</script>
+</body>
+</html>

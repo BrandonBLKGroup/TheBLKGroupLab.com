@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>BLK HQ</title>
+<link rel="icon" href="img/blk-disc.png">
+<link rel="stylesheet" href="hq.css?v=3">
+<style>
+html,body{background:#131313}
+#room{min-height:100vh}
+.hq-back{position:fixed;left:14px;bottom:14px;z-index:50;display:flex;gap:6px}
+.hq-back a{background:rgba(19,19,19,.86);border:1px solid #3A3A38;color:#D9DBDD;padding:9px 12px;font:500 10px Montserrat,sans-serif;letter-spacing:2.5px;text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.hq-back a:hover{color:#fff;border-color:#9FA4A8}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+<script src="hq.js?v=4"></script>
+<script src="media/map.js?v=1"></script>
+<script src="dc.js?v=1"></script>
+<script>
+(function () {
+  const ROOMS = ['Main', 'Floor', 'CEO', 'Chapel', 'HQ', 'Library', 'Listings', 'Operations', 'Trophy', 'Flags'];
+  const ADMIN_ONLY = ['CEO', 'Trophy'];
+  const q = new URLSearchParams(location.search);
+  let room = q.get('r') || 'Main'; if (!ROOMS.includes(room)) room = 'Main';
+  DC.media = window.DC_MEDIA || {};
+  DC.routes = {
+    Opens: 'opens.html', '#leads': 'https://blk-leads-production.up.railway.app/',
+    'https://claude.ai/artifact/H2kta9G19g1Hkwa36MrpmQ': 'http://localhost:4747',
+  };
+  async function loadLAB() {
+    const T = { opens: 75, myComm: 67000, gross: 1000000, volume: 65000000, listings: 20, uc: 10 };
+    try { if (!isAdmin && userProfile) { if (userProfile.opens_goal) T.opens = Number(userProfile.opens_goal); if (userProfile.monthly_income_goal) T.myComm = Number(userProfile.monthly_income_goal); } } catch (e) {}
+    const [sc, op, ls, ct] = await Promise.all([
+      isAdmin ? sb.from('lab_scorecard').select('month_year,volume,gross_commission,my_commission,payment_status,transaction_name,agent,entry_date,created_at') : Promise.resolve({ data: [] }),
+      sb.from('lab_opens').select('month_year,created_at,status'),
+      sb.from('lab_listings').select('address,price,status,agent,created_at,starting_date'),
+      sb.from('lab_contracts').select('transaction_name,agent,volume,contract_date,closed,status,created_at,updated_at'),
+    ]);
+    window.LAB = { scorecard: sc.data || [], opens: op.data || [], listings: ls.data || [], contracts: ct.data || [], targets: T, isAdmin };
+  }
+  HQ.gate(async () => {
+    if (ADMIN_ONLY.includes(room) && !isAdmin) room = 'Main';
+    document.body.innerHTML = '<div id="room"><div class="hq-loading">Opening ' + room + '</div></div>' + (room === 'Main' ? '' : '<nav class="hq-back" aria-label="HQ"><a href="room.html?r=Main">Lobby</a><a href="opens.html">Opens</a><a href="contract.html">Under Contract</a></nav>');
+    await loadLAB();
+    const el = document.getElementById('room'); el.innerHTML = '';
+    try { await DC.mount('rooms/' + room + '.dc.html?v=1', el); }
+    catch (e) { el.innerHTML = '<div class="hq-loading">Could not open this room: ' + HQ.esc(e.message) + '</div>'; }
+  });
+})();
+</script>
+</body>
+</html>

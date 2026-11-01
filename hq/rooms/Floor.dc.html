@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Floor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&amp;family=Inter:wght@400;500;600;700&amp;family=Montserrat:wght@300;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A}
+.chrome{background:linear-gradient(180deg,#F7F8F9 0%,#DEE1E3 30%,#949AA0 52%,#EEF0F1 60%,#B6BABE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+a{color:#D9DBDD;text-decoration:none}a:hover{color:#FFFFFF}
+@keyframes rail{from{background-position:0 0}to{background-position:64px 0}}
+@keyframes tick{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-90%) scale(.92)}4%{opacity:1;transform:translate(-50%,-100%) scale(1)}40%{opacity:1;transform:translate(-50%,-100%) scale(1)}46%{opacity:0;transform:translate(-50%,-104%) scale(.98)}100%{opacity:0;transform:translate(-50%,-104%) scale(.98)}}
+@keyframes caret{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes scan{from{transform:translateY(-30%)}to{transform:translateY(130%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rail{animation:rail 1.8s linear infinite}
+.bub{opacity:0;animation:pop 18s ease-in-out infinite}
+.caret{animation:caret 1s step-end infinite}
+.live{animation:tick 1.6s ease-in-out infinite}
+.scan{animation:scan 6s linear infinite}
+.spin{animation:spin .9s linear infinite}
+.seat .ring{opacity:0;transition:opacity .2s}
+.seat:hover .ring,.seat:focus-visible .ring{opacity:1}
+.tok:hover,.tok:focus-visible{outline:1px solid #FFFFFF;outline-offset:1px}
+.row:hover{background:#FAFAF8}
+@media (prefers-reduced-motion: reduce){.rail,.caret,.live,.scan,.spin{animation:none}.bub{animation:none;opacity:1;transform:translate(-50%,-100%)}}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 2000px; background: #0A0A0A; color: #ECEDEE; font-family: Inter, sans-serif; position: relative; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; top: -50px; right: -30px; font-family: Archivo; font-weight: 900; font-size: 380px; line-height: 1; letter-spacing: -18px; color: transparent; -webkit-text-stroke: 2px #1A1A1C">#1</div>
+
+  <div style="position: relative; padding: 26px 48px 0">
+    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 18px; border-bottom: 1px solid #262626">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 14px">
+        <img src="/_blob/b94d6c591c5b8a501b19bb0a6db77829" alt="The BLK Group" width="38" height="38" style="display: block; width: 38px; height: 38px">
+        <span style="font-family: Montserrat; font-weight: 300; font-size: 13px; letter-spacing: 6px; text-transform: uppercase; color: #ECEDEE">The BLK Group</span>
+      </a>
+      <nav aria-label="HQ rooms" style="margin-left: auto; display: flex; gap: 24px; flex-wrap: wrap; font-family: Montserrat; font-weight: 500; font-size: 10.5px; letter-spacing: 3px; text-transform: uppercase">
+        <a href="Floor.dc.html" style="color: #FFFFFF; border-bottom: 1px solid #D9DBDD; padding-bottom: 4px">The Floor</a>
+        <a href="CEO.dc.html">CEO Office</a>
+        <a href="Trophy.dc.html">Trophy Case</a>
+        <a href="Flags.dc.html">Battle Board</a>
+        <a href="Chapel.dc.html">Prayer Closet</a>
+        <a href="https://claude.ai/artifact/H2kta9G19g1Hkwa36MrpmQ">The Algorithm ↗</a>
+      </nav>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; padding: 30px 0 22px">
+      <div>
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 6px; color: #9FA4A8; text-transform: uppercase">HQ · Operations division · the war room</div>
+        <div style="font-family: Archivo; font-weight: 900; font-size: 84px; line-height: .92; letter-spacing: -2px; text-transform: uppercase; margin-top: 10px">The <span class="chrome">Floor.</span></div>
+      </div>
+      <div style="display: flex; gap: 0; border: 1px solid #262626">
+        <sc-for list="{{totals}}" as="t" hint-placeholder-count="4">
+          <div style="padding: 14px 22px; border-right: 1px solid #262626; min-width: 96px">
+            <div style="font-family: Archivo; font-weight: 900; font-size: 30px; line-height: 1; color: {{t.color}}">{{t.n}}</div>
+            <div style="font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 2.2px; color: #9FA4A8; text-transform: uppercase; margin-top: 6px">{{t.l}}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div role="group" aria-label="Layout" style="display: flex; border: 1px solid #3A3A38">
+        <span style="padding: 14px 16px; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; background: #D9DBDD; color: #131313">Floor view</span>
+        <a href="Listings.dc.html" style="padding: 14px 16px; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #D9DBDD">All listings</a>
+      </div>
+      <div role="group" aria-label="View" style="display: flex; gap: 6px">
+        <button onClick="{{showFull}}" style="{{fullBtn}}">Full machine</button>
+        <button onClick="{{showToday}}" style="{{todayBtn}}">Today's staffing</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="position: relative; margin: 0 48px; border: 1px solid #262626; background: #04060A; overflow: hidden; container-type: inline-size; aspect-ratio: 1344 / 720">
+    <div style="position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1440 / 806">
+      <img src="/_blob/0fa0f572bbd869514639194abc2ff0ce" alt="The war room: the agents at the U-shaped table under the live conveyor wall" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover">
+
+      <div style="position: absolute; left: 10.4%; top: 2.6%; width: 79.2%; height: 25.4%; background: linear-gradient(180deg, rgba(6,12,22,.86) 0%, rgba(8,16,28,.74) 100%); box-shadow: 0 0 0 1px rgba(170,200,230,.16), 0 0 40px rgba(90,140,200,.18) inset; overflow: hidden">
+        <div aria-hidden="true" class="scan" style="position: absolute; left: 0; right: 0; top: 0; height: 40%; background: linear-gradient(180deg, rgba(160,200,255,0), rgba(160,200,255,.05), rgba(160,200,255,0)); pointer-events: none"></div>
+        <div style="position: relative; display: flex; height: 100%">
+          <sc-for list="{{bays}}" as="b" hint-placeholder-count="7">
+            <div style="flex: 1 1 0; min-width: 0; position: relative; border-right: 1px solid rgba(190,210,230,.10); {{b.segStyle}}">
+              <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: .22cqw; {{b.topBar}}"></div>
+              <button onClick="{{b.pick}}" aria-label="Open the {{b.name}} bay" style="display: block; width: 100%; background: none; border: 0; padding: .8cqw .8cqw .3cqw; text-align: left; color: inherit; cursor: pointer">
+                <span style="display: block; font-family: Montserrat; font-weight: 600; font-size: .58cqw; letter-spacing: .22cqw; text-transform: uppercase; color: #9FB4C8">{{b.num}} · {{b.name}}</span>
+                <span style="display: flex; align-items: baseline; gap: .5cqw; margin-top: .35cqw">
+                  <span style="font-family: Archivo; font-weight: 900; font-size: 2.3cqw; line-height: 1; color: #FFFFFF; text-shadow: 0 0 14px rgba(170,210,255,.35)">{{b.countPad}}</span>
+                  <span style="font-family: Montserrat; font-weight: 500; font-size: .5cqw; letter-spacing: .12cqw; text-transform: uppercase; color: #C9A39A">{{b.overLabel}}</span>
+                </span>
+                <span style="display: block; font-size: .56cqw; color: #7F93A6; margin-top: .25cqw">{{b.rule}}</span>
+              </button>
+              <div style="display: grid; grid-template-columns: repeat(6, .95cqw); gap: .32cqw; padding: .2cqw .8cqw 0">
+                <sc-for list="{{b.tokens}}" as="t" hint-placeholder-count="6">
+                  <button class="tok" onClick="{{t.pick}}" aria-label="{{t.label}}" title="{{t.label}}" style="width: .95cqw; height: .95cqw; padding: 0; border: 0; border-radius: 2px; cursor: pointer; {{t.face}}"></button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div aria-hidden="true" class="rail" style="position: absolute; left: 0; right: 0; bottom: 4%; height: .2cqw; background-image: repeating-linear-gradient(90deg, rgba(217,229,240,0) 0 28px, rgba(217,229,240,.85) 28px 40px, rgba(217,229,240,0) 40px 64px)"></div>
+        <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: calc(4% + .2cqw); height: 1px; background: rgba(190,210,230,.14)"></div>
+      </div>
+
+      <div aria-hidden="true" style="position: absolute; left: 50%; top: 61%; width: 34%; transform: translateX(-50%) perspective(900px) rotateX(34deg); text-align: center; pointer-events: none">
+        <div style="font-family: Montserrat; font-weight: 600; font-size: .62cqw; letter-spacing: .4cqw; text-transform: uppercase; color: rgba(190,215,240,.7)">Bay {{bay.num}} · {{bay.name}}</div>
+        <div style="font-family: Archivo; font-weight: 900; font-size: 4.2cqw; line-height: 1; color: rgba(225,238,250,.55); text-shadow: 0 0 22px rgba(140,190,255,.45); margin-top: .3cqw">{{bay.countPad}}</div>
+        <div style="font-family: Montserrat; font-weight: 500; font-size: .55cqw; letter-spacing: .25cqw; text-transform: uppercase; color: rgba(190,215,240,.55); margin-top: .2cqw">{{bay.over}} overdue · {{bay.due}} due today</div>
+      </div>
+
+      <sc-for list="{{seats}}" as="s" hint-placeholder-count="10">
+        <div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none">
+          <sc-if value="{{s.veil}}" hint-placeholder-val="{{ false }}">
+            <div aria-hidden="true" style="position: absolute; left: {{s.x}}; top: {{s.top}}; width: {{s.w}}; height: {{s.h}}; transform: translateX(-50%); background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,.78), rgba(0,0,0,.35) 75%, rgba(0,0,0,0)); border-radius: 12px"></div>
+          </sc-if>
+          <button class="seat" onClick="{{s.pick}}" aria-label="Open {{s.name}}, {{s.job}}" style="pointer-events: auto; position: absolute; left: {{s.x}}; top: {{s.top}}; width: {{s.w}}; height: {{s.h}}; transform: translateX(-50%); background: none; border: 0; padding: 0; cursor: pointer">
+            <span class="ring" style="position: absolute; inset: 0; border-radius: 12px; box-shadow: 0 0 0 1px rgba(255,255,255,.55), 0 0 26px rgba(170,210,255,.25); display: block"></span>
+            <span style="position: absolute; inset: 0; border-radius: 12px; display: block; {{s.selRing}}"></span>
+          </button>
+          <sc-for list="{{s.bubbles}}" as="q" hint-placeholder-count="2">
+            <div class="bub" style="position: absolute; left: {{s.bx}}; top: {{s.by}}; width: 9.2cqw; background: rgba(10,14,20,.86); border: 1px solid rgba(200,220,240,.28); border-radius: .5cqw; padding: .45cqw .55cqw .5cqw; box-shadow: 0 .6cqw 1.6cqw rgba(0,0,0,.6), 0 0 18px rgba(140,190,255,.12); {{q.delay}}">
+              <div style="display: flex; align-items: center; gap: .35cqw; font-family: Montserrat; font-weight: 600; font-size: .5cqw; letter-spacing: .16cqw; text-transform: uppercase; color: #9FB4C8">
+                <span class="live" style="width: .42cqw; height: .42cqw; border-radius: 50%; background: #E6EEF6; display: inline-block"></span>{{s.name}} · now
+              </div>
+              <div style="font-size: .66cqw; line-height: 1.35; color: #F2F5F8; margin-top: .25cqw">{{q.text}}<span class="caret" style="display: inline-block; width: .32cqw; height: .7cqw; background: #E6EEF6; margin-left: .18cqw; vertical-align: -.08cqw"></span></div>
+              <span aria-hidden="true" style="position: absolute; left: 50%; bottom: -.38cqw; width: .7cqw; height: .7cqw; background: rgba(10,14,20,.86); border-right: 1px solid rgba(200,220,240,.28); border-bottom: 1px solid rgba(200,220,240,.28); transform: translateX(-50%) rotate(45deg)"></span>
+            </div>
+          </sc-for>
+          <div style="position: absolute; left: {{s.x}}; top: {{s.tagY}}; transform: translateX(-50%); display: inline-flex; align-items: center; gap: .32cqw; white-space: nowrap; background: rgba(8,10,14,.78); border: 1px solid rgba(200,220,240,.2); border-radius: 99px; padding: .22cqw .55cqw; font-family: Montserrat; font-weight: 600; font-size: .5cqw; letter-spacing: .14cqw; text-transform: uppercase; color: {{s.tagColor}}">
+            <span style="width: .4cqw; height: .4cqw; border-radius: 50%; background: {{s.light}}; display: inline-block"></span>{{s.name}}<span style="color: #7F93A6; font-weight: 500">{{s.stage}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="position: absolute; left: 1.4cqw; bottom: 1.2cqw; display: flex; align-items: center; gap: .7cqw; background: rgba(6,8,12,.7); border: 1px solid rgba(200,220,240,.16); padding: .5cqw .8cqw; font-family: Montserrat; font-weight: 600; font-size: .6cqw; letter-spacing: .25cqw; text-transform: uppercase; color: #D9E4EE">
+      <span class="live" style="width: .5cqw; height: .5cqw; border-radius: 50%; background: #E6EEF6; display: inline-block"></span>The floor · live<span style="color: #7F93A6">{{clock}}</span>
+    </div>
+    <div style="position: absolute; right: 1.4cqw; bottom: 1.2cqw; display: flex; gap: .9cqw; background: rgba(6,8,12,.7); border: 1px solid rgba(200,220,240,.16); padding: .5cqw .8cqw; font-family: Montserrat; font-weight: 500; font-size: .52cqw; letter-spacing: .16cqw; text-transform: uppercase; color: #B9C6D2">
+      <span style="display: inline-flex; gap: .35cqw; align-items: center"><span style="width: .7cqw; height: .7cqw; border-radius: 2px; background: #EEF2F6"></span>On track</span>
+      <span style="display: inline-flex; gap: .35cqw; align-items: center"><span style="width: .7cqw; height: .7cqw; border-radius: 2px; background: #8E99A4"></span>Due today</span>
+      <span style="display: inline-flex; gap: .35cqw; align-items: center"><span style="width: .7cqw; height: .7cqw; border-radius: 2px; background: #C77A6A"></span>Overdue</span>
+      <span style="color: #7F93A6">Click any listing for its full history</span>
+    </div>
+  </div>
+
+  <div style="margin: 24px 48px 48px; background: #FAFAF8; color: #1D1D1F; display: flex; flex-wrap: wrap; align-items: stretch">
+    <div style="flex: 1 1 380px; min-width: 0; max-width: 420px; background: #131313; color: #ECEDEE; position: relative">
+      <div style="position: relative; height: 330px; overflow: hidden; background: #000">
+        <img src="{{agent.live}}" alt="{{agent.name}} at work" style="width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; {{agent.imgStyle}}">
+        <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 55%, rgba(0,0,0,.9) 100%)"></div>
+        <div style="position: absolute; left: 16px; top: 14px; right: 16px; display: flex; justify-content: space-between; font-family: Montserrat; font-weight: 600; font-size: 9.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #E6EEF6">
+          <span style="display: inline-flex; align-items: center; gap: 7px"><span class="live" style="width: 7px; height: 7px; border-radius: 50%; background: {{agent.camDot}}; display: inline-block"></span>{{agent.cam}}</span>
+          <span style="color: #B9C6D2">{{clock}}</span>
+        </div>
+        <div style="position: absolute; left: 18px; right: 18px; bottom: 14px">
+          <div style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 3px; color: #B9C6D2; text-transform: uppercase">{{agent.job}}</div>
+          <div style="font-family: Archivo; font-weight: 900; font-size: 40px; line-height: .95; text-transform: uppercase; margin-top: 6px">{{agent.name}}<span class="chrome">.</span></div>
+        </div>
+      </div>
+      <div style="padding: 18px 20px 22px">
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 3px; color: #9FA4A8; text-transform: uppercase">Working right now</div>
+        <div style="font-size: 14px; color: #FFFFFF; margin-top: 6px; line-height: 1.5">{{agent.task}}</div>
+        <div style="margin-top: 14px; background: #0E0E0E; border: 1px solid #2C2C2A; padding: 12px 14px; font-size: 13px; line-height: 1.55; color: #D9DBDD">{{agentSays}}</div>
+        <sc-if value="{{isAnchor}}" hint-placeholder-val="{{ false }}">
+          <a href="https://claude.ai/artifact/9vTrwyERGKzhFmktp22AMk" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: #D9DBDD; color: #131313; padding: 14px 16px; font-family: Montserrat; font-weight: 500; font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase"><span>Write it with Claude</span><span>Spartan 1 →</span></a>
+        </sc-if>
+        <div style="display: flex; gap: 8px; margin-top: 10px">
+          <label for="talk" style="position: absolute; left: -9999px">Message {{agent.name}}</label>
+          <input id="talk" placeholder="Talk to {{agent.name}}" style="flex: 1; min-width: 0; background: #0E0E0E; border: 1px solid #3A3A38; color: #ECEDEE; padding: 11px 12px; font: inherit; font-size: 13.5px">
+          <button style="background: #D9DBDD; color: #131313; border: 0; padding: 0 14px; min-height: 44px; font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer">Send</button>
+        </div>
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 2.5px; color: #7D8184; text-transform: uppercase; margin-top: 18px">Crew on bay {{bay.num}}</div>
+        <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap">
+          <sc-for list="{{bay.crew}}" as="c" hint-placeholder-count="2">
+            <button onClick="{{c.pick}}" style="display: flex; align-items: center; gap: 8px; background: {{c.bg}}; border: 1px solid #2C2C2A; color: #ECEDEE; padding: 6px 10px 6px 6px; cursor: pointer; min-height: 44px">
+              <img src="{{c.still}}" alt="" width="30" height="40" style="width: 30px; height: 40px; object-fit: cover; display: block">
+              <span style="font-family: Montserrat; font-weight: 600; font-size: 9.5px; letter-spacing: 2px">{{c.name}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex: 999 1 640px; min-width: 0; padding: 26px 30px 30px">
+      <sc-if value="{{showBay}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #1D1D1F; padding-bottom: 12px">
+          <div>
+            <div style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 3px; color: #5E6266; text-transform: uppercase">Bay {{bay.num}} · {{bay.rule}}</div>
+            <div style="font-family: Archivo; font-weight: 900; font-size: 30px; text-transform: uppercase; margin-top: 4px">{{bay.name}} · {{bay.count}} listings</div>
+          </div>
+          <div style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2.5px; color: #5E6266; text-transform: uppercase">Most urgent first · click a listing for its history</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px">
+          <sc-for list="{{bay.cards}}" as="k" hint-placeholder-count="6">
+            <button onClick="{{k.pick}}" style="text-align: left; font: inherit; color: inherit; cursor: pointer; background: #FFFFFF; border: 1px solid #E3E1DC; border-top: 3px solid {{k.edge}}; padding: 14px 14px 12px">
+              <span style="display: flex; justify-content: space-between; gap: 8px; align-items: flex-start">
+                <span style="font-weight: 700; font-size: 14px; line-height: 1.3">{{k.addr}}</span>
+                <span style="font-family: Montserrat; font-weight: 500; font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 6px; white-space: nowrap; {{k.pill}}">{{k.when}}</span>
+              </span>
+              <span style="display: block; font-size: 12px; color: #4A4D50; margin-top: 4px">{{k.city}} · {{k.agent}}</span>
+              <span style="display: block; height: 3px; background: #ECEAE5; margin-top: 12px"><span style="display: block; height: 3px; width: {{k.pct}}; background: #3B3F43"></span></span>
+              <span style="display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 12px">
+                <span style="color: #1D1D1F">{{k.doneLine}}</span>
+                <span style="color: #5E6266; white-space: nowrap">{{k.day}}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showDossier}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{closeDossier}}" style="background: none; border: 0; padding: 0; min-height: 44px; cursor: pointer; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #4A4D50">← Back to the {{bay.name}} bay</button>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; border-bottom: 2px solid #1D1D1F; padding-bottom: 16px">
+          <div>
+            <div style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 3px; color: #5E6266; text-transform: uppercase">{{d.city}} · {{d.agent}} · MLS {{d.mls}} · {{d.price}}</div>
+            <div style="font-family: Archivo; font-weight: 900; font-size: 40px; line-height: 1; text-transform: uppercase; margin-top: 6px">{{d.addr}}</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase">
+              <span style="background: #131313; color: #FFFFFF; padding: 6px 9px">{{d.stage}}</span>
+              <span style="border: 1px solid #C9C5BE; padding: 6px 9px">{{d.day}}</span>
+              <span style="padding: 6px 9px; {{d.pill}}">{{d.when}}</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <a href="https://theblk.group/listings/" style="border: 1px solid #1D1D1F; color: #1D1D1F; padding: 12px 14px; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase">Listing page ↗</a>
+            <a href="https://claude.ai/artifact/9vTrwyERGKzhFmktp22AMk" style="background: #131313; color: #FFFFFF; padding: 12px 14px; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase">Spartan 1 ↗</a>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; margin-top: 16px; flex-wrap: wrap">
+          <div style="font-family: Archivo; font-weight: 900; font-size: 26px">{{d.done}} / {{d.total}}</div>
+          <div style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2.5px; color: #5E6266; text-transform: uppercase">steps pushed to done</div>
+          <div style="flex: 1 1 200px; height: 6px; background: #ECEAE5"><div style="height: 6px; width: {{d.pct}}; background: #131313"></div></div>
+          <div style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2px; color: #8C5A50; text-transform: uppercase">{{d.openLine}}</div>
+        </div>
+
+        <sc-for list="{{d.groups}}" as="g" hint-placeholder-count="4">
+          <div style="margin-top: 22px; border: 1px solid #E3E1DC; background: #FFFFFF">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 16px; background: {{g.headBg}}; color: {{g.headColor}}">
+              <span style="font-family: Montserrat; font-weight: 600; font-size: 10.5px; letter-spacing: 3px; text-transform: uppercase">{{g.num}} · {{g.name}} <span style="font-weight: 500; opacity: .7">· {{g.rule}}</span></span>
+              <span style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase">{{g.summary}}</span>
+            </div>
+            <sc-for list="{{g.steps}}" as="s" hint-placeholder-count="4">
+              <div class="row" style="display: grid; grid-template-columns: 44px minmax(0, 1fr) 150px 190px; align-items: center; gap: 12px; padding: 8px 16px 8px 8px; border-top: 1px solid #F0EEE9">
+                <button onClick="{{s.check}}" aria-label="{{s.checkLabel}}" style="width: 44px; height: 44px; padding: 0; background: none; border: 0; cursor: {{s.cursor}}; display: flex; align-items: center; justify-content: center">
+                  <span style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; {{s.boxStyle}}">
+                    <sc-if value="{{s.isDone}}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
+                    <sc-if value="{{s.isQueued}}" hint-placeholder-val="{{ false }}"><span class="spin" style="width: 12px; height: 12px; border-radius: 50%; border: 2px solid #9AA0A6; border-top-color: #131313; display: block"></span></sc-if>
+                  </span>
+                </button>
+                <div style="min-width: 0">
+                  <div style="font-weight: 600; font-size: 14px; color: {{s.labelColor}}">{{s.label}}</div>
+                  <div style="font-size: 12px; color: #5E6266; margin-top: 2px">{{s.detail}}</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <img src="{{s.ownerStill}}" alt="" width="24" height="32" style="width: 24px; height: 32px; object-fit: cover; display: block; {{s.ownerDim}}">
+                  <span style="font-family: Montserrat; font-weight: 600; font-size: 9px; letter-spacing: 1.6px; color: #3B3F43">{{s.owner}}</span>
+                </div>
+                <div style="text-align: right">
+                  <sc-if value="{{s.canSend}}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{s.check}}" style="background: #131313; color: #FFFFFF; border: 0; min-height: 36px; padding: 0 12px; cursor: pointer; font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 2px; text-transform: uppercase">Send to {{s.owner}}</button>
+                  </sc-if>
+                  <sc-if value="{{s.hasLink}}" hint-placeholder-val="{{ false }}">
+                    <a href="{{s.href}}" style="color: #1D1D1F; border-bottom: 1px solid #1D1D1F; font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase">{{s.linkText}}</a>
+                  </sc-if>
+                  <div style="font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 1.5px; color: {{s.whenColor}}; text-transform: uppercase; margin-top: 4px">{{s.when}}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <div style="font-size: 12px; color: #5E6266; margin-top: 16px; line-height: 1.55">Sample history until the Lab feed is connected. Once it is, each box checks itself from the source: Spartan 1 when you mark a weekly update done, the posting log for every FB and IG post, the mailing ledger for every mailer, and theblk.group when the listing site goes live. An open box sends the job to the agent who owns it.</div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { bay: 2, agent: 'MEGAPHONE', mode: 'full', pick: null, disp: {}, now: Date.now() }; this.timers = []; }
+  componentDidMount() { this.clockT = setInterval(() => this.setState({ now: Date.now() }), 30000); }
+  componentWillUnmount() { clearInterval(this.clockT); this.timers.forEach((t) => clearTimeout(t)); }
+  renderVals() {
+    const today = this.state.mode === 'today';
+    const LIVE = { ATLAS: '/_blob/ff39cdbecadd7ea2f791d4dd3e2d6475', PICASSO: '/_blob/60a2454160461a3b9a942cec0d68be4e', POSTMAN: '/_blob/2329380a9f211394bde3ec8b70b76461', MEGAPHONE: '/_blob/d204369527023599d9c26da8b6f31a9c', ARCHITECT: '/_blob/c999152e4d9debb8fe324b0203826259', ANCHOR: '/_blob/53bfdd379a0e21fdb9f770a295c58806', AMPLIFIER: '/_blob/9fd0a90aec257a8691ce646f89abea0a', MARTHA: '/_blob/37268e4ac4e36395423decbb6194ab12', LEDGER: '/_blob/9286b19d21b18b619f2bb2e503146899', WATCHDOG: '/_blob/60da5827237d1e1c11152c7fbd5e93d5' };
+    const STILL = { ATLAS: '/_blob/b2890f7e4edc2f8088c97e1071538774', PICASSO: '/_blob/924e953d61e47bf789ba2dbed8ecf060', POSTMAN: '/_blob/e3d31b737a3a2e4ff2963187244e8936', MEGAPHONE: '/_blob/d6a39cdfeab9edd88b0ebce0a2c113ca', ARCHITECT: '/_blob/49a92c38941c5fd86e8dffbef4dc9b39', ANCHOR: '/_blob/499edf8fd3ebeec3ec17b9ae259812f4', AMPLIFIER: '/_blob/848cd12c45bd6d5721c5c624f69e9e4c', MARTHA: '/_blob/a38f26fddd69bb7e114864893d224a41', LEDGER: '/_blob/a33ba80cc136ebb3a1b315f8b43048d6', WATCHDOG: '/_blob/c07124b325cd211f5c7a4d1ec93db9cc' };
+    const JOB = { ATLAS: 'The COO · onboarding', PICASSO: 'Graphics + signs', POSTMAN: 'All mail', MEGAPHONE: 'Content + posts', ARCHITECT: 'Web + listing sites', ANCHOR: 'Weekly client updates', AMPLIFIER: 'Paid ads', MARTHA: 'Staging + clean-up', LEDGER: 'Compliance + P&L', WATCHDOG: 'Nothing fails silently' };
+    const REAL = { ATLAS: 'NOT STARTED', PICASSO: 'PARTIAL', POSTMAN: 'NOT STARTED', MEGAPHONE: 'BLOCKED', ARCHITECT: 'PARTIAL', ANCHOR: 'RUNNING', AMPLIFIER: 'NOT STARTED', MARTHA: "SPEC'D", LEDGER: 'NOT STARTED', WATCHDOG: 'NOT STARTED' };
+    const BAYS = [
+      { name: 'Onboarding', rule: 'until you move it', crew: ['ATLAS'] },
+      { name: 'Coming Soon', rule: '24-hour limit', crew: ['PICASSO', 'POSTMAN'] },
+      { name: 'Just Listed', rule: 'days 1-7 · auto', crew: ['MEGAPHONE', 'ARCHITECT'] },
+      { name: 'Welcome Home', rule: 'days 8-15 · auto', crew: ['ANCHOR'] },
+      { name: 'Welcome Home v2', rule: 'days 16-23 · auto', crew: ['AMPLIFIER'] },
+      { name: 'Final Push', rule: 'refresh at day 30', crew: ['MARTHA'] },
+      { name: 'Under Contract', rule: 'TC takes over', crew: ['LEDGER'] },
+    ];
+    const STAGE_OF = { ATLAS: 0, PICASSO: 1, POSTMAN: 1, MEGAPHONE: 2, ARCHITECT: 2, ANCHOR: 3, AMPLIFIER: 4, MARTHA: 5, LEDGER: 6, WATCHDOG: -1 };
+    // Real listings from the Lab (36 active). [address, city, agent, price, listed, MLS status, MLS#]
+    const LIST = [["6920 Holtdale Lane","North Little Rock","Shelley",200000,"2026-02-22","ACT","26006745"],["11 Acala Place","Hot Springs Village","Brandon",396000,"2026-04-15","ACT","26014809"],["507 Southhaven","Cabot","Brandon",285000,"2026-07-21","ACT","26029517"],["402 Demuth","Benton","Shelley",482500,"2026-07-30","ACT","26030736"],["144 La Vista Lane","Hot Springs Village","Brandon",107000,"2026-07-30","ACT","26030740"],["511 N Ross Maddox","Pearcy","Brandon",259999,"2026-08-19","ACT","26033885"],["117 W Lea Circle","Bryant","Brandon",295000,"2026-08-22","ESC","26034321"],["202 N Griffin Street","Morrilton","Brandon",114999,"2026-09-08","TBU","26036533"],["12007 Swepco Lake Road","Gentry","Brandon",720000,"2026-09-08","ACT","26036534"],["3 Gailosa Lane","Hot Springs Village","Brandon",128900,"2026-09-14","ACT","26037358"],["11 Alicante Lane","Hot Springs Village","Brandon",259500,"2026-09-18","TBU","26038016"],["301 Zachary Cove","Bryant","Brandon",210000,"2026-09-23","TBU","26038665"],["10 Parkridge Drive","North Little Rock","Brandon",159900,"2026-09-26","ACT","26039060"],["4 Ligadura Lane","Hot Springs Village","Brandon",639900,"2026-09-26","TBU","26039119"],["5906 Karen Drive","North Little Rock","Shelley",264900,"2026-09-30","ACT","26039523"],["3519 Village Walk Drive","Bryant","Brandon",245000,"2026-10-01","ACT","26039712"],["8 Reata Way","Hot Springs Village","Brandon",244900,"2026-10-01","ACT","26039724"],["224 Longview Point","Hot Springs","Brandon",360000,"2026-10-03","ACT","26040104"],["2145 Dillard Drive","Conway","Brandon",247500,"2026-10-03","ACT","26040132"],["237 Longview Point","Hot Springs","Brandon",364000,"2026-10-07","ACT","26040575"],["198 Shelly Lane","Hot Springs","Brandon",495000,"2026-10-14","ACT","26041635"],["5121 Madison Avenue","Jacksonville","Brandon",344000,"2026-10-15","TBU","26041757"],["117 Cifuentes Way","Hot Springs Village","Brandon",394900,"2026-10-17","ACT","26042031"],["5057 Whitney Lane","Benton","Brandon",510000,"2026-10-17","ACT","26042032"],["149 Sheep Shank Bend","Damascus","Brandon",475000,"2026-10-19","ACT","26042178"],["3013 Overbrook Circle","North Little Rock","Amanda",549500,"2026-10-20","ACT","26042268"],["12 Huesca Lane","Hot Springs Village","Brandon",265000,"2026-10-20","ACT","26042269"],["284 Northlake Cove","Hot Springs","Brandon",644999,"2026-10-20","ACT","26042270"],["9 Torre del Mar Way","Hot Springs Village","Brandon",279999,"2026-10-20","ACT","26042272"],["227 Bayshore Cove","Hot Springs","Brandon",314900,"2026-10-22","ACT","26042595"],["415 Jackson Road S","Damascus","Brandon",899000,"2026-10-22","ACT","26042596"],["13013 Lemoncrest Lane","Little Rock","Brandon",342450,"2026-10-30","NEW","26043681"],["5512 Crescent Drive","North Little Rock","Brandon",249900,"2026-10-30","NEW","26043682"],["2 Conquista Lane","Hot Springs Village","Brandon",22300,"2025-11-13","ACT","25045249"],["000 Eagle Valley Road","Conway","Amanda",145500,"2026-04-03","ACT","26012877"],["5906 Karen Drive (lease)","North Little Rock","Brandon",2400,"2026-09-29","ACT","26039381"]];
+    const now = new Date(this.state.now); const DAY = 86400000;
+    const dayN = (iso) => Math.max(1, Math.floor((now - new Date(iso + 'T12:00:00')) / DAY));
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const fmt = (d) => `${MON[d.getMonth()]} ${d.getDate()}`;
+    const hm = (t) => { const d = new Date(t); let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; };
+    const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+    const money = (n) => '$' + n.toLocaleString('en-US');
+    const bayOf = (st, a) => st === 'TBU' ? 6 : a <= 7 ? 2 : a <= 15 ? 3 : a <= 23 ? 4 : 5;
+    const S1 = 'https://claude.ai/artifact/9vTrwyERGKzhFmktp22AMk';
+    // Every step of a listing, in order. [stage, key, label, owner, opens on day, kind]
+    const STEPS = [
+      [0, 'packet', 'Pre-listing packet sent', 'ATLAS', -14, 'doc'], [0, 'agreement', 'Listing agreement signed', 'ATLAS', -12, 'doc'], [0, 'photos', 'Photos shot and delivered', 'ATLAS', -8, 'doc'], [0, 'journal', "Home's Journal built", 'PICASSO', -6, 'doc'],
+      [1, 'cs_mls', 'Coming Soon in MLS', 'ATLAS', -4, 'doc'], [1, 'cs_gfx', 'Coming Soon graphics', 'PICASSO', -4, 'gfx'], [1, 'cs_post', 'Coming Soon posts', 'MEGAPHONE', -3, 'post'], [1, 'jl_mailer', 'Just Listed mailer designed', 'POSTMAN', -2, 'mail'], [1, 'jl_send', 'Mailer paid and sent · Wise Pelican', 'POSTMAN', -1, 'send'], [1, 'sign', 'Yard sign and rider up', 'PICASSO', -1, 'doc'],
+      [2, 'site', 'Listing website live on theblk.group', 'ARCHITECT', 0, 'site'], [2, 'jl_gfx', 'Just Listed graphics · 3 slides', 'PICASSO', 0, 'gfx'], [2, 'jl_post', 'Just Listed posts', 'MEGAPHONE', 1, 'post'], [2, 'mkt', 'Marketplace post', 'MEGAPHONE', 1, 'post1'], [2, 'ads', 'Radius ads launched', 'AMPLIFIER', 2, 'ads'], [2, 'w1', 'Week 1 update', 'ANCHOR', 7, 'update'],
+      [3, 'w2_gfx', 'Week 2 graphics', 'PICASSO', 8, 'gfx'], [3, 'w2_post', 'Week 2 posts', 'MEGAPHONE', 9, 'post'], [3, 'feedback', 'Showing feedback chased', 'ANCHOR', 10, 'doc'], [3, 'w2', 'Week 2 update', 'ANCHOR', 14, 'update'],
+      [4, 'w3_gfx', 'Week 3 graphics', 'PICASSO', 16, 'gfx'], [4, 'w3_post', 'Week 3 posts', 'MEGAPHONE', 17, 'post'], [4, 'ads2', 'Ads refreshed', 'AMPLIFIER', 18, 'ads'], [4, 'w3', 'Week 3 update', 'ANCHOR', 21, 'update'],
+      [5, 'w4_post', 'Final push posts', 'MEGAPHONE', 24, 'post'], [5, 'w4', 'Week 4 update', 'ANCHOR', 28, 'update'], [5, 'refresh', 'Day 30 photo refresh', 'MARTHA', 30, 'doc'], [5, 'relaunch', 'Relaunch or price decision', 'ATLAS', 30, 'doc'],
+      [6, 'uc_gfx', 'Under Contract graphics', 'PICASSO', 0, 'gfx'], [6, 'uc_post', 'Under Contract posts', 'MEGAPHONE', 0, 'post'], [6, 'score', 'Scorecard row written', 'LEDGER', 0, 'doc'], [6, 'tc', 'Handed to the TC', 'LEDGER', 0, 'doc'],
+    ];
+    const items = LIST.map(([addr, city, agent, price, listed, st, mls], id) => {
+      const a = dayN(listed); const bi = bayOf(st, a);
+      const updDay = a >= 7 && a <= 30 && (a % 7 === 0 || a % 7 === 1);
+      const status = bi === 6 ? 'ok' : a > 30 ? 'over' : updDay ? 'due' : 'ok';
+      return { id, addr, city, agent, price, listed, st, mls, a, bi, status };
+    });
+    const stepsFor = (it) => {
+      const base = new Date(it.listed + 'T12:00:00');
+      return STEPS.map(([stage, key, label, owner, day, kind]) => {
+        const k = `${it.id}:${key}`; const h = hash(k);
+        const reached = stage === 6 ? it.bi === 6 : (it.bi === 6 ? day <= it.a : day <= it.a);
+        const at = stage === 6 ? new Date(now - (1 + h % 4) * DAY) : new Date(base.getTime() + (day + (h % 2)) * DAY);
+        let state = !reached ? 'up' : (h % 7 === 0 || (day >= it.a - 1 && h % 2 === 0)) ? 'open' : 'done';
+        const dsp = this.state.disp[k];
+        if (dsp) state = dsp.s === 'q' ? 'queued' : 'doneNow';
+        const fb = 1 + (h % 3), ig = 1 + ((h >> 3) % 3);
+        let detail = '';
+        if (state === 'done' || state === 'doneNow') {
+          detail = kind === 'post' ? `Facebook ×${fb} · Instagram ×${ig} · last ${fmt(new Date(at.getTime() + 2 * DAY))}` : kind === 'post1' ? `Facebook Marketplace · listed ${fmt(at)}` : kind === 'gfx' ? `3 slides built · approved ${fmt(at)}` : kind === 'mail' ? 'Proof approved · QR on every piece' : kind === 'send' ? `Paid and sent ${fmt(at)} · quarter-mile radius` : kind === 'site' ? 'Page live with the showing scheduler' : kind === 'ads' ? 'Running inside the cap' : kind === 'update' ? `Sent to the seller ${fmt(at)} · written in Spartan 1` : `Logged ${fmt(at)}`;
+          if (state === 'doneNow') detail = kind === 'post' ? 'Facebook ×1 · Instagram ×1 · just posted' : 'Completed just now';
+        } else if (state === 'open') detail = kind === 'update' ? 'Not sent yet · opens in Spartan 1' : 'Not done yet';
+        else if (state === 'queued') detail = `${owner} picked it up at ${hm(dsp.t)}`;
+        else detail = stage === 6 ? 'Opens at contract' : `Opens on day ${Math.max(1, day)}`;
+        const isDone = state === 'done' || state === 'doneNow';
+        const send = () => {
+          if (state !== 'open') return;
+          this.setState({ disp: { ...this.state.disp, [k]: { s: 'q', t: Date.now() } } });
+          this.timers.push(setTimeout(() => this.setState({ disp: { ...this.state.disp, [k]: { s: 'd', t: Date.now() } } }), 3600));
+        };
+        const link = isDone && (kind === 'update' || kind === 'site');
+        return {
+          key, label, owner, stage, isDone, isQueued: state === 'queued', canSend: state === 'open',
+          ownerStill: STILL[owner], ownerDim: state === 'up' ? 'opacity: .45; filter: grayscale(1);' : '',
+          check: send, cursor: state === 'open' ? 'pointer' : 'default',
+          checkLabel: isDone ? `${label}: done` : state === 'open' ? `Send ${label} to ${owner}` : state === 'queued' ? `${label}: ${owner} is on it` : `${label}: upcoming`,
+          boxStyle: isDone ? 'background: #131313; border: 2px solid #131313;' : state === 'open' ? 'background: #FFFFFF; border: 2px solid #8C5A50;' : state === 'queued' ? 'background: #FFFFFF; border: 2px solid #9AA0A6;' : 'background: #FFFFFF; border: 2px dashed #C9C5BE;',
+          labelColor: state === 'up' ? '#9AA0A6' : '#1D1D1F', detail,
+          when: isDone ? (state === 'doneNow' ? 'Done · just now' : `Done · ${fmt(at)}`) : state === 'open' ? (kind === 'update' ? 'Due · not checked' : 'Open') : state === 'queued' ? `${owner} is on it` : 'Upcoming',
+          whenColor: isDone ? '#2F5D45' : state === 'open' ? '#8C5A50' : '#7D8184',
+          hasLink: link || (state === 'open' && kind === 'update'), href: kind === 'site' ? 'https://theblk.group/listings/' : S1,
+          linkText: kind === 'site' ? 'Open the site ↗' : isDone ? 'Open in Spartan 1 ↗' : 'Write it in Spartan 1 ↗',
+        };
+      });
+    };
+    const pools = BAYS.map(() => []);
+    items.forEach((it) => pools[it.bi].push(it));
+    const bays = BAYS.map((b, bi) => ({ ...b, n: pools[bi].length, items: pools[bi].sort((x, y) => y.a - x.a) }));
+    const all = items;
+    const sb = this.state.bay; const B = bays[sb];
+    const FACE = { ok: 'background: #EEF2F6; box-shadow: 0 0 6px rgba(220,235,250,.5);', due: 'background: #8E99A4;', over: 'background: #C77A6A; box-shadow: 0 0 6px rgba(199,122,106,.55);' };
+    const pickItem = (it) => () => this.setState({ bay: it.bi, agent: BAYS[it.bi].crew[0], pick: it.id });
+    const outBays = bays.map((b, bi) => ({
+      name: b.name, rule: b.rule, num: String(bi + 1).padStart(2, '0'), countPad: String(b.n).padStart(2, '0'),
+      overLabel: b.items.filter((i) => i.status === 'over').length ? `${b.items.filter((i) => i.status === 'over').length} overdue` : '',
+      segStyle: bi === sb ? 'background: rgba(160,200,255,.07);' : '',
+      topBar: bi === sb ? 'background: #E6EEF6; box-shadow: 0 0 12px rgba(200,225,255,.6);' : 'background: transparent;',
+      pick: () => this.setState({ bay: bi, agent: b.crew[0], pick: null }),
+      tokens: b.items.slice(0, 18).map((it) => ({ label: `${it.addr}, ${it.city} · day ${it.a} · ${it.status === 'over' ? 'overdue' : it.status === 'due' ? 'due today' : 'on track'}`, face: FACE[it.status] + (this.state.pick === it.id ? 'outline: 2px solid #FFFFFF; outline-offset: 1px;' : ''), pick: pickItem(it) })),
+    }));
+    // Seats measured on the war room shot (percent of the frame)
+    const SEATS = [['ATLAS', 7.1, 29.4], ['PICASSO', 18.2, 29.4], ['POSTMAN', 27.5, 29.2], ['MEGAPHONE', 38.1, 29.4], ['ARCHITECT', 48.3, 30.4], ['ANCHOR', 58.3, 29.9], ['AMPLIFIER', 68.7, 30.2], ['MARTHA', 79.2, 30.7], ['LEDGER', 88.6, 29.4], ['WATCHDOG', 94.0, 15.0]];
+    const working = (n) => !today || REAL[n] === 'RUNNING' || REAL[n] === 'PARTIAL';
+    const light = (n) => { if (!today) return '#E6EEF6'; const r = REAL[n]; return r === 'RUNNING' ? '#E6EEF6' : r === 'PARTIAL' ? '#8E99A4' : r === 'BLOCKED' ? '#C77A6A' : '#3A3F45'; };
+    const n0 = (bi) => bays[bi].n;
+    const overN = all.filter((i) => i.status === 'over').length; const dueNow = all.filter((i) => i.status === 'due');
+    const TASKS = {
+      ATLAS: [`Running the chain across all 7 bays`, n0(0) ? `${n0(0)} listings in onboarding` : 'Onboarding is clear · next signed listing lands here'],
+      PICASSO: ['Week 2 graphics · 3 slides per listing', n0(1) ? `Coming Soon sets · ${n0(1)} homes` : 'Just Listed mailer art, QR on every piece'],
+      POSTMAN: ['Just Sold farm drop · quarterly list pulled', 'Mailer proofs waiting on your one tap'],
+      MEGAPHONE: [`Just Listed posts · ${n0(2)} homes, 3 a day`, 'Queuing drafts until Meta approves the app'],
+      ARCHITECT: [`${LIST.length} listing pages live on theblk.group`, 'Pricing straight from the Lab'],
+      ANCHOR: [dueNow.length ? `${dueNow.length} weekly updates due today` : 'No updates due today', 'Context loaded for you and Claude'],
+      AMPLIFIER: [`Radius ads · ${n0(4)} homes inside caps`, 'Swapping price-change creatives'],
+      MARTHA: [`${bays[5].items.filter((i) => i.a > 30).length} homes past day 30 · fresh photos`, 'Labeling every staged photo'],
+      LEDGER: [`${n0(6)} contracts on the scorecard`, 'Backups logged, TC handoff'],
+      WATCHDOG: [overN ? `${overN} listings overdue · flagged` : 'Every link fired · 0 silent failures', 'Watching every handoff'],
+    };
+    const seats = SEATS.map(([name, x, head], idx) => {
+      const isW = name === 'WATCHDOG'; const on = working(name);
+      return {
+        name, job: JOB[name], x: `${x}%`, top: `${head - 1}%`, w: isW ? '7%' : '8.4%', h: isW ? '33%' : '20%',
+        bx: `${x}%`, by: `${head - 0.6}%`, tagY: isW ? `${head - 5.2}%` : '48.6%',
+        stage: STAGE_OF[name] >= 0 ? ` · ${BAYS[STAGE_OF[name]].name}` : ' · Watch',
+        veil: today && !on, light: light(name), tagColor: on ? '#FFFFFF' : '#6E7378',
+        selRing: this.state.agent === name ? 'box-shadow: 0 0 0 1.5px #FFFFFF, 0 0 30px rgba(190,220,255,.35);' : '',
+        bubbles: on ? TASKS[name].map((text, i) => ({ text, delay: `animation-delay: -${((idx % 2) * 4.5 + i * 9 + 2).toFixed(1)}s;` })) : [],
+        pick: () => this.setState(STAGE_OF[name] >= 0 ? { agent: name, bay: STAGE_OF[name], pick: null } : { agent: name }),
+      };
+    });
+    const an = this.state.agent;
+    const open = !working(an);
+    const SAYS = {
+      ATLAS: `${n0(0)} listings in onboarding. I fire every checklist and flag the agent the moment a step goes late.`,
+      PICASSO: 'Week 2 graphics are going out in order, oldest listing first. Coming Soon sets and Just Listed mailer art come off my desk with a QR on every piece.',
+      POSTMAN: 'Radius lists pull the moment a listing goes Coming Soon. Proofs wait on your one tap, then I pay and send through Wise Pelican.',
+      MEGAPHONE: `${n0(2)} Just Listed homes in rotation, three posts a day, the most overdue first. Every post carries the listing's theblk.group link. Until the Meta app is approved I queue drafts for one tap.`,
+      ARCHITECT: `All ${LIST.length} live listings have their own page on theblk.group, priced straight from the Lab. Leads land on the board tagged with the address.`,
+      ANCHOR: dueNow.length ? `${dueNow.length} update${dueNow.length > 1 ? 's are' : ' is'} due today: ${dueNow.map((i) => `${i.addr} (week ${Math.max(1, Math.floor(i.a / 7))})`).join(', ')}. Open Spartan 1, enter this week's numbers, hit Send to Claude, and we write them together. When you mark it done there, the box checks here.` : 'No weekly updates due today. Next ones land on day 7, 14, 21 and 28 of each listing.',
+      AMPLIFIER: `Radius ads are live on ${n0(4)} homes inside their caps. Price-change creatives swap in the morning they change.`,
+      MARTHA: `${bays[5].items.filter((i) => i.a > 30).length} listings are past day 30 and due a relaunch. Fresh lead photos get cleaned up and labeled virtually staged; originals kept.`,
+      LEDGER: `${n0(6)} homes under contract and taking backups. Each one sits on your monthly scorecard as pending until you mark it paid.`,
+      WATCHDOG: overN ? `${overN} listings are past day 30 with a refresh overdue. I watch every handoff on this floor and nothing fails without you hearing about it.` : 'Every link fired today. Nothing failed silently.',
+    };
+    const agent = { name: an, job: JOB[an], live: open ? STILL[an] : LIVE[an], imgStyle: open ? 'filter: grayscale(1) brightness(.5);' : '', cam: open ? `Seat open · ${an}` : `Live · ${an}`, camDot: open ? '#5E6266' : '#E6EEF6', task: open ? 'Seat open · not hired yet' : TASKS[an][0] };
+    const rank = { over: 0, due: 1, ok: 2 };
+    const cardsOf = (b) => b.items.slice().sort((x, y) => rank[x.status] - rank[y.status]).map((it) => {
+      const st = stepsFor(it).filter((s) => s.stage <= Math.max(it.bi, 0) || (it.bi === 6));
+      const reached = st.filter((s) => s.labelColor !== '#9AA0A6'); const dn = reached.filter((s) => s.isDone).length;
+      return {
+        ...it, pick: pickItem(it), day: it.bi === 6 ? `Pending · day ${it.a}` : `Day ${it.a}`,
+        edge: it.status === 'over' ? '#8C5A50' : it.status === 'due' ? '#7D8184' : '#131313',
+        when: it.status === 'over' ? 'Overdue' : it.status === 'due' ? 'Due today' : 'On track',
+        pill: it.status === 'over' ? 'background: #F3E9E6; color: #8C5A50;' : it.status === 'due' ? 'border: 1px solid #9AA0A6; color: #3B3F43;' : 'background: #131313; color: #FFFFFF;',
+        pct: `${Math.round((dn / Math.max(1, reached.length)) * 100)}%`, doneLine: `${dn} of ${reached.length} steps done`,
+      };
+    });
+    const bay = {
+      num: String(sb + 1).padStart(2, '0'), name: B.name, rule: B.rule, count: B.n, countPad: String(B.n).padStart(2, '0'),
+      over: B.items.filter((i) => i.status === 'over').length, due: B.items.filter((i) => i.status === 'due').length,
+      cards: cardsOf(B),
+      crew: B.crew.map((n) => ({ name: n, still: STILL[n], bg: n === an ? '#2A2A2A' : 'transparent', pick: () => this.setState({ agent: n }) })),
+    };
+    let d = { groups: [] }; const pk = items.find((i) => i.id === this.state.pick);
+    if (pk) {
+      const st = stepsFor(pk);
+      const groups = BAYS.map((b, gi) => {
+        const steps = st.filter((s) => s.stage === gi);
+        const dn = steps.filter((s) => s.isDone).length; const reached = steps.filter((s) => s.labelColor !== '#9AA0A6').length;
+        const cur = gi === pk.bi;
+        return { num: String(gi + 1).padStart(2, '0'), name: b.name, rule: b.rule, steps, summary: reached === 0 ? 'Upcoming' : `${dn} of ${steps.length} done`, headBg: cur ? '#131313' : '#F4F3EF', headColor: cur ? '#FFFFFF' : '#1D1D1F' };
+      }).filter((g, gi) => gi !== 6 || pk.bi === 6);
+      const flat = groups.flatMap((g) => g.steps); const reached = flat.filter((s) => s.labelColor !== '#9AA0A6'); const dn = flat.filter((s) => s.isDone).length;
+      const openN = flat.filter((s) => s.canSend).length;
+      d = {
+        addr: pk.addr, city: pk.city, agent: pk.agent, mls: pk.mls, price: money(pk.price), stage: BAYS[pk.bi].name,
+        day: pk.bi === 6 ? `Pending · day ${pk.a}` : `Day ${pk.a} on market`,
+        when: pk.status === 'over' ? 'Refresh overdue' : pk.status === 'due' ? 'Update due today' : 'On track',
+        pill: pk.status === 'over' ? 'background: #F3E9E6; color: #8C5A50;' : pk.status === 'due' ? 'border: 1px solid #9AA0A6; color: #3B3F43;' : 'background: #ECEAE5; color: #1D1D1F;',
+        done: dn, total: reached.length, pct: `${Math.round((dn / Math.max(1, reached.length)) * 100)}%`,
+        openLine: openN ? `${openN} open · tap a box to send it` : 'Nothing open', groups,
+      };
+    }
+    const btn = (on) => `min-height: 44px; padding: 0 14px; cursor: pointer; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; border: 1px solid ${on ? '#D9DBDD' : '#3A3A38'}; background: ${on ? '#D9DBDD' : 'transparent'}; color: ${on ? '#131313' : '#D9DBDD'}`;
+    return {
+      bays: outBays, bay, seats, agent, d,
+      isAnchor: an === 'ANCHOR', agentSays: open ? `This seat is open. Once ${an} is hired, its work shows here and you can correct it.` : SAYS[an],
+      showDossier: !!pk, showBay: !pk, closeDossier: () => this.setState({ pick: null }),
+      clock: hm(this.state.now),
+      totals: [
+        { n: all.length, l: 'In motion', color: '#FFFFFF' },
+        { n: overN, l: 'Overdue', color: '#C9A39A' },
+        { n: dueNow.length, l: 'Due today', color: '#D9DBDD' },
+        { n: bays[6].n, l: 'Under contract', color: '#FFFFFF' },
+      ],
+      fullBtn: btn(!today), todayBtn: btn(today),
+      showFull: () => this.setState({ mode: 'full' }), showToday: () => this.setState({ mode: 'today' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

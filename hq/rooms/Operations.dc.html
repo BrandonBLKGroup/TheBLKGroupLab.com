@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Operations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&amp;family=Inter:wght@400;500;600&amp;family=Montserrat:wght@300;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#131313}
+.chrome{background:linear-gradient(180deg,#F7F8F9 0%,#DEE1E3 30%,#949AA0 52%,#EEF0F1 60%,#B6BABE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.steel{background:linear-gradient(180deg,#8A8F94 0%,#3B3F43 48%,#5E6368 62%,#2A2D30 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+a{color:#D9DBDD;text-decoration:none}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 1560px; background: #131313; color: #ECEDEE; font-family: Inter, sans-serif">
+  <div style="position: relative; overflow: hidden">
+    <div aria-hidden="true" style="position: absolute; top: -40px; right: -30px; font-family: Archivo; font-weight: 900; font-size: 440px; line-height: 1; letter-spacing: -20px; color: transparent; -webkit-text-stroke: 2px #262628">#1</div>
+    <div style="position: relative; max-width: 1440px; margin: 0 auto; padding: 28px 64px 0; box-sizing: border-box">
+      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid #2C2C2A">
+        <a href="Main.dc.html" style="display: flex; align-items: center; gap: 14px">
+          <img src="/_blob/b94d6c591c5b8a501b19bb0a6db77829" alt="The BLK Group" width="40" height="40" style="display: block; width: 40px; height: 40px">
+          <span style="font-family: Montserrat; font-weight: 300; font-size: 13px; letter-spacing: 6px; text-transform: uppercase; color: #ECEDEE">The BLK Group</span>
+        </a>
+        <nav aria-label="HQ rooms" style="margin-left: auto; display: flex; gap: 26px; flex-wrap: wrap; font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 3px; text-transform: uppercase">
+          <a href="HQ.dc.html">Lobby</a>
+          <a href="CEO.dc.html">CEO Office</a>
+          <a href="Operations.dc.html" style="color: #FFFFFF; border-bottom: 1px solid #D9DBDD; padding-bottom: 4px">Operations</a>
+          <a href="Trophy.dc.html">Trophy Case</a>
+          <a href="Flags.dc.html">Battle Board</a>
+        </nav>
+      </div>
+      <div style="padding: 60px 0 40px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 24px">
+        <div>
+          <div style="font-family: Montserrat; font-weight: 500; font-size: 12px; letter-spacing: 6px; color: #9FA4A8; text-transform: uppercase">Onboarding to under contract</div>
+          <div style="font-family: Archivo; font-weight: 900; font-size: 110px; line-height: .92; letter-spacing: -3px; text-transform: uppercase; margin-top: 14px"><span class="chrome">Operations.</span></div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap">
+          <a href="Floor.dc.html" style="border: 1px solid #3A3A38; padding: 16px 18px; font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 3px; text-transform: uppercase">Floor view</a>
+          <a href="Listings.dc.html" style="border: 1px solid #D9DBDD; padding: 16px 18px; font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 3px; text-transform: uppercase">All listings</a>
+          <a href="#start" style="background: #D9DBDD; color: #131313; padding: 16px 22px; font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 3px; text-transform: uppercase">+ Start onboarding</a>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid #2C2C2A; border-bottom: 1px solid #2C2C2A">
+        <sc-for list="{{today}}" as="t" hint-placeholder-count="5">
+          <div style="padding: 20px 18px; border-right: 1px solid #2C2C2A">
+            <div style="font-family: Archivo; font-weight: 900; font-size: 34px; line-height: 1; color: {{t.color}}">{{t.n}}</div>
+            <div style="font-family: Montserrat; font-weight: 500; font-size: 9.5px; letter-spacing: 2.5px; color: #9FA4A8; text-transform: uppercase; margin-top: 8px">{{t.l}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #FAFAF8; color: #1D1D1F">
+    <div style="max-width: 1440px; margin: 0 auto; padding: 36px 64px 64px; box-sizing: border-box">
+      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 18px">
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 3px; color: #5E6266; text-transform: uppercase">Drag a card to route it · days 1 to 30 move on their own</div>
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 3px; color: #5E6266; text-transform: uppercase; border: 1px solid #D6D3CC; padding: 5px 9px">Live from the Lab · {{total}} listings</div>
+      </div>
+      <div style="display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; align-items: flex-start">
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="7">
+          <div style="flex: 0 0 236px; background: #FFFFFF; border: 1px solid #E3E1DC; min-height: 520px">
+            <div style="background: #131313; color: #FFFFFF; padding: 13px 14px">
+              <div style="display: flex; justify-content: space-between; align-items: baseline">
+                <span style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase">{{c.name}}</span>
+                <span style="font-family: Archivo; font-weight: 900; font-size: 18px">{{c.count}}</span>
+              </div>
+              <div style="font-size: 11.5px; color: #9FA4A8; margin-top: 3px">{{c.rule}}</div>
+            </div>
+            <div style="padding: 12px; display: flex; flex-direction: column; gap: 10px">
+              <sc-for list="{{c.cards}}" as="k" hint-placeholder-count="1">
+                <div style="border: 1px solid #E3E1DC; padding: 12px 12px 10px; background: #FAFAF8">
+                  <div style="font-weight: 600; font-size: 14px; line-height: 1.3">{{k.addr}}</div>
+                  <div style="font-size: 12px; color: #4A4D50; margin-top: 3px">{{k.meta}}</div>
+                  <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 9px">
+                    <sc-for list="{{k.pills}}" as="p" hint-placeholder-count="2">
+                      <span style="font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; padding: 4px 6px; {{p.style}}">{{p.t}}</span>
+                    </sc-for>
+                  </div>
+                  <div style="height: 3px; background: #ECEAE5; margin-top: 10px"><div style="height: 3px; width: {{k.pct}}; background: #5E6368"></div></div>
+                  <div style="font-size: 11px; color: #5E6266; margin-top: 6px">{{k.next}}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-top: 36px; align-items: flex-start">
+        <div style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E1DC">
+          <div style="background: #131313; color: #FFFFFF; padding: 14px 22px; font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 4px; text-transform: uppercase">Newest listing · {{feat.title}}</div>
+          <div style="padding: 18px 22px">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <span style="background: #131313; color: #FFFFFF; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 13px">Mark refreshed</span>
+              <span style="border: 1px solid #1D1D1F; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 13px">Price change</span>
+              <span style="border: 1px solid #1D1D1F; font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 13px">Move to…</span>
+            </div>
+            <div style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 3px; color: #5E6266; text-transform: uppercase; margin-top: 20px; border-bottom: 1px solid #E3E1DC; padding-bottom: 8px">{{feat.checkTitle}}</div>
+            <sc-for list="{{check}}" as="i" hint-placeholder-count="6">
+              <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #F0EEE9; cursor: pointer">
+                <input type="checkbox" checked="{{i.done}}" style="width: 18px; height: 18px; margin-top: 1px; accent-color: #131313">
+                <span style="flex: 1"><span style="font-size: 14px; {{i.style}}">{{i.t}}</span><span style="display: block; font-size: 11.5px; color: #5E6266; margin-top: 2px">{{i.o}}</span></span>
+                <span style="font-size: 11.5px; color: {{i.dueColor}}; white-space: nowrap">{{i.due}}</span>
+              </label>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex: 1 1 320px; min-width: 0; background: #131313; color: #ECEDEE; padding: 22px 24px">
+          <div style="font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 4px; text-transform: uppercase">Today</div>
+          <div style="display: flex; flex-direction: column; gap: 0; margin-top: 14px">
+            <sc-for list="{{todo}}" as="d" hint-placeholder-count="5">
+              <div style="padding: 12px 0; border-bottom: 1px solid #2C2C2A">
+                <div style="display: flex; justify-content: space-between; gap: 10px">
+                  <span style="font-size: 14px; font-weight: 600">{{d.t}}</span>
+                  <span style="font-family: Montserrat; font-weight: 500; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: {{d.c}}">{{d.w}}</span>
+                </div>
+                <div style="font-size: 12px; color: #9FA4A8; margin-top: 3px">{{d.s}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ink = 'background: #131313; color: #FFFFFF;';
+    const line = 'border: 1px solid #C9C5BE; color: #4A4D50;';
+    const rust = 'background: #F3E9E6; color: #8C5A50;';
+    const P = (t, s) => ({ t, style: s });
+    const card = (addr, meta, pills, pct, next) => ({ addr, meta, pills, pct, next });
+    const REAL = [["6920 Holtdale Lane","North Little Rock","Shelley",200000,"2026-02-22","ACT","26006745"],["11 Acala Place","Hot Springs Village","Brandon",396000,"2026-04-15","ACT","26014809"],["507 Southhaven","Cabot","Brandon",285000,"2026-07-21","ACT","26029517"],["402 Demuth","Benton","Shelley",482500,"2026-07-30","ACT","26030736"],["144 La Vista Lane","Hot Springs Village","Brandon",107000,"2026-07-30","ACT","26030740"],["511 N Ross Maddox","Pearcy","Brandon",259999,"2026-08-19","ACT","26033885"],["117 W Lea Circle","Bryant","Brandon",295000,"2026-08-22","ESC","26034321"],["202 N Griffin Street","Morrilton","Brandon",114999,"2026-09-08","TBU","26036533"],["12007 Swepco Lake Road","Gentry","Brandon",720000,"2026-09-08","ACT","26036534"],["3 Gailosa Lane","Hot Springs Village","Brandon",128900,"2026-09-14","ACT","26037358"],["11 Alicante Lane","Hot Springs Village","Brandon",259500,"2026-09-18","TBU","26038016"],["301 Zachary Cove","Bryant","Brandon",210000,"2026-09-23","TBU","26038665"],["10 Parkridge Drive","North Little Rock","Brandon",159900,"2026-09-26","ACT","26039060"],["4 Ligadura Lane","Hot Springs Village","Brandon",639900,"2026-09-26","TBU","26039119"],["5906 Karen Drive","North Little Rock","Shelley",264900,"2026-09-30","ACT","26039523"],["3519 Village Walk Drive","Bryant","Brandon",245000,"2026-10-01","ACT","26039712"],["8 Reata Way","Hot Springs Village","Brandon",244900,"2026-10-01","ACT","26039724"],["224 Longview Point","Hot Springs","Brandon",360000,"2026-10-03","ACT","26040104"],["2145 Dillard Drive","Conway","Brandon",247500,"2026-10-03","ACT","26040132"],["237 Longview Point","Hot Springs","Brandon",364000,"2026-10-07","ACT","26040575"],["198 Shelly Lane","Hot Springs","Brandon",495000,"2026-10-14","ACT","26041635"],["5121 Madison Avenue","Jacksonville","Brandon",344000,"2026-10-15","TBU","26041757"],["117 Cifuentes Way","Hot Springs Village","Brandon",394900,"2026-10-17","ACT","26042031"],["5057 Whitney Lane","Benton","Brandon",510000,"2026-10-17","ACT","26042032"],["149 Sheep Shank Bend","Damascus","Brandon",475000,"2026-10-19","ACT","26042178"],["3013 Overbrook Circle","North Little Rock","Amanda",549500,"2026-10-20","ACT","26042268"],["12 Huesca Lane","Hot Springs Village","Brandon",265000,"2026-10-20","ACT","26042269"],["284 Northlake Cove","Hot Springs","Brandon",644999,"2026-10-20","ACT","26042270"],["9 Torre del Mar Way","Hot Springs Village","Brandon",279999,"2026-10-20","ACT","26042272"],["227 Bayshore Cove","Hot Springs","Brandon",314900,"2026-10-22","ACT","26042595"],["415 Jackson Road S","Damascus","Brandon",899000,"2026-10-22","ACT","26042596"],["13013 Lemoncrest Lane","Little Rock","Brandon",342450,"2026-10-30","NEW","26043681"],["5512 Crescent Drive","North Little Rock","Brandon",249900,"2026-10-30","NEW","26043682"],["2 Conquista Lane","Hot Springs Village","Brandon",22300,"2025-11-13","ACT","25045249"],["000 Eagle Valley Road","Conway","Amanda",145500,"2026-04-03","ACT","26012877"],["5906 Karen Drive (lease)","North Little Rock","Brandon",2400,"2026-09-29","ACT","26039381"]];
+    const FULL = { Brandon: 'Brandon Bruning', Amanda: 'Amanda Mitchell', Shelley: 'Shelley Lisko', Kevin: 'Kevin Cloud' };
+    const now = new Date(); const dayN = (iso) => Math.max(1, Math.floor((now - new Date(iso + 'T12:00:00')) / 86400000));
+    const COLS = [['Onboarding', 'Until you move it'], ['Coming Soon', '24-hour limit'], ['Just Listed', 'Days 1-7 · auto'], ['Welcome Home', 'Days 8-15 · auto'], ['Welcome Home v2', 'Days 16-23 · auto'], ['Final Push', 'Day 24+ · refresh at 30'], ['Under Contract', 'TC takes over']];
+    const NEXT = [null, null, (a) => a < 7 ? `Week 1 update · Day 7` : 'Week 1 update · today', (a) => `Week 2 update · Day 14`, (a) => `Week 3 update · Day 21`, (a) => a > 30 ? `Refresh overdue · ${a - 30} days` : `Refresh · Day 30`, () => 'With TC · taking backups'];
+    const items = REAL.map(([addr, city, agent, price, listed, st]) => {
+      const a = dayN(listed); const ci = st === 'TBU' ? 6 : a <= 7 ? 2 : a <= 15 ? 3 : a <= 23 ? 4 : 5;
+      const due = a >= 7 && a <= 30 && (a % 7 === 0 || a % 7 === 1);
+      const pills = ci === 6 ? [P('Backup offers', ink)] : [P(`Day ${a}`, ink)].concat(a > 30 ? [P('Refresh overdue', rust)] : due ? [P('Update due', rust)] : st === 'ESC' ? [P('Escape clause', line)] : []);
+      return { ci, a, due, listed, card: card(`${addr}, ${city}`, `${FULL[agent]} · $${price.toLocaleString('en-US')}${price < 10000 ? '/mo' : ''}`, pills, ci === 6 ? '100%' : `${Math.min(100, Math.round(a / 30 * 100))}%`, NEXT[ci](a)) };
+    });
+    const cols = COLS.map(([name, rule], ci) => {
+      const mine = items.filter((i) => i.ci === ci).sort((x, y) => y.a - x.a);
+      return { name, rule, count: mine.length, cards: mine.map((i) => i.card) };
+    });
+    const live = items.filter((i) => i.ci >= 2 && i.ci <= 5);
+    const today = [
+      { n: String(live.filter((i) => i.due).length), l: 'Weekly updates due', color: '#D9DBDD' },
+      { n: String(cols[2].count), l: 'Just Listed in rotation', color: '#D9DBDD' },
+      { n: String(live.filter((i) => i.a >= 24 && i.a <= 30).length), l: 'Refresh due this week', color: '#D9DBDD' },
+      { n: String(live.filter((i) => i.a > 30).length), l: 'Past 30 · refresh overdue', color: '#C9A39A' },
+      { n: String(cols[6].count), l: 'Under contract', color: '#D9DBDD' },
+    ];
+    const newest = items.slice().sort((x, y) => x.a - y.a)[0];
+    const feat = { title: `${newest.card.addr} · Day ${newest.a}`, checkTitle: 'Just Listed checklist · days 1-7' };
+    const check = [
+      { t: 'Just Listed posts (AI)', o: 'AI · MEGAPHONE', due: 'done', done: true },
+      { t: 'Listing page live on theblk.group/listings', o: 'AI · ARCHITECT', due: 'done', done: true },
+      { t: 'Marketplace post by you and the listing agent', o: 'Brandon + agent', due: 'today', done: false },
+      { t: 'Just Listed radius pulled (50-75 addresses)', o: 'AI · POSTMAN', due: 'today', done: false },
+      { t: 'Just Listed mailer designed (with QR code)', o: 'AI · PICASSO', due: 'tomorrow', done: false },
+      { t: 'Week 1 update to seller', o: 'ANCHOR + you', due: 'day 7', done: false },
+    ].map((i) => ({ ...i, style: i.done ? 'color: #9AA0A6; text-decoration: line-through;' : '', dueColor: i.due === 'today' ? '#8C5A50' : '#5E6266', due: i.done ? 'done' : i.due }));
+    const todo = items.filter((i) => i.ci >= 2 && i.ci <= 5 && (i.due || i.a > 30)).sort((x, y) => (y.due - x.due) || (y.a - x.a)).slice(0, 8)
+      .map((i) => ({ t: i.card.addr.split(',')[0], s: i.due ? `Week ${Math.max(1, Math.floor(i.a / 7))} update · ANCHOR draft ready for you` : `Day ${i.a} · refresh, reprice or reposition`, w: i.due ? 'today' : 'overdue', c: i.due ? '#D9DBDD' : '#C9A39A' }));
+
+    return { cols, today, check, todo, feat, total: REAL.length };
+  }
+}
+</script>
+</body>
+</html>

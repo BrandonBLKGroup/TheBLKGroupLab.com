@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Prayer Closet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@900&amp;family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Inter:wght@400;500&amp;family=Montserrat:wght@300;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0C0A08}
+a{color:#D8C7A4;text-decoration:none}a:hover{color:#FFF6E4}
+@keyframes flick{0%,100%{transform:translateX(-50%) scaleY(1) scaleX(1);opacity:1}25%{transform:translateX(-52%) scaleY(1.08) scaleX(.94);opacity:.92}50%{transform:translateX(-48%) scaleY(.94) scaleX(1.05);opacity:1}75%{transform:translateX(-51%) scaleY(1.05) scaleX(.97);opacity:.95}}
+@keyframes glow{0%,100%{opacity:.55}50%{opacity:.85}}
+@keyframes inhale{0%{opacity:0}6%{opacity:1}38%{opacity:1}44%{opacity:0}100%{opacity:0}}
+@keyframes exhale{0%,42%{opacity:0}50%{opacity:1}92%{opacity:1}98%,100%{opacity:0}}
+@keyframes breath{0%{transform:scale(.86);opacity:.35}40%{transform:scale(1.06);opacity:.75}100%{transform:scale(.86);opacity:.35}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.flame{animation:flick 1.3s ease-in-out infinite;transform-origin:50% 100%}
+.halo{animation:glow 2.4s ease-in-out infinite}
+.lineA{animation:inhale 10s ease-in-out infinite}
+.lineB{animation:exhale 10s ease-in-out infinite}
+.ring{animation:breath 10s ease-in-out infinite}
+.rise{animation:fadeUp 1.2s ease-out both}
+@media (prefers-reduced-motion: reduce){.flame,.halo,.ring,.rise{animation:none}.lineA,.lineB{animation:none;opacity:1}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 1900px; background: #0C0A08; color: #F1E9DA; font-family: Inter, sans-serif">
+  <div style="max-width: 1440px; margin: 0 auto; padding: 28px 64px 0; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid #2A241C">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 14px">
+        <img src="/_blob/b94d6c591c5b8a501b19bb0a6db77829" alt="The BLK Group" width="40" height="40" style="display: block; width: 40px; height: 40px">
+        <span style="font-family: Montserrat; font-weight: 300; font-size: 13px; letter-spacing: 6px; text-transform: uppercase; color: #F1E9DA">The BLK Group</span>
+      </a>
+      <nav aria-label="HQ rooms" style="margin-left: auto; display: flex; gap: 26px; flex-wrap: wrap; font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 3px; text-transform: uppercase">
+        <a href="Floor.dc.html">The Floor</a>
+        <a href="CEO.dc.html">CEO Office</a>
+        <a href="Chapel.dc.html" style="color: #FFF6E4; border-bottom: 1px solid #C9A86A; padding-bottom: 4px">Prayer Closet</a>
+        <a href="https://claude.ai/artifact/H2kta9G19g1Hkwa36MrpmQ">The Algorithm ↗</a>
+      </nav>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; padding: 40px 0 28px">
+      <div>
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 6px; color: #B8A98F; text-transform: uppercase">HQ · away from the floor</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 84px; line-height: .95; margin-top: 10px; color: #F6EEDD">The Prayer Closet</div>
+      </div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: #D8C7A4; max-width: 520px; line-height: 1.4; font-variant-numeric: lining-nums">“In your struggle against sin, you have not yet resisted to the point of shedding your blood.” <span style="font-style: normal; font-family: Montserrat; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #B8A98F">Hebrews 12:4 · BSB</span></div>
+    </div>
+  </div>
+
+  <div style="max-width: 1440px; margin: 0 auto; padding: 0 64px; box-sizing: border-box">
+    <div style="position: relative; container-type: inline-size; aspect-ratio: 1440 / 806; overflow: hidden; border: 1px solid #2A241C; background: #000">
+      <img src="/_blob/b819858b47e98cabadf55263bd4b1a3d" alt="A small Orthodox chapel seen from the pew: the gilded iconostasis, red oil lamps, candles and drifting incense" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block">
+      <div aria-hidden="true" style="position: absolute; inset: 0; background: {{veil}}; transition: background 1.2s ease"></div>
+
+      <sc-for list="{{candles}}" as="c" hint-placeholder-count="0">
+        <div aria-hidden="true" style="position: absolute; left: {{c.x}}; top: {{c.y}}; width: .26cqw; height: 2.6cqw; background: linear-gradient(90deg, #CDB98F, #F3E6C6 45%, #B9A57C); border-radius: 1px">
+          <span class="halo" style="position: absolute; left: 50%; top: -2.6cqw; width: 2.6cqw; height: 2.6cqw; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,190,110,.55), rgba(255,170,80,0) 70%); display: block"></span>
+          <span class="flame" style="position: absolute; left: 50%; top: -1.05cqw; width: .55cqw; height: 1.05cqw; border-radius: 50% 50% 45% 45% / 70% 70% 30% 30%; background: radial-gradient(ellipse at 50% 75%, #FFFFFF 0%, #FFE9A8 30%, #FFB347 62%, rgba(255,120,40,0) 100%); display: block"></span>
+        </div>
+      </sc-for>
+
+      <sc-if value="{{isOutside}}" hint-placeholder-val="{{ true }}">
+        <div class="rise" style="position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%); width: 62%; text-align: center">
+          <div style="font-family: Montserrat; font-weight: 500; font-size: .75cqw; letter-spacing: .5cqw; text-transform: uppercase; color: #D8C7A4">Matthew 6:6 · BSB</div>
+          <div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.9cqw; line-height: 1.35; color: #FFF6E4; margin-top: .8cqw; text-shadow: 0 2px 18px rgba(0,0,0,.85)">But when you pray, go into your inner room, shut your door, and pray to your Father, who is unseen. And your Father, who sees what is done in secret, will reward you.</div>
+          <button onClick="{{enter}}" style="margin-top: 1.6cqw; min-height: 48px; padding: 0 2.2cqw; cursor: pointer; border: 1px solid #C9A86A; background: rgba(20,14,8,.72); color: #FFF6E4; font-family: Montserrat; font-weight: 600; font-size: .8cqw; letter-spacing: .35cqw; text-transform: uppercase">Enter and pray</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isIn}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; right: 1.6cqw; top: 1.6cqw; display: flex; flex-direction: column; align-items: flex-end; gap: .6cqw">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 2.6cqw; line-height: 1; color: #FFF6E4; font-variant-numeric: lining-nums tabular-nums; text-shadow: 0 2px 14px rgba(0,0,0,.8)">{{clock}}</div>
+          <div role="group" aria-label="Minutes" style="display: flex; gap: .3cqw">
+            <sc-for list="{{lengths}}" as="m" hint-placeholder-count="4">
+              <button onClick="{{m.pick}}" style="{{m.style}}">{{m.label}}</button>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: .4cqw">
+            <button onClick="{{light}}" style="min-height: 44px; padding: 0 1cqw; cursor: pointer; border: 1px solid #C9A86A; background: rgba(20,14,8,.72); color: #FFF6E4; font-family: Montserrat; font-weight: 600; font-size: .62cqw; letter-spacing: .2cqw; text-transform: uppercase">Light a candle</button>
+            <button onClick="{{amen}}" style="min-height: 44px; padding: 0 1cqw; cursor: pointer; border: 0; background: #E9DDC4; color: #1A140C; font-family: Montserrat; font-weight: 600; font-size: .62cqw; letter-spacing: .2cqw; text-transform: uppercase">Amen</button>
+          </div>
+        </div>
+        <div style="position: absolute; left: 50%; bottom: 9%; transform: translateX(-50%); width: 56%; height: 9cqw; text-align: center">
+          <div aria-hidden="true" class="ring" style="position: absolute; left: 50%; top: 50%; width: 9cqw; height: 9cqw; margin: -4.5cqw 0 0 -4.5cqw; border-radius: 50%; border: 1px solid rgba(233,221,196,.35); box-shadow: 0 0 3cqw rgba(255,200,120,.15)"></div>
+          <div class="lineA" style="position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); font-family: 'Cormorant Garamond', serif; font-size: 2.6cqw; color: #FFF6E4; text-shadow: 0 2px 18px rgba(0,0,0,.9)">Lord Jesus Christ, Son of God,</div>
+          <div class="lineB" style="position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 2.6cqw; color: #FFF6E4; text-shadow: 0 2px 18px rgba(0,0,0,.9)">have mercy on me, a sinner.</div>
+        </div>
+        <div style="position: absolute; left: 1.6cqw; bottom: 1.6cqw; font-family: Montserrat; font-weight: 500; font-size: .58cqw; letter-spacing: .25cqw; text-transform: uppercase; color: #D8C7A4">Breathe in on the first line · out on the second</div>
+      </sc-if>
+
+      <sc-if value="{{isAmen}}" hint-placeholder-val="{{ false }}">
+        <div class="rise" style="position: absolute; left: 50%; bottom: 10%; transform: translateX(-50%); width: 50%; text-align: center">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 5cqw; line-height: 1; color: #FFF6E4; text-shadow: 0 2px 18px rgba(0,0,0,.85)">Amen.</div>
+          <div style="font-family: Montserrat; font-weight: 500; font-size: .72cqw; letter-spacing: .3cqw; text-transform: uppercase; color: #D8C7A4; margin-top: 1cqw">{{summary}}</div>
+          <button onClick="{{leave}}" style="margin-top: 1.4cqw; min-height: 48px; padding: 0 2cqw; cursor: pointer; border: 1px solid #C9A86A; background: rgba(20,14,8,.72); color: #FFF6E4; font-family: Montserrat; font-weight: 600; font-size: .72cqw; letter-spacing: .3cqw; text-transform: uppercase">Open the door</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="max-width: 1440px; margin: 0 auto; padding: 40px 64px 80px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+    <div style="flex: 999 1 560px; min-width: 0; background: #14110D; border: 1px solid #2A241C; padding: 28px 32px 32px">
+      <div style="font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 4px; color: #B8A98F; text-transform: uppercase">The rule</div>
+      <div role="tablist" aria-label="Prayers" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px">
+        <sc-for list="{{rules}}" as="r" hint-placeholder-count="4">
+          <button role="tab" aria-selected="{{r.on}}" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button>
+        </sc-for>
+      </div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 26px; line-height: 1.55; color: #F6EEDD; margin-top: 24px; white-space: pre-line; font-variant-numeric: lining-nums">{{ruleText}}</div>
+      <div style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 3px; color: #B8A98F; text-transform: uppercase; margin-top: 18px">{{ruleSource}}</div>
+    </div>
+    <div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+      <div style="background: #14110D; border: 1px solid #2A241C; padding: 26px 28px">
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 4px; color: #B8A98F; text-transform: uppercase">Carrying tonight</div>
+        <div style="display: flex; gap: 8px; margin-top: 14px">
+          <label for="intent" style="position: absolute; left: -9999px">Add a name or intention</label>
+          <input id="intent" value="{{draft}}" onChange="{{typeDraft}}" placeholder="A name, a need, a listing" style="flex: 1; min-width: 0; background: #0C0A08; border: 1px solid #3A3226; color: #F1E9DA; padding: 12px 12px; font: inherit; font-size: 14px">
+          <button onClick="{{addIntent}}" style="min-height: 44px; padding: 0 14px; cursor: pointer; border: 0; background: #E9DDC4; color: #1A140C; font-family: Montserrat; font-weight: 600; font-size: 10px; letter-spacing: 2px; text-transform: uppercase">Add</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 14px">
+          <sc-for list="{{intents}}" as="i" hint-placeholder-count="2">
+            <div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid #2A241C; padding-top: 8px">
+              <span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 50%; background: #C9A86A; flex: 0 0 auto"></span>
+              <span style="flex: 1; font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #F6EEDD">{{i.text}}</span>
+              <button onClick="{{i.remove}}" aria-label="Remove {{i.text}}" style="background: none; border: 0; color: #B8A98F; min-width: 44px; min-height: 44px; cursor: pointer; font-size: 18px">×</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size: 12px; color: #9C8E76; margin-top: 12px; line-height: 1.5">{{intentNote}}</div>
+      </div>
+      <div style="background: #14110D; border: 1px solid #2A241C; padding: 26px 28px">
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 11px; letter-spacing: 4px; color: #B8A98F; text-transform: uppercase">Your verse</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 28px; line-height: 1.35; color: #F6EEDD; margin-top: 12px">In your struggle against sin, you have not yet resisted to the point of shedding your blood.</div>
+        <div style="font-family: Montserrat; font-weight: 500; font-size: 10px; letter-spacing: 3px; color: #B8A98F; text-transform: uppercase; margin-top: 12px; font-variant-numeric: lining-nums">Hebrews 12:4 · BSB</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { phase: 'outside', mins: 10, left: 600, prayed: 0, candles: 0, rule: 'jesus', intents: [], draft: '' }; }
+  componentDidMount() {
+    this.t = setInterval(() => {
+      if (this.state.phase !== 'in') return;
+      const left = this.state.left - 1;
+      if (left <= 0) this.setState({ left: 0, prayed: this.state.prayed + 1, phase: 'amen' });
+      else this.setState({ left, prayed: this.state.prayed + 1 });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const s = this.state;
+    const RULES = {
+      jesus: { label: 'The Jesus Prayer', text: 'Lord Jesus Christ, Son of God,\nhave mercy on me, a sinner.\n\nPray it slowly with the breath: in on the first line, out on the second. When the mind wanders, come back to the Name.', src: 'The prayer of the heart' },
+      trisagion: { label: 'Trisagion', text: 'Holy God, Holy Mighty, Holy Immortal, have mercy on us. (three times)\n\nGlory to the Father, and to the Son, and to the Holy Spirit, now and ever and unto ages of ages. Amen.\n\nAll-holy Trinity, have mercy on us. Lord, cleanse us from our sins. Master, pardon our transgressions. Holy One, visit and heal our infirmities, for Thy name’s sake.\n\nLord, have mercy. (three times)', src: 'The thrice-holy hymn' },
+      father: { label: 'Our Father', text: 'Our Father in heaven,\nhallowed be Your name.\nYour kingdom come,\nYour will be done,\non earth as it is in heaven.\nGive us this day our daily bread.\nAnd forgive us our debts,\nas we also have forgiven our debtors.\nAnd lead us not into temptation,\nbut deliver us from the evil one.', src: 'Matthew 6:9-13 · BSB' },
+      ps51: { label: 'Psalm 51', text: 'Have mercy on me, O God, according to Your loving devotion; according to Your great compassion, blot out my transgressions.\nWash me clean of my iniquity and cleanse me from my sin.\n\nCreate in me a clean heart, O God, and renew a right spirit within me.\nCast me not away from Your presence; take not Your Holy Spirit from me.\nRestore to me the joy of Your salvation, and sustain me with a willing spirit.', src: 'Psalm 51:1-2, 10-12 · BSB' },
+    };
+    const tab = (on) => `min-height: 44px; padding: 0 16px; cursor: pointer; font-family: Montserrat; font-weight: 500; font-size: 10.5px; letter-spacing: 2px; text-transform: uppercase; border: 1px solid ${on ? '#C9A86A' : '#3A3226'}; background: ${on ? '#E9DDC4' : 'transparent'}; color: ${on ? '#1A140C' : '#D8C7A4'}`;
+    const rules = Object.keys(RULES).map((k) => ({ label: RULES[k].label, on: k === s.rule ? 'true' : 'false', style: tab(k === s.rule), pick: () => this.setState({ rule: k }) }));
+    // Candle spots on the sand tray at the right of the chapel shot
+    const SPOTS = [[86.2, 44.7], [88.4, 45.6], [90.6, 44.4], [92.8, 45.4], [84.4, 46.0], [94.8, 44.8], [87.3, 46.8], [91.7, 46.6], [89.5, 43.6], [93.9, 46.9], [85.3, 43.9], [95.7, 46.2]];
+    const candles = SPOTS.slice(0, Math.min(s.candles, SPOTS.length)).map(([x, y]) => ({ x: x + '%', y: y + '%' }));
+    const mm = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`;
+    const len = (on) => `min-height: 44px; min-width: 44px; padding: 0 .6cqw; cursor: pointer; font-family: Montserrat; font-weight: 600; font-size: .6cqw; letter-spacing: .12cqw; border: 1px solid ${on ? '#E9DDC4' : 'rgba(233,221,196,.35)'}; background: ${on ? 'rgba(233,221,196,.9)' : 'rgba(20,14,8,.6)'}; color: ${on ? '#1A140C' : '#F1E9DA'}`;
+    const lengths = [5, 10, 15, 20].map((m) => ({ label: `${m} min`, style: len(m === s.mins), pick: () => this.setState({ mins: m, left: m * 60 }) }));
+    const veil = s.phase === 'outside' ? 'linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,.72) 100%)' : s.phase === 'in' ? 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 35%, rgba(0,0,0,.6) 100%)' : 'linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.7) 100%)';
+    const mins = Math.max(1, Math.round(s.prayed / 60));
+    return {
+      isOutside: s.phase === 'outside', isIn: s.phase === 'in', isAmen: s.phase === 'amen', veil, candles, lengths, rules,
+      ruleText: RULES[s.rule].text, ruleSource: RULES[s.rule].src, clock: mm(s.left),
+      enter: () => this.setState({ phase: 'in', left: s.mins * 60, prayed: 0 }),
+      light: () => this.setState({ candles: s.candles + 1 }),
+      amen: () => this.setState({ phase: 'amen' }),
+      leave: () => this.setState({ phase: 'outside' }),
+      summary: `${mins} minute${mins > 1 ? 's' : ''} in the closet${s.candles ? ` · ${s.candles} candle${s.candles > 1 ? 's' : ''} lit` : ''}`,
+      draft: s.draft, typeDraft: (e) => this.setState({ draft: e.target.value }),
+      addIntent: () => { const t = (s.draft || '').trim(); if (t) this.setState({ intents: [...s.intents, t], draft: '' }); },
+      intents: s.intents.map((text, i) => ({ text, remove: () => this.setState({ intents: s.intents.filter((_, j) => j !== i) }) })),
+      intentNote: s.intents.length ? 'Held here while the closet is open.' : 'Write the names you are carrying. Held here while the closet is open.',
+    };
+  }
+}
+</script>
+</body>
+</html>
