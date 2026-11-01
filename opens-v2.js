@@ -98,17 +98,22 @@
   /* ---------- Today's moves ---------- */
   function moves() {
     const t = today(); const list = [];
+    const now = new Date(); const curIdx = now.getFullYear() * 12 + now.getMonth();
     st.rows.forEach((r) => {
-      if (statusOf(r) === 'black') return;
+      const s = statusOf(r);
+      if (s === 'black') return;
+      const mk = String(r.month_year || '').split('-'); const age = mk.length === 2 ? curIdx - (+mk[0] * 12 + (+mk[1] - 1)) : 0;
+      if (age > 4 && s !== 'purple') return; // old opens stay on the board but do not crowd today's list
       const next = r.next_contact, last = r.last_contact;
       const since = last ? dayDiff(t, last) : null;
       let score = 0, why = '', cls = '';
-      if (next && next < t) { const n = dayDiff(t, next); score = 100 + n; why = `Follow-up ${n} day${n === 1 ? '' : 's'} late`; }
-      else if (next === t) { score = 90; why = 'Due today'; cls = 'warm'; }
-      else if (!next && statusOf(r) === 'purple') { score = 80; why = 'Highly likely, but no next step is set'; cls = 'cool'; }
-      else if (!next && (since === null || since >= 14)) { score = 60 + Math.min(since || 30, 60); why = since === null ? 'No contact logged yet' : `${since} days since anyone talked to them`; }
+      if (next && next < t) { const n = dayDiff(t, next); score = 100 + Math.min(n, 21); why = `Follow-up ${n} day${n === 1 ? '' : 's'} late`; }
+      else if (next === t) { score = 110; why = 'Due today'; cls = 'warm'; }
+      else if (!next && s === 'purple') { score = 95; why = 'Highly likely, but no next step is set'; cls = 'cool'; }
+      else if (!next && (since === null || since >= 14)) { score = 60 + Math.min(since || 20, 30); why = since === null ? 'No contact logged yet, no next step set' : `${since} days since anyone talked to them`; }
       else return;
-      if (r.lead_source === 'Off-Market Yes') score += 50;
+      score += (s === 'purple' ? 30 : s === 'gold' ? 10 : 0) - age * 8;
+      if (r.lead_source === 'Off-Market Yes') score += 60;
       list.push({ r, score, why, cls });
     });
     return list.sort((a, b) => b.score - a.score).slice(0, 8);
