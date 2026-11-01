@@ -12,30 +12,32 @@
 
   const NAV = [
     { k: 'opens', label: 'Opens', href: 'opens.html' },
-    { k: 'contract', label: 'Under Contract', soon: true },
+    { k: 'contract', label: 'Under Contract', href: 'contract.html' },
     { k: 'floor', label: 'The Floor', soon: true },
     { k: 'ceo', label: 'CEO Office', soon: true },
     { k: 'graphics', label: 'Graphics', href: 'https://theblk.group/graphics.html', ext: true },
     { k: 'algorithm', label: 'The Algorithm', href: 'http://localhost:4747', ext: true, admin: true },
-    { k: 'lab', label: 'Current Lab', href: '../index.html' },
+    { k: 'optempo', label: 'OPTEMPO', href: '../optempo.html', ext: true, admin: true },
+    { k: 'lab', label: 'Current Lab', href: '../index.html', admin: true },
   ];
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   window.HQ = {
     esc,
     bar(active) {
-      const items = NAV.filter((n) => !n.admin || window.isAdmin).map((n) => n.soon
+      const items = NAV.filter((n) => (!n.admin || window.isAdmin) && (!HQ.isTC() || n.k === 'contract')).map((n) => n.soon
         ? `<a class="soon" title="Coming next">${esc(n.label)}</a>`
         : `<a href="${n.href}"${n.ext ? ' target="_blank" rel="noopener"' : ''} class="${n.k === active ? 'on' : ''}">${esc(n.label)}${n.ext ? ' ↗' : ''}</a>`).join('');
       const who = window.userProfile && (window.userProfile.full_name || window.userProfile.name) || (window.currentUser && window.currentUser.email) || '';
-      return `<div class="hq-bar"><a class="hq-brand" href="opens.html"><img src="img/blk-disc.png" alt="The BLK Group"><span>The BLK Group</span></a>
+      return `<div class="hq-bar"><a class="hq-brand" href="${HQ.isTC() ? 'contract.html' : 'opens.html'}"><img src="img/blk-disc.png" alt="The BLK Group"><span>The BLK Group</span></a>
         <nav class="hq-nav" aria-label="HQ">${items}<a class="who" id="hqSignOut" title="Sign out">${esc(who.split('@')[0])} · Sign out</a></nav></div>`;
     },
     wireBar() { const so = $('hqSignOut'); if (so) so.onclick = async () => { await sb.auth.signOut(); location.reload(); }; },
+    isTC() { const p = window.userProfile; return !!(p && /tc|transaction/i.test(p.role || '')); },
     async gate(onReady) {
       document.body.innerHTML = '<div class="hq-loading">Opening HQ</div>';
       const { data } = await sb.auth.getSession();
-      if (data && data.session) { await HQ.profile(data.session.user); onReady(); return; }
+      if (data && data.session) { await HQ.profile(data.session.user); if (HQ.isTC() && !/contract\.html/.test(location.pathname)) { location.replace('contract.html'); return; } onReady(); return; }
       document.body.innerHTML = `<div class="hq-login"><form id="hqLogin"><img src="img/blk-disc.png" alt="" width="44" height="44"><h1 class="chrome">BLK HQ</h1>
         <label for="hqEmail">Email</label><input id="hqEmail" type="email" autocomplete="username" required>
         <label for="hqPass">Password</label><input id="hqPass" type="password" autocomplete="current-password" required>
@@ -44,7 +46,7 @@
         e.preventDefault(); $('hqErr').textContent = '';
         const { data: d, error } = await sb.auth.signInWithPassword({ email: $('hqEmail').value.trim(), password: $('hqPass').value });
         if (error) { $('hqErr').textContent = error.message; return; }
-        await HQ.profile(d.user); onReady();
+        await HQ.profile(d.user); if (HQ.isTC() && !/contract\.html/.test(location.pathname)) { location.replace('contract.html'); return; } onReady();
       };
     },
     async profile(user) {

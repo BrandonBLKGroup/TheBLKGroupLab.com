@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Under Contract · BLK HQ</title>
+<link rel="icon" href="img/blk-disc.png">
+<link rel="stylesheet" href="hq.css?v=2">
+<style>
+.hq-body{background:#F4F3F0;color:#111214;min-height:60vh}
+.uc-wrap{max-width:1640px;margin:0 auto;padding:26px 40px 90px}
+@media (max-width:700px){.uc-wrap{padding:18px 12px 60px}}
+.uc-note{color:#5E6266;margin:0 0 16px}
+.uc-board{display:grid;grid-template-columns:repeat(7,minmax(210px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.uc-col{background:#ECEAE6;border-radius:12px;padding:10px;min-height:120px}
+.uc-col header{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 10px;font:600 10.5px Montserrat,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#111214}
+.uc-col header span{background:#131313;color:#fff;border-radius:99px;min-width:22px;height:22px;display:grid;place-items:center;font:600 11px Inter,sans-serif;letter-spacing:0;padding:0 7px}
+.uc-empty{color:#A2A6AB;font-size:12px;padding:6px 4px}
+.uc-card{display:block;width:100%;text-align:left;background:#fff;border:1px solid #E3E1DC;border-radius:10px;padding:11px 12px;margin:0 0 8px;cursor:pointer;font:inherit;color:inherit;position:relative}
+.uc-card:hover{border-color:#111214}
+.uc-card.late{box-shadow:inset 3px 0 0 #C2382E}
+.uc-card .top{display:flex;align-items:center;gap:8px;min-width:0}
+.uc-card .top b{font:600 13px Inter,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uc-av{border-radius:50%;object-fit:cover;flex:0 0 auto;background:#131313;color:#fff;display:grid;place-items:center;font:600 9px Inter,sans-serif}
+.uc-card .meta{color:#8A8F95;font-size:11.5px;margin-top:6px}
+.uc-card .next{margin-top:6px;font:500 12px Inter,sans-serif;color:#3C3F43}
+.uc-card .next.late{color:#C2382E}.uc-card .next.today{color:#80600F}
+.uc-card .dots{display:flex;align-items:center;gap:3px;margin-top:9px}
+.uc-card .dots i{width:9px;height:9px;border-radius:50%;background:#E3E1DC;display:inline-block}
+.uc-card .dots i.done{background:#131313}.uc-card .dots i.late{background:#C2382E}.uc-card .dots i.today{background:#E5B53A}
+.uc-card .dots span{margin-left:auto;color:#8A8F95;font-size:11px}
+.uc-add{margin-top:14px;border:1px dashed #C9C6C0;background:transparent;border-radius:10px;padding:12px 18px;font:600 11px Montserrat,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#5E6266;cursor:pointer}
+.uc-add:hover{color:#111214;border-color:#111214}
+.uc-veil{position:fixed;inset:0;background:rgba(17,18,20,.42);z-index:900;display:flex;justify-content:flex-end}
+.uc-drawer{width:min(520px,100%);height:100%;background:#fff;color:#111214;display:flex;flex-direction:column;box-shadow:-30px 0 80px rgba(0,0,0,.25);font:400 13.5px/1.45 Inter,sans-serif}
+.uc-drawer header{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid #E9E7E3}
+.uc-drawer header .t{min-width:0;flex:1}
+.uc-drawer header .nm{width:100%;border:0;font:600 17px Inter,sans-serif;color:#111214;padding:2px 0;background:transparent}
+.uc-drawer header .nm:focus{outline:none;background:#F4F3F0}
+.uc-drawer header span{color:#8A8F95;font-size:12.5px}
+.uc-drawer .x{width:34px;height:34px;border-radius:8px;border:0;background:transparent;font-size:20px;cursor:pointer}
+.uc-drawer .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 20px;border-bottom:1px solid #E9E7E3}
+.uc-drawer .fields label{display:flex;flex-direction:column;gap:4px;font:600 9.5px Montserrat,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8A8F95}
+.uc-drawer .fields input,.uc-drawer .fields select{border:1px solid #E3E1DC;border-radius:8px;height:36px;padding:0 10px;font:500 13.5px Inter,sans-serif;color:#111214;letter-spacing:0;text-transform:none}
+.uc-drawer .steps{list-style:none;margin:0;padding:8px 20px;overflow:auto;flex:1}
+.uc-drawer .steps li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #F0EEEA}
+.uc-drawer .steps label{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500}
+.uc-drawer .steps input{width:18px;height:18px;accent-color:#131313}
+.uc-drawer .steps em{font-style:normal;font:600 9px Montserrat,sans-serif;letter-spacing:1.5px;background:#ECEAE6;border-radius:4px;padding:2px 5px;margin-left:4px;color:#5E6266}
+.uc-drawer .steps time{font-size:12px;color:#8A8F95;white-space:nowrap}
+.uc-drawer .steps li.late time{color:#C2382E;font-weight:600}.uc-drawer .steps li.today time{color:#80600F;font-weight:600}
+.uc-drawer .steps li.done span{color:#8A8F95;text-decoration:line-through}
+.uc-drawer footer{padding:14px 20px;border-top:1px solid #E9E7E3;display:flex;justify-content:flex-end}
+.uc-drawer .ghost{border:1px solid #E3E1DC;background:#fff;border-radius:8px;padding:8px 14px;font:500 12.5px Inter,sans-serif;color:#5E6266;cursor:pointer}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<script src="hq.js?v=2"></script>
+<script src="contract.js?v=2"></script>
+</body>
+</html>
