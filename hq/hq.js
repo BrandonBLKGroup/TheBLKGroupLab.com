@@ -9,6 +9,8 @@
   window.AGENTS = ['Brandon Bruning', 'Shelley Lisko', 'Amanda Mitchell', 'Kevin Cloud'];
   window.LEAD_SOURCES = ['Buyer-Brain', 'Buyer', 'Expired Listing Backup', 'FSBO Backup', 'Circle Prospect Buyer', 'Circle Prospect Seller', 'Off-Market Brain', '30 Day Seller'];
   window.currentUser = null; window.userProfile = null; window.isAdmin = false;
+  // The board (Listing Machine, agents, chat). HQ talks to it with the person's HQ sign-in, never a stored key.
+  window.BOARD = 'https://blk-leads-production.up.railway.app';
 
   const NAV = [
     { k: 'lobby', label: 'Lobby', href: 'room.html?r=Main' },
@@ -33,6 +35,11 @@
       const who = window.userProfile && (window.userProfile.full_name || window.userProfile.name) || (window.currentUser && window.currentUser.email) || '';
       return `<div class="hq-bar"><a class="hq-brand" href="${HQ.isTC() ? 'contract.html' : 'room.html?r=Main'}"><img src="img/blk-disc.png" alt="The BLK Group"><span>The BLK Group</span></a>
         <nav class="hq-nav" aria-label="HQ">${items}<a class="who" id="hqSignOut" title="Sign out">${esc(who.split('@')[0])} · Sign out</a></nav></div>`;
+    },
+    async board(path, opts = {}) {
+      const { data } = await sb.auth.getSession(); const tok = data && data.session && data.session.access_token;
+      const r = await fetch(window.BOARD + path, { ...opts, headers: { 'content-type': 'application/json', ...(tok ? { Authorization: 'Bearer ' + tok } : {}), ...(opts.headers || {}) } });
+      const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || ('The board answered ' + r.status)); return j;
     },
     wireBar() { const so = $('hqSignOut'); if (so) so.onclick = async () => { await sb.auth.signOut(); location.reload(); }; },
     isTC() { const p = window.userProfile; return !!(p && /tc|transaction/i.test(p.role || '')); },
@@ -69,6 +76,8 @@
     if (dest === 'listings') await sb.from('lab_listings').insert({ agent: open.agent || null, address: open.address || '', listing_type: '', status: 'active', agent_id: open.agent_id || null });
     else await sb.from('lab_contracts').insert({ transaction_name: open.address || open.name || 'New Transaction', agent: open.agent || null, status: 'active', agent_id: open.agent_id || null });
     await sb.from('lab_opens').update({ status: 'black', updated_at: new Date().toISOString() }).eq('id', id);
+    // The board pulls it in right now: Listing Onboarding, the whole checklist and every AI hook (otherwise within 3 minutes)
+    if (dest === 'listings') HQ.board('/labapi/sync', { method: 'POST' }).catch(() => {});
     if (typeof window.loadOpens === 'function') window.loadOpens();
   };
 })();

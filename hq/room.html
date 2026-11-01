@@ -19,7 +19,7 @@ html,body{background:#131313}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 </head>
 <body>
-<script src="hq.js?v=4"></script>
+<script src="hq.js?v=5"></script>
 <script src="media/map.js?v=1"></script>
 <script src="dc.js?v=1"></script>
 <script>
@@ -43,13 +43,14 @@ html,body{background:#131313}
       sb.from('lab_contracts').select('transaction_name,agent,volume,contract_date,closed,status,created_at,updated_at'),
     ]);
     window.LAB = { scorecard: sc.data || [], opens: op.data || [], listings: ls.data || [], contracts: ct.data || [], targets: T, isAdmin };
+    if (room === 'Floor') { try { window.LAB.floor = await HQ.board('/labapi/floor'); } catch (e) { window.LAB.floor = { error: e.message }; } }
   }
   HQ.gate(async () => {
     if (ADMIN_ONLY.includes(room) && !isAdmin) room = 'Main';
     document.body.innerHTML = '<div id="room"><div class="hq-loading">Opening ' + room + '</div></div>' + (room === 'Main' ? '' : '<nav class="hq-back" aria-label="HQ"><a href="room.html?r=Main">Lobby</a><a href="opens.html">Opens</a><a href="contract.html">Under Contract</a></nav>');
     await loadLAB();
     const el = document.getElementById('room'); el.innerHTML = '';
-    try { await DC.mount('rooms/' + room + '.dc.html?v=1', el); }
+    try { await DC.mount('rooms/' + room + '.dc.html?v=2', el); }
     catch (e) { el.innerHTML = '<div class="hq-loading">Could not open this room: ' + HQ.esc(e.message) + '</div>'; }
   });
 })();
