@@ -176,7 +176,7 @@
         const listed = list.filter((r) => statusOf(r) === 'black').length;
         const late = list.filter((r) => statusOf(r) !== 'black' && r.next_contact && r.next_contact < t).length;
         return `<section class="o2-month" data-mk="${mk}"><div class="o2-mh"><h2>${esc(monthLabel(mk))}</h2>
-          <span class="meta"><b>${list.length}</b> open${list.length === 1 ? '' : 's'} · <b>${listed}</b> listed${list.length ? ` · ${Math.round(listed / list.length * 100)}% listed` : ''}${late ? ` · <span class="od">${late} follow-up${late === 1 ? '' : 's'} overdue</span>` : ''}</span>
+          <span class="meta">${window.HQ_OPENS_COND ? `<b>${esc(window.HQ_OPENS_COND(list.length).name)}</b> · ` : ''}<b>${list.length}</b> open${list.length === 1 ? '' : 's'} · <b>${listed}</b> listed${list.length ? ` · ${Math.round(listed / list.length * 100)}% listed` : ''}${late ? ` · <span class="od">${late} follow-up${late === 1 ? '' : 's'} overdue</span>` : ''}</span>
           <span class="hint">Drop here to move to ${esc(monthLabel(mk).split(' ')[0])}</span></div>
           <div class="o2-scroll">${list.length ? `<div class="o2-cols"><span></span><span></span><span>Agent</span><span>Lead type</span><span>Address · seller</span><span>Last</span><span>Next contact</span><span>Notes</span><span></span></div>` : ''}
           ${list.map(bar).join('')}</div>
@@ -306,43 +306,43 @@
   }
   function nameFor(firstName) { const all = Object.keys(HEADS); return all.find((n) => first(n) === firstName) || firstName; }
 
-  /* ---------- HQ masthead: month opens, target, condition by trend ---------- */
-  const COND = {
-    'Power': 'Normal held high for a long stretch. Write down what made it and keep doing exactly that.',
-    'Affluence': 'Steep rise. Find what caused it, strengthen it, invest in delivery, do not waste the surge.',
-    'Normal': 'Steady rise. Do not change what is working; find what improved it and do more of it.',
-    'Emergency': 'Level or slipping. Promote, produce, change your operating basis, stiffen discipline.',
-    'Danger': 'Steep drop. Bypass habits, handle it yourself now, then reorganize so it cannot recur.',
-    'Non-Existence': 'Nothing on the line. Find a comm line, make yourself known, find what is needed and wanted, produce.',
-  };
-  let targets = {};
-  async function loadTargets() {
-    try {
-      const { data } = await sb.from('lab_stat_targets').select('month,stat_name,target_value').eq('stat_name', 'opens');
-      (data || []).forEach((t) => { targets[String(t.month).slice(0, 7)] = Number(t.target_value) || 0; });
-    } catch (e) { /* targets optional */ }
+  /* ---------- HQ masthead: month opens vs target, condition (same scale as the current Lab) ---------- */
+  // The current Lab's Monthly Performance scale: % of target -> condition, with its formulas.
+  function condition(val, target) {
+    const pct = target ? val / target * 100 : 0;
+    if (pct >= 93) return { name: 'Power', good: true, formula: "Don't change anything. Write up what you're doing so others can follow it." };
+    if (pct >= 73) return { name: 'Affluence', good: true, formula: "Economize. Don't spend recklessly. Every investment must pay for itself. Push, don't relax." };
+    if (pct >= 60) return { name: 'Normal', good: true, formula: "Don't change anything successful. Improve what isn't perfect. Push every piece forward." };
+    if (pct >= 47) return { name: 'Emergency', formula: 'Promote. Change nothing. Produce, produce, produce. Get known. Deliver what you promise.' };
+    if (pct >= 27) return { name: 'Danger', formula: 'Handle the bypassed charge. Reorganize. Deliver a viable product. Stabilize.' };
+    return { name: 'Non-Existence', formula: 'Find and do a communication line. Make yourself known. Deliver what is needed or wanted.' };
   }
+  // Opens target: the team's 75 a month for Brandon (as in the current Lab); each agent's own opens goal for agents.
+  function opensTarget() {
+    try { if (!isAdmin && userProfile && userProfile.opens_goal) return Number(userProfile.opens_goal); } catch (e) {}
+    return isAdmin ? 75 : 10;
+  }
+  async function loadTargets() { /* targets come from the profile (see opensTarget); kept for later rooms */ }
   function prevMK(mk) { const [y, m] = mk.split('-').map(Number); const d = new Date(y, m - 2, 1); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; }
+  window.HQ_OPENS_COND = (n) => condition(n, opensTarget());
   function top() {
     const now = new Date(); const day = now.getDate(); const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const early = day < 5; const mk = early ? prevMK(curMK()) : curMK();
     const n = st.rows.filter((r) => r.month_year === mk).length;
     const prev = st.rows.filter((r) => r.month_year === prevMK(mk)).length;
-    const projected = early ? n : Math.round(n / (day / dim));
-    let cond;
-    if (!n && !prev) cond = 'Non-Existence';
-    else if (!prev) cond = n ? 'Affluence' : 'Non-Existence';
-    else { const k = projected / prev; cond = k >= 1.25 ? 'Affluence' : k >= 1 ? 'Normal' : k >= 0.85 ? 'Emergency' : k >= 0.5 ? 'Danger' : 'Non-Existence'; }
-    const tgt = targets[mk];
+    const tgt = opensTarget();
+    const c = condition(n, tgt);
+    const pct = Math.round(n / tgt * 100);
+    const need = early ? 0 : Math.max(0, tgt - n);
+    const perDay = early || day >= dim ? 0 : Math.ceil(need / (dim - day));
     const mname = new Date(+mk.split('-')[0], +mk.split('-')[1] - 1, 1).toLocaleDateString('en-US', { month: 'long' });
-    const pct = tgt ? Math.round(n / tgt * 100) : null;
     $('hqTop').innerHTML = `<header class="hq-mast"><div class="wm" aria-hidden="true">#1</div><div class="hq-in">${HQ.bar('opens')}
       <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:26px;padding:40px 0 34px">
         <div><div class="hq-kicker">Every open · every month · every agent</div><div class="hq-title"><span class="chrome">Opens.</span></div></div>
         <div class="hq-panel"><div><div class="hq-lab">${esc(mname)} · opens${early ? ' (final)' : ' so far'}</div>
-          <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px"><span class="chrome hq-big">${n}</span>${tgt ? `<span style="font:500 13px Montserrat,sans-serif;letter-spacing:2px;color:#9FA4A8">/ ${tgt}</span>` : ''}</div>
-          <div class="hq-sub">${pct != null ? `${pct}% of target · ` : ''}${prev} last month${early ? '' : ` · on pace for ${projected}`}</div></div>
-          <div style="border-top:3px solid ${cond === 'Normal' || cond === 'Affluence' || cond === 'Power' ? '#7FA37E' : '#C2956A'}"><div class="hq-lab">Condition by trend</div><div class="chrome hq-cond">${esc(cond)}</div><div class="hq-sub">${esc(COND[cond])}</div></div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px"><span class="chrome hq-big">${n}</span><span style="font:500 13px Montserrat,sans-serif;letter-spacing:2px;color:#9FA4A8">/ ${tgt}</span></div>
+          <div class="hq-sub">${pct}% of target · ${prev} the month before${perDay ? ` · ${perDay} a day to hit ${tgt}` : ''}</div></div>
+          <div style="border-top:3px solid ${c.good ? '#7FA37E' : '#C2956A'}"><div class="hq-lab">Condition</div><div class="chrome hq-cond">${esc(c.name)}</div><div class="hq-sub">${esc(c.formula)}</div></div>
         </div></div></div></header>`;
     HQ.wireBar();
   }
